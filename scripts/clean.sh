@@ -1,7 +1,6 @@
 currentDir=${PWD}
 declare -a projectDirs=(
   "./packages/server"
-  "./packages/web"
   "./"
 )
 
