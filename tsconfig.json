@@ -1,0 +1,5 @@
+{
+  "files": [],
+  "references": [{ "path": "./packages/server" }, { "path": "./packages/web" }],
+  "compilerOptions": {}
+}

@@ -1,0 +1,4 @@
+FROM postgres:latest
+COPY .env .env
+EXPOSE 5432
+CMD ["postgres"]

@@ -1,0 +1,12 @@
+.vscode/
+.idea/
+_/
+dist/
+build/
+node_modules/
+npm-debug.log
+lerna-debug.log
+.pnpm-debug.log
+tsconfig.tsbuildinfo
+schema.graphql
+.DS_Store

@@ -1,0 +1,48 @@
+{
+  "name": "backend-zypl-career",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "./_/index.ts",
+  "scripts": {
+    "watch": "tsc -b -w",
+    "start": "nodemon  ./_/index.js",
+    "bootstrap": "sh ./scripts/bootstrap.sh",
+    "clean": "sh ./scripts/clean.sh",
+    "clean-hard": "sh ./scripts/clean.sh --hard",
+    "lint": "eslint src",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.3.0",
+    "@types/nodemailer": "^6.4.9",
+    "dotenv": "^16.3.1",
+    "fastify": "^4.21.0",
+    "fastify-cors": "^6.1.0",
+    "fastify-multer": "^2.0.3",
+    "jsonwebtoken": "^9.0.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.4",
+    "prettier": "^3.0.1",
+    "pump": "^3.0.0",
+    "reflect-metadata": "^0.1.13",
+    "sqlite3": "^5.1.6",
+    "typeorm": "^0.3.17",
+    "vite": "^4.4.9",
+    "xlsx": "^0.18.5",
+    "ytdl-core": "^4.11.5"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/node": "^20.5.0",
+    "@types/node-fetch": "^2.6.4",
+    "@types/pump": "^1.1.1",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.1.6",
+    "vitest": "^0.34.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
