@@ -1,5 +1,4 @@
 import { EntitySchema } from 'typeorm';
-
 import { UserModel } from '../model/_index.js';
 
 export const UserEntity = new EntitySchema<UserModel>({
@@ -15,7 +14,34 @@ export const UserEntity = new EntitySchema<UserModel>({
     name: {
       type: 'varchar',
     },
-    login: {
+    surname: {
+      type: 'varchar',
+    },
+    patronymic: {
+      type: 'varchar',
+      nullable: true,
+    },
+    gender: {
+      type: 'enum',
+      enum: ['male', 'female'],
+    },
+    age: {
+      type: 'int',
+      nullable: true,
+    },
+    district: {
+      type: 'varchar',
+      nullable: true,
+    },
+    role: {
+      type: 'enum',
+      enum: ['student', 'teacher', 'parents'],
+    },
+    school: {
+      type: 'varchar',
+      nullable: true,
+    },
+    email: {
       type: 'varchar',
     },
     password: {

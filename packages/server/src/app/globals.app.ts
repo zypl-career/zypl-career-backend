@@ -15,7 +15,6 @@ export const AppDataSource = new DataSource({
   password: dbConnectionOptions.password,
   database: Config.db.database,
   synchronize: true,
-  typename: '__typename',
   logging: ['error'],
   entities,
   migrationsRun: true,

@@ -4,118 +4,153 @@ import { UserRepository } from '../_db/repository/user.repository.js';
 import {
   IError,
   IMessage,
-  IUserLoginData,
   IUserLoginResult,
-  IUserRegisterData,
+  IUserCreateDataDTO,
   IValidation,
+  IUserLoginDataDTO,
 } from '../types/_index.js';
 import {
+  formatValidationErrors,
   generateHash,
   generateRefreshToken,
   generateToken,
+  validateUUID,
 } from '../util/utils.js';
+import { plainToInstance } from 'class-transformer';
+import { CreateUserDto, UpdateUserDto } from '../dto/user.dto.js';
+import { validate } from 'class-validator';
+import { UserModel } from '../_db/model/user.model.js';
 
 @Injectable()
 export class UserService {
   #repository = UserRepository;
 
   // ---------------------------------------------------------------------------
-  // VALIDATION
+  // PRIVATE FUNCTIONS
   // ---------------------------------------------------------------------------
+  private async validateDto(dto: any): Promise<IValidation | null> {
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      return { validation: formatValidationErrors(errors) };
+    }
+    return null;
+  }
 
-  /**
-   * Registers a new user.
-   *
-   * @param user - An object containing the user's registration data.
-   * @property {string} login - The user's login.
-   * @property {string} name - The user's name.
-   * @property {string} password - The user's password.
-   *
-   * @returns {Object} - An object containing a message indicating the success of the registration.
-   * @property {string} message - A success message.
-   *
-   * @throws {Object} - An object containing a message indicating a missing required field.
-   * @property {string} message - A message indicating the missing field.
-   */
+  private async findUserById(id: string): Promise<UserModel | IError> {
+    if (!validateUUID(id)) {
+      return { error: 'Invalid user ID' };
+    }
+    const user = await this.#repository.findOneById(id);
+    if (!user) {
+      return { error: 'User not found' };
+    }
+    return user;
+  }
+
+  private sanitizeUser(user: UserModel): UserModel {
+    return { ...user, password: '***secret***' };
+  }
 
   // ---------------------------------------------------------------------------
   // REGISTER
   // ---------------------------------------------------------------------------
   async register(
-    user: IUserRegisterData,
+    user: IUserCreateDataDTO,
   ): Promise<IMessage | IValidation | IError> {
-    const requiredFields: (keyof IUserRegisterData)[] = [
-      'login',
-      'name',
-      'password',
-    ];
-
-    for (const field of requiredFields) {
-      if (!user[field]) {
-        return {
-          validation: `${field} is required`,
-        };
-      }
-    }
+    const createUserDto = plainToInstance(CreateUserDto, user);
+    const validationErrors = await this.validateDto(createUserDto);
+    if (validationErrors) return validationErrors;
 
     const newUser = { ...user, password: generateHash(user.password) };
-
-    const find = await this.#repository.findOneBy({
-      login: newUser.login,
+    const existingUser = await this.#repository.findOneBy({
+      email: newUser.email,
     });
 
-    if (find) {
+    if (existingUser) {
       return { error: 'User already exists' };
     }
 
     await this.#repository.save(newUser);
 
-    return {
-      message: 'User registered successfully',
-    };
+    return { message: 'User registered successfully' };
   }
-
-  /**
-   * Logs in a user.
-   *
-   * @param user - An object containing the user's login data.
-   * @property {string} login - The user's login.
-   * @property {string} password - The user's password.
-   *
-   * @returns {Promise<IUserLoginResult | { message: string }>} - A promise that resolves to either an object containing the access and refresh tokens, or an object containing an error message.
-   * @property {string} [access] - The access token generated for the user.
-   * @property {string} [refresh] - The refresh token generated for the user.
-   * @property {string} [message] - An error message indicating a missing field or an unsuccessful login attempt.
-   */
 
   // ---------------------------------------------------------------------------
   // LOGIN
   // ---------------------------------------------------------------------------
   async login(
-    user: IUserLoginData,
+    user: IUserLoginDataDTO,
   ): Promise<IUserLoginResult | IMessage | IValidation | IError> {
-    const requiredFields: (keyof IUserLoginData)[] = ['login', 'password'];
+    const createUserDto = plainToInstance(CreateUserDto, user);
+    const validationErrors = await this.validateDto(createUserDto);
+    if (validationErrors) return validationErrors;
 
-    for (const field of requiredFields) {
-      if (!user[field]) {
-        return {
-          validation: `${field} is required`,
-        };
-      }
-    }
-
-    const find = await this.#repository.findOneBy({
-      login: user.login,
+    const existingUser = await this.#repository.findOneBy({
+      email: user.email,
       password: generateHash(user.password),
     });
 
-    if (find) {
-      return {
-        access: generateToken(find.id, user.login),
-        refresh: generateRefreshToken(find.id, user.login),
-      };
+    if (!existingUser) {
+      return { error: 'Invalid login credentials' };
     }
 
-    return { error: 'Invalid login credentials' };
+    return {
+      access: generateToken(existingUser.id, user.email),
+      refresh: generateRefreshToken(existingUser.id, user.email),
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // USER UPDATE
+  // ---------------------------------------------------------------------------
+  async updateUser(
+    id: string,
+    user: UpdateUserDto,
+  ): Promise<IMessage | IValidation | IError> {
+    const validationErrors = await this.validateDto(user);
+    if (validationErrors) return validationErrors;
+
+    const userToUpdate = await this.findUserById(id);
+
+    if ('error' in userToUpdate) return userToUpdate;
+
+    Object.assign(userToUpdate, {
+      ...user,
+      password: user.password
+        ? generateHash(user.password)
+        : userToUpdate.password,
+    });
+
+    await this.#repository.save(userToUpdate);
+
+    return { message: 'User updated successfully' };
+  }
+
+  // ---------------------------------------------------------------------------
+  // USER GET
+  // ---------------------------------------------------------------------------
+  async getUser(
+    id?: string,
+  ): Promise<UserModel | UserModel[] | IError | IValidation> {
+    if (id) {
+      const user = await this.findUserById(id);
+      if ('error' in user) return user;
+      return this.sanitizeUser(user);
+    }
+
+    const users = (await this.#repository.find()).map(this.sanitizeUser);
+    return users;
+  }
+
+  // ---------------------------------------------------------------------------
+  // USER DELETE
+  // ---------------------------------------------------------------------------
+  async deleteUser(id: string): Promise<IMessage | IError | IValidation> {
+    const userToDelete = await this.findUserById(id);
+    if ('error' in userToDelete) return userToDelete;
+
+    await this.#repository.delete(id);
+
+    return { message: 'User deleted successfully' };
   }
 }

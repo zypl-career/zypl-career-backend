@@ -1,69 +1,123 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpException,
   HttpStatus,
+  Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 
 import { UserService } from '../service/_index.js';
 import {
   IMessage,
-  IUserLoginData,
   IUserLoginResult,
-  IUserRegisterData,
+  IUserCreateDataDTO,
+  IValidation,
+  IError,
+  IUserLoginDataDTO,
 } from '../types/_index.js';
+import { UpdateUserDto } from '../dto/user.dto.js';
+import { UserModel } from '../_db/model/user.model.js';
 
-@Controller('/auth')
+@Controller('/user')
 export class UserController {
   constructor(private readonly service: UserService) {}
 
   // ---------------------------------------------------------------------------
+  // PRIVATE FUNCTION
+  // ---------------------------------------------------------------------------
+  private handleServiceResult(
+    result: any,
+    notFoundStatus: HttpStatus,
+    validationStatus: HttpStatus,
+  ) {
+    if ('error' in result) {
+      throw new HttpException(result.error, notFoundStatus);
+    } else if ('validation' in result) {
+      throw new HttpException(result.validation, validationStatus);
+    }
+    return result;
+  }
+
+  // ---------------------------------------------------------------------------
   // REGISTER
   // ---------------------------------------------------------------------------
-
-  /**
-   * Registers a new user.
-   *
-   * @param {IUserRegisterData} user - The data required to register a new user.
-   * @returns {Promise<{ message: string }>} - A promise that resolves to a message upon successful registration.
-   */
   @Post('/register')
   @HttpCode(201)
-  async register(@Body() user: IUserRegisterData): Promise<IMessage> {
+  async register(
+    @Body() user: IUserCreateDataDTO,
+  ): Promise<IMessage | IValidation> {
     const result = await this.service.register(user);
-    if ('error' in result) {
-      throw new HttpException(result.error, HttpStatus.FOUND);
-    } else if ('validation' in result) {
-      throw new HttpException(result.validation, HttpStatus.BAD_REQUEST);
-    } else {
-      return result;
-    }
+    return this.handleServiceResult(
+      result,
+      HttpStatus.FOUND,
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // GET USER
+  // ---------------------------------------------------------------------------
+  @Get(['/get/:id', '/get'])
+  async getUser(
+    @Param('id') id?: string,
+  ): Promise<IError | IValidation | UserModel | UserModel[]> {
+    const result = await this.service.getUser(id);
+    return this.handleServiceResult(
+      result,
+      HttpStatus.NOT_FOUND,
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // UPDATE USER
+  // ---------------------------------------------------------------------------
+  @Patch('/update/:id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updatedUserData: UpdateUserDto,
+  ): Promise<IMessage | IValidation> {
+    const result = await this.service.updateUser(id, updatedUserData);
+    return this.handleServiceResult(
+      result,
+      HttpStatus.NOT_FOUND,
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // DELETE USER
+  // ---------------------------------------------------------------------------
+  @Delete('/delete/:id')
+  async deleteUser(
+    @Param('id') id: string,
+  ): Promise<IError | IMessage | IValidation> {
+    const result = await this.service.deleteUser(id);
+    return this.handleServiceResult(
+      result,
+      HttpStatus.NOT_FOUND,
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
   }
 
   // ---------------------------------------------------------------------------
   // LOGIN
   // ---------------------------------------------------------------------------
-
-  /**
-   * Handles the login request for a user.
-   *
-   * @param {IUserLoginData} user - The data required to login a user.
-   * @returns {Promise<IUserLoginResult | { message: string }>} - A promise that resolves to the login result or an error message upon completion.
-   */
   @Post('/login')
   @HttpCode(200)
   async login(
-    @Body() user: IUserLoginData,
+    @Body() user: IUserLoginDataDTO,
   ): Promise<IUserLoginResult | undefined> {
     const result = await this.service.login(user);
     if ('access' in result && 'refresh' in result) {
       return result;
     } else if ('error' in result) {
-      throw new HttpException(result.error, HttpStatus.UNAUTHORIZED);
-    } else if ('validation' in result) {
-      throw new HttpException(result.validation, HttpStatus.BAD_REQUEST);
+      throw new HttpException(result.error, HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 }

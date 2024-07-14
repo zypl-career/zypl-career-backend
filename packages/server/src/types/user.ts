@@ -1,13 +1,37 @@
-export interface IUserRegisterData {
+export interface IUserCreateDataDTO {
   name: string;
-  login: string;
+  surname: string;
+  patronymic?: string;
+  gender: TGender;
+  age?: number;
+  district?: string;
+  role: TRole;
+  school?: string;
+  email: string;
   password: string;
 }
 
-export interface IUserLoginData {
-  login: string;
+export interface IUserUpdateDataDTO {
+  name?: string;
+  surname?: string;
+  patronymic?: string;
+  gender?: TGender;
+  age?: number;
+  district?: string;
+  role?: TRole;
+  school?: string;
+  email?: string;
+  password?: string;
+}
+
+export interface IUserLoginDataDTO {
+  email: string;
   password: string;
 }
+
+export type TGender = 'male' | 'female';
+
+export type TRole = 'student' | 'teacher' | 'parents';
 
 export interface IUserLoginResult {
   access: string;
@@ -23,5 +47,5 @@ export interface IError {
 }
 
 export interface IValidation {
-  validation: string;
+  validation: string | object;
 }
