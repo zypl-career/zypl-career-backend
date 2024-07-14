@@ -13,15 +13,6 @@ interface RequestWithUser extends Request {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  /**
-   * AuthMiddleware is a middleware that verifies the token in the authorization header of the request.
-   * If the token is valid, it sets the user object in the request and allows the request to proceed.
-   * If the token is missing or invalid, it throws an UnauthorizedException.
-   *
-   * @param req The request object containing the headers and the body.
-   * @param res The response object that sends the HTTP response back to the client.
-   * @param next The callback function that is called to pass the request to the next middleware in the stack.
-   */
   use(req: RequestWithUser, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
