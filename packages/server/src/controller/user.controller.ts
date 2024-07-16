@@ -10,7 +10,6 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-
 import { UserService } from '../service/_index.js';
 import {
   IMessage,
@@ -20,9 +19,17 @@ import {
   IError,
   IUserLoginDataDTO,
 } from '../types/_index.js';
-import { UpdateUserDto } from '../dto/user.dto.js';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
 import { UserModel } from '../_db/model/user.model.js';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
 
+@ApiTags('user')
 @Controller('/user')
 export class UserController {
   constructor(private readonly service: UserService) {}
@@ -48,6 +55,11 @@ export class UserController {
   // ---------------------------------------------------------------------------
   @Post('/register')
   @HttpCode(201)
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({ status: 302, description: 'User already exists' })
+  @ApiResponse({ status: 422, description: 'Validation error' })
   async register(
     @Body() user: IUserCreateDataDTO,
   ): Promise<IMessage | IValidation> {
@@ -63,6 +75,11 @@ export class UserController {
   // GET USER
   // ---------------------------------------------------------------------------
   @Get(['/get/:id', '/get'])
+  @ApiOperation({ summary: 'Get user by ID or all users' })
+  @ApiParam({ name: 'id', required: false, description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'User(s) retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   async getUser(
     @Param('id') id?: string,
   ): Promise<IError | IValidation | UserModel | UserModel[]> {
@@ -78,6 +95,12 @@ export class UserController {
   // UPDATE USER
   // ---------------------------------------------------------------------------
   @Patch('/update/:id')
+  @ApiOperation({ summary: 'Update user by ID' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({ status: 200, description: 'User updated successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 422, description: 'Validation error' })
   async updateUser(
     @Param('id') id: string,
     @Body() updatedUserData: UpdateUserDto,
@@ -94,6 +117,11 @@ export class UserController {
   // DELETE USER
   // ---------------------------------------------------------------------------
   @Delete('/delete/:id')
+  @ApiOperation({ summary: 'Delete user by ID' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'User deleted successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 422, description: 'Validation error' })
   async deleteUser(
     @Param('id') id: string,
   ): Promise<IError | IMessage | IValidation> {
@@ -110,6 +138,10 @@ export class UserController {
   // ---------------------------------------------------------------------------
   @Post('/login')
   @HttpCode(200)
+  @ApiOperation({ summary: 'User login' })
+  @ApiBody({ type: LoginUserDto })
+  @ApiResponse({ status: 200, description: 'User logged in successfully' })
+  @ApiResponse({ status: 422, description: 'Login failed' })
   async login(
     @Body() user: IUserLoginDataDTO,
   ): Promise<IUserLoginResult | undefined> {
