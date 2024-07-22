@@ -1,3 +1,5 @@
+import { UserService } from '../service/_index.js';
+
 import {
   Body,
   Controller,
@@ -10,7 +12,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { UserService } from '../service/_index.js';
+
 import {
   IMessage,
   IUserLoginResult,
@@ -20,7 +22,9 @@ import {
   IUserLoginDataDTO,
 } from '../types/_index.js';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
+
 import { UserModel } from '../_db/model/user.model.js';
+
 import {
   ApiTags,
   ApiOperation,
