@@ -17,7 +17,7 @@ import {
   validateUUID,
 } from '../util/utils.js';
 import { plainToInstance } from 'class-transformer';
-import { CreateUserDto, UpdateUserDto } from '../dto/user.dto.js';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
 import { validate } from 'class-validator';
 import { UserModel } from '../_db/model/user.model.js';
 
@@ -81,8 +81,8 @@ export class UserService {
   async login(
     user: IUserLoginDataDTO,
   ): Promise<IUserLoginResult | IMessage | IValidation | IError> {
-    const createUserDto = plainToInstance(CreateUserDto, user);
-    const validationErrors = await this.validateDto(createUserDto);
+    const loginUserDto = plainToInstance(LoginUserDto, user);
+    const validationErrors = await this.validateDto(loginUserDto);
     if (validationErrors) return validationErrors;
 
     const existingUser = await this.#repository.findOneBy({

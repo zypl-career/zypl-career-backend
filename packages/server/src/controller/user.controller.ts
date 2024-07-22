@@ -11,6 +11,7 @@ import {
   Param,
   Patch,
   Post,
+  Type,
 } from '@nestjs/common';
 
 import {
@@ -32,6 +33,7 @@ import {
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
+import { userSwagger } from '../swagger/user.swagger.js';
 
 @ApiTags('user')
 @Controller('/user')
@@ -41,15 +43,14 @@ export class UserController {
   // ---------------------------------------------------------------------------
   // PRIVATE FUNCTION
   // ---------------------------------------------------------------------------
-  private handleServiceResult(
-    result: any,
-    notFoundStatus: HttpStatus,
-    validationStatus: HttpStatus,
-  ) {
+  private handleServiceResult(result: any) {
     if ('error' in result) {
-      throw new HttpException(result.error, notFoundStatus);
+      throw new HttpException(result.error, HttpStatus.NOT_FOUND);
     } else if ('validation' in result) {
-      throw new HttpException(result.validation, validationStatus);
+      throw new HttpException(
+        result.validation,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
     return result;
   }
@@ -59,82 +60,66 @@ export class UserController {
   // ---------------------------------------------------------------------------
   @Post('/register')
   @HttpCode(201)
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiBody({ type: CreateUserDto })
-  @ApiResponse({ status: 201, description: 'User registered successfully' })
-  @ApiResponse({ status: 302, description: 'User already exists' })
-  @ApiResponse({ status: 422, description: 'Validation error' })
+  @ApiOperation(userSwagger.register.summary)
+  @ApiBody(userSwagger.register.body)
+  @ApiResponse(userSwagger.register.responses.success)
+  @ApiResponse(userSwagger.register.responses.conflict)
+  @ApiResponse(userSwagger.register.responses.validation)
   async register(
     @Body() user: IUserCreateDataDTO,
   ): Promise<IMessage | IValidation> {
     const result = await this.service.register(user);
-    return this.handleServiceResult(
-      result,
-      HttpStatus.FOUND,
-      HttpStatus.UNPROCESSABLE_ENTITY,
-    );
+    return this.handleServiceResult(result);
   }
 
   // ---------------------------------------------------------------------------
   // GET USER
   // ---------------------------------------------------------------------------
   @Get(['/get/:id', '/get'])
-  @ApiOperation({ summary: 'Get user by ID or all users' })
-  @ApiParam({ name: 'id', required: false, description: 'User ID' })
-  @ApiResponse({ status: 200, description: 'User(s) retrieved successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation(userSwagger.get.summary)
+  @ApiParam(userSwagger.get.param)
+  @ApiResponse(userSwagger.get.responses.success)
+  @ApiResponse(userSwagger.get.responses.notFound)
+  @ApiResponse(userSwagger.get.responses.badRequest)
   async getUser(
     @Param('id') id?: string,
   ): Promise<IError | IValidation | UserModel | UserModel[]> {
     const result = await this.service.getUser(id);
-    return this.handleServiceResult(
-      result,
-      HttpStatus.NOT_FOUND,
-      HttpStatus.BAD_REQUEST,
-    );
+    return this.handleServiceResult(result);
   }
 
   // ---------------------------------------------------------------------------
   // UPDATE USER
   // ---------------------------------------------------------------------------
   @Patch('/update/:id')
-  @ApiOperation({ summary: 'Update user by ID' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiBody({ type: UpdateUserDto })
-  @ApiResponse({ status: 200, description: 'User updated successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 422, description: 'Validation error' })
+  @ApiOperation(userSwagger.update.summary)
+  @ApiParam(userSwagger.update.param)
+  @ApiBody(userSwagger.update.body)
+  @ApiResponse(userSwagger.update.responses.success)
+  @ApiResponse(userSwagger.update.responses.notFound)
+  @ApiResponse(userSwagger.update.responses.validation)
   async updateUser(
     @Param('id') id: string,
     @Body() updatedUserData: UpdateUserDto,
   ): Promise<IMessage | IValidation> {
     const result = await this.service.updateUser(id, updatedUserData);
-    return this.handleServiceResult(
-      result,
-      HttpStatus.NOT_FOUND,
-      HttpStatus.UNPROCESSABLE_ENTITY,
-    );
+    return this.handleServiceResult(result);
   }
 
   // ---------------------------------------------------------------------------
   // DELETE USER
   // ---------------------------------------------------------------------------
   @Delete('/delete/:id')
-  @ApiOperation({ summary: 'Delete user by ID' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({ status: 200, description: 'User deleted successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 422, description: 'Validation error' })
+  @ApiOperation(userSwagger.delete.summary)
+  @ApiParam(userSwagger.delete.param)
+  @ApiResponse(userSwagger.delete.responses.success)
+  @ApiResponse(userSwagger.delete.responses.notFound)
+  @ApiResponse(userSwagger.delete.responses.validation)
   async deleteUser(
     @Param('id') id: string,
   ): Promise<IError | IMessage | IValidation> {
     const result = await this.service.deleteUser(id);
-    return this.handleServiceResult(
-      result,
-      HttpStatus.NOT_FOUND,
-      HttpStatus.UNPROCESSABLE_ENTITY,
-    );
+    return this.handleServiceResult(result);
   }
 
   // ---------------------------------------------------------------------------
@@ -142,18 +127,14 @@ export class UserController {
   // ---------------------------------------------------------------------------
   @Post('/login')
   @HttpCode(200)
-  @ApiOperation({ summary: 'User login' })
-  @ApiBody({ type: LoginUserDto })
-  @ApiResponse({ status: 200, description: 'User logged in successfully' })
-  @ApiResponse({ status: 422, description: 'Login failed' })
+  @ApiOperation(userSwagger.login.summary)
+  @ApiBody(userSwagger.login.body)
+  @ApiResponse(userSwagger.login.responses.success)
+  @ApiResponse(userSwagger.login.responses.validation)
   async login(
     @Body() user: IUserLoginDataDTO,
   ): Promise<IUserLoginResult | undefined> {
     const result = await this.service.login(user);
-    if ('access' in result && 'refresh' in result) {
-      return result;
-    } else if ('error' in result) {
-      throw new HttpException(result.error, HttpStatus.UNPROCESSABLE_ENTITY);
-    }
+    return this.handleServiceResult(result);
   }
 }
