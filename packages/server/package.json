@@ -35,7 +35,16 @@
     "typeorm": "^0.3.20",
     "uuid": "^9.0.1",
     "class-validator": "^0.14.1",
-    "class-transformer": "^0.5.1"
+    "class-transformer": "^0.5.1",
+    "adminjs": "7.8.7",
+    "@adminjs/nestjs": "6.1.0",
+    "@adminjs/express": "6.1.0",
+    "express-session": "1.18.0",
+    "express-formidable": "1.2.0",
+    "@adminjs/sql": "2.2.6",
+    "@babel/plugin-syntax-import-assertions": "7.24.7",
+    "@adminjs/typeorm": "5.0.1",
+    "body-parser": "1.20.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.3.2",
@@ -58,6 +67,7 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "@types/body-parser": "1.19.5"
   }
 }

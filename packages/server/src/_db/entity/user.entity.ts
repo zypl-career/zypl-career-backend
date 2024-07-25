@@ -1,60 +1,51 @@
-import { EntitySchema } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  CreateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 import { UserModel } from '../model/_index.js';
 
-export const UserEntity = new EntitySchema<UserModel>({
-  name: 'UserEntity',
-  tableName: 'users',
-  columns: {
-    id: {
-      type: 'uuid',
-      primary: true,
-      generated: 'uuid',
-      unique: true,
-    },
-    name: {
-      type: 'varchar',
-    },
-    surname: {
-      type: 'varchar',
-    },
-    patronymic: {
-      type: 'varchar',
-      nullable: true,
-    },
-    gender: {
-      type: 'enum',
-      enum: ['male', 'female'],
-    },
-    age: {
-      type: 'int',
-      nullable: true,
-    },
-    district: {
-      type: 'varchar',
-      nullable: true,
-    },
-    role: {
-      type: 'enum',
-      enum: ['student', 'teacher', 'parents'],
-    },
-    school: {
-      type: 'varchar',
-      nullable: true,
-    },
-    email: {
-      type: 'varchar',
-    },
-    password: {
-      type: 'varchar',
-    },
-    createdAt: {
-      type: 'timestamp',
-      createDate: true,
-    },
-    deletedAt: {
-      type: 'timestamp',
-      deleteDate: true,
-      nullable: true,
-    },
-  },
-});
+@Entity({ name: 'users' })
+export class UserEntity extends BaseEntity implements UserModel {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  surname: string;
+
+  @Column({ nullable: true })
+  patronymic?: string;
+
+  @Column({ type: 'enum', enum: ['male', 'female'] })
+  gender: 'male' | 'female';
+
+  @Column({ type: 'int', nullable: true })
+  age?: number;
+
+  @Column({ nullable: true })
+  district?: string;
+
+  @Column({ type: 'enum', enum: ['student', 'teacher', 'parents'] })
+  role: 'student' | 'teacher' | 'parents';
+
+  @Column({ nullable: true })
+  school?: string;
+
+  @Column()
+  email: string;
+
+  @Column()
+  password: string;
+
+  @CreateDateColumn()
+  createdAt: number;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt: number;
+}
