@@ -15,6 +15,7 @@ import { UniversityModel } from '../_db/model/university.model.js';
 import { IError, IMessage, IValidation } from '../types/_index.js';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UniversityService {
@@ -81,13 +82,15 @@ export class UniversityService {
       return { error: 'University already exists' };
     }
 
+    const universityId = uuidv4();
     const generalInfoFile = await this.saveGeneralInfoToFile(
-      university.generalInfoFile,
-      `${university.name}-info.txt`,
+      university.generalInfo,
+      `university_${universityId}.txt`,
     );
 
     const newUniversity = {
       ...university,
+      id: universityId,
       generalInfoFile,
     };
 
@@ -103,17 +106,21 @@ export class UniversityService {
     id: string,
     university: IUniversityUpdateDataDTO,
   ): Promise<IMessage | IValidation | IError> {
-    const validationErrors = await this.validateDto(university);
+    const updateUniversityDto = plainToInstance(
+      UpdateUniversityDto,
+      university,
+    );
+    const validationErrors = await this.validateDto(updateUniversityDto);
     if (validationErrors) return validationErrors;
 
     const universityToUpdate = await this.findUniversityById(id);
 
     if ('error' in universityToUpdate) return universityToUpdate;
 
-    if (university.generalInfoFile) {
+    if (university.generalInfo) {
       universityToUpdate.generalInfoFile = await this.saveGeneralInfoToFile(
-        university.generalInfoFile,
-        `${universityToUpdate.name}-info.txt`,
+        university.generalInfo,
+        `university_${id}.txt`,
       );
     }
 

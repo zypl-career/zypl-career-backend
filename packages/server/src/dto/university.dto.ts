@@ -30,7 +30,7 @@ export class CreateUniversityDto implements IUniversityCreateDataDTO {
     description: 'The general info file of the university',
   })
   @IsString({ message: 'generalInfoFile must be a string' })
-  generalInfoFile: string;
+  generalInfo: string;
 }
 
 //----------------------------------------------------------------
@@ -62,5 +62,5 @@ export class UpdateUniversityDto implements IUniversityUpdateDataDTO {
   })
   @IsString({ message: 'generalInfoFile must be a string' })
   @IsOptional()
-  generalInfoFile?: string;
+  generalInfo?: string;
 }

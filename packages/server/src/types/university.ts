@@ -1,11 +1,11 @@
 export interface IUniversityCreateDataDTO {
   name: string;
   city: string;
-  generalInfoFile: string;
+  generalInfo: string;
 }
 
 export interface IUniversityUpdateDataDTO {
   name?: string;
   city?: string;
-  generalInfoFile?: string;
+  generalInfo?: string;
 }
