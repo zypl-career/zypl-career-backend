@@ -11,7 +11,6 @@ import {
   Param,
   Patch,
   Post,
-  Type,
 } from '@nestjs/common';
 
 import {
@@ -30,7 +29,7 @@ import {
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
-import { userSwagger } from '../swagger/user.swagger.js';
+import { userSwagger } from '../swagger/_index.js';
 import { IError, IMessage, IValidation } from '../types/_index.js';
 
 @ApiTags('user')
