@@ -10,6 +10,7 @@ import { UserModel } from '../model/_index.js';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity implements UserModel {
+  updatedAt: number;
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

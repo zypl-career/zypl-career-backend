@@ -11,5 +11,6 @@ export type UserModel = {
   email: string;
   password: string;
   createdAt: number;
+  updatedAt: number;
   deletedAt: number;
 };
