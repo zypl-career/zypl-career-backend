@@ -11,18 +11,14 @@ import {
   Param,
   Patch,
   Post,
-  Type,
 } from '@nestjs/common';
 
 import {
-  IMessage,
   IUserLoginResult,
   IUserCreateDataDTO,
-  IValidation,
-  IError,
   IUserLoginDataDTO,
 } from '../types/_index.js';
-import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
+import { UpdateUserDto } from '../dto/user.dto.js';
 
 import { UserModel } from '../_db/model/user.model.js';
 
@@ -33,7 +29,8 @@ import {
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
-import { userSwagger } from '../swagger/user.swagger.js';
+import { userSwagger } from '../swagger/_index.js';
+import { IError, IMessage, IValidation } from '../types/_index.js';
 
 @ApiTags('user')
 @Controller('/user')

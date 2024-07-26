@@ -2,11 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 import { UserRepository } from '../_db/repository/user.repository.js';
 import {
-  IError,
-  IMessage,
   IUserLoginResult,
   IUserCreateDataDTO,
-  IValidation,
   IUserLoginDataDTO,
 } from '../types/_index.js';
 import {
@@ -20,6 +17,7 @@ import { plainToInstance } from 'class-transformer';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
 import { validate } from 'class-validator';
 import { UserModel } from '../_db/model/user.model.js';
+import { IError, IMessage, IValidation } from '../types/_index.js';
 
 @Injectable()
 export class UserService {

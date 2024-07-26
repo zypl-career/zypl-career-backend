@@ -6,7 +6,7 @@ import componentLoader from './component-loader.js';
 const options: AdminJSOptions = {
   componentLoader,
   rootPath: '/admin',
-  resources: [entity.UserEntity],
+  resources: Object.values(entity),
 };
 
 export default options;
