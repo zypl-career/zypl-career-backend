@@ -5,12 +5,12 @@ import {
   BaseEntity,
   CreateDateColumn,
   DeleteDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { UserModel } from '../model/_index.js';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity implements UserModel {
-  updatedAt: number;
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -46,6 +46,9 @@ export class UserEntity extends BaseEntity implements UserModel {
 
   @CreateDateColumn()
   createdAt: number;
+
+  @UpdateDateColumn()
+  updatedAt: number;
 
   @DeleteDateColumn({ nullable: true })
   deletedAt: number;

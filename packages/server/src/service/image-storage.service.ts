@@ -19,10 +19,10 @@ export class ImageStorageService {
   // ---------------------------------------------------------------------------
   // UPLOAD
   // ---------------------------------------------------------------------------
-  async uploadImage(file: Express.Multer.File): Promise<CID> {
+  async uploadImage(file: Express.Multer.File): Promise<string> {
     try {
       const result = await this.fs.addBytes(file.buffer);
-      return result;
+      return result.toString();
     } catch (error) {
       console.error(error);
       throw new HttpException(

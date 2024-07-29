@@ -40,7 +40,7 @@ export class ImageController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<{ cid: CID }> {
+  ): Promise<{ cid: string }> {
     const cid = await this.service.uploadImage(file);
     return { cid };
   }
