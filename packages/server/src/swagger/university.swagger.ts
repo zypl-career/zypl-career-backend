@@ -4,9 +4,9 @@ import {
 } from '../dto/university.dto.js';
 
 export const universitySwagger = {
-  register: {
+  create: {
     summary: {
-      summary: 'Register a new university',
+      summary: 'Create a new university',
     },
     body: {
       type: CreateUniversityDto,

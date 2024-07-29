@@ -51,13 +51,13 @@ export class UniversityController {
   // ---------------------------------------------------------------------------
   // REGISTER
   // ---------------------------------------------------------------------------
-  @Post('/register')
+  @Post('/create')
   @HttpCode(201)
-  @ApiOperation(universitySwagger.register.summary)
-  @ApiBody(universitySwagger.register.body)
-  @ApiResponse(universitySwagger.register.responses.success)
-  @ApiResponse(universitySwagger.register.responses.conflict)
-  @ApiResponse(universitySwagger.register.responses.validation)
+  @ApiOperation(universitySwagger.create.summary)
+  @ApiBody(universitySwagger.create.body)
+  @ApiResponse(universitySwagger.create.responses.success)
+  @ApiResponse(universitySwagger.create.responses.conflict)
+  @ApiResponse(universitySwagger.create.responses.validation)
   async register(
     @Body() university: IUniversityCreateDataDTO,
   ): Promise<IMessage | IValidation> {
