@@ -115,8 +115,6 @@ export class EducationCenterService {
     if (title) centerToUpdate.title = title;
     if (city) centerToUpdate.city = city;
 
-    centerToUpdate.updatedAt = Date.now();
-
     await this.#repository.save(centerToUpdate);
 
     return { message: 'Education center updated successfully' };
