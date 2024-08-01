@@ -3,4 +3,10 @@ import { EducationCenterEntity } from '../entity/_index.js';
 
 export const EducationCenterRepository = AppDataSource.getRepository(
   EducationCenterEntity,
-).extend({});
+).extend({
+  async findByCity(city: string): Promise<EducationCenterEntity[]> {
+    return this.createQueryBuilder('educationCenter')
+      .where('educationCenter.city = :city', { city })
+      .getMany();
+  },
+});
