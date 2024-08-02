@@ -18,18 +18,18 @@ services:
       context: ./packages/server
       dockerfile: Dockerfile
     ports:
-      - '7070:7070'
+      - '8000:8000'
 
-  ai:
-    build:
-      context: ./packages/models
-      dockerfile: Dockerfile
-    ports:
-      - '8501:8501'
-    volumes:
-      - .:/app
-    environment:
-      - PYTHONUNBUFFERED=1
+  # ai:
+  #   build:
+  #     context: ./packages/models
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '8501:8501'
+  #   volumes:
+  #     - .:/app
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
 
 volumes:
   career-postgres-data:
