@@ -11,5 +11,4 @@ export const AppDataSource = new DataSource({
   logging: ['error'],
   entities,
   migrationsRun: true,
-  // migrations,
 });
