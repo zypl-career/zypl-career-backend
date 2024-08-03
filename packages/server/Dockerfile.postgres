@@ -1,4 +1,9 @@
-FROM postgres:latest
-COPY .env .env
+FROM postgres:13.1
+
+ENV POSTGRES_USER=career
+ENV POSTGRES_PASSWORD=career!
+ENV POSTGRES_DB=career
+
 EXPOSE 5432
+
 CMD ["postgres"]
