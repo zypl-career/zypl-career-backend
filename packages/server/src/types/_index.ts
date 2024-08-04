@@ -4,3 +4,4 @@ export * from './university.js';
 export * from './articles.js';
 export * from './educational-centers.js';
 export * from './specialty.js';
+export * from './test.js';

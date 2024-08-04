@@ -4,3 +4,4 @@ export * from './partner.repository.js';
 export * from './educational-centers.repository.js';
 export * from './articles.repository.js';
 export * from './specialty.repository.js';
+export * from './test.repository.js';

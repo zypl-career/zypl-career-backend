@@ -1,35 +1,33 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: 'postgres:13.2'
-    container_name: 'career-postgres'
-    ports:
-      - '5432:5432'
-    environment:
-      POSTGRES_USER: 'career'
-      POSTGRES_PASSWORD: 'career!'
-      POSTGRES_DB: 'career'
-    volumes:
-      - career-postgres-data:/var/lib/postgresql/data
+  # postgres:
+  #   image: 'postgres:13.2'
+  #   container_name: 'career-postgres'
+  #   ports:
+  #     - '5432:5432'
+  #   environment:
+  #     POSTGRES_USER: 'career'
+  #     POSTGRES_PASSWORD: 'career!'
+  #     POSTGRES_DB: 'career'
+  #   volumes:
+  #     - career-postgres-data:/var/lib/postgresql/data
 
-  back:
-    build:
-      context: ./packages/server
-      dockerfile: Dockerfile
-    ports:
-      - '8000:8000'
-
-  # ai:
+  # back:
   #   build:
-  #     context: ./packages/models
+  #     context: ./packages/server
   #     dockerfile: Dockerfile
   #   ports:
-  #     - '8501:8501'
-  #   volumes:
-  #     - .:/app
-  #   environment:
-  #     - PYTHONUNBUFFERED=1
+  #     - '8000:8000'
+
+  ai:
+    build:
+      context: ./packages/ai
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
 
 volumes:
   career-postgres-data:

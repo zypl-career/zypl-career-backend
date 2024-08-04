@@ -5,6 +5,8 @@ import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { Config } from '../app/config.app.js';
 import { ValidationError } from 'class-validator';
 
+export * from './test.js';
+
 export function parseConnectionString(connectionString: string): {
   host: string;
   port: number;
