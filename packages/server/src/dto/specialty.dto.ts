@@ -331,7 +331,7 @@ export class FilterSpecialtyDto implements ISpecialtyFilterDTO {
   })
   @IsInt({ message: 'specializationGroup must be an integer' })
   @IsOptional()
-  specializationGroup?: number;
+  specializationGroup?: 1 | 2 | 3 | 4 | 5;
 
   @ApiProperty({
     example: 'Engineering',
