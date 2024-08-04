@@ -10,7 +10,6 @@ import { ArticlesModel } from '../_db/model/articles.model.js';
 import { IError, IMessage, IValidation } from '../types/_index.js';
 import { formatValidationErrors, validateUUID } from '../util/utils.js';
 import { CreateArticleDto, UpdateArticleDto } from '../dto/articles.dto.js';
-import { UpdateUserDto } from '../dto/user.dto.js';
 
 @Injectable()
 export class ArticlesService {
