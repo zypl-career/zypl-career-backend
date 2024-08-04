@@ -9,6 +9,6 @@ export const Config = {
   expiresIn: process.env.EXPIRES_IN || '2d',
   db: {
     database: process.env.APP_DATABASE || '',
-    connection: process.env.APP_DB_CONNECTION || '',
+    connection: process.env.DATABASE_URL || '',
   },
 };
