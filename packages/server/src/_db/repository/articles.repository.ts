@@ -1,10 +1,15 @@
+import { isArray } from 'class-validator';
 import { AppDataSource } from '../../app/globals.app.js';
 import { ArticlesEntity } from '../entity/_index.js';
 
 export const ArticlesRepository = AppDataSource.getRepository(
   ArticlesEntity,
 ).extend({
-  async findByHashtags(hashtags: string[]): Promise<ArticlesEntity[]> {
+  async findByHashtags(hashtags: string[] | string): Promise<ArticlesEntity[]> {
+    if (!isArray(hashtags)) {
+      hashtags = [hashtags];
+    }
+
     return this.createQueryBuilder('articles')
       .where('articles.hashtags && :hashtags', { hashtags })
       .getMany();

@@ -10,6 +10,7 @@ import { ArticlesModel } from '../_db/model/articles.model.js';
 import { IError, IMessage, IValidation } from '../types/_index.js';
 import { formatValidationErrors, validateUUID } from '../util/utils.js';
 import { CreateArticleDto, UpdateArticleDto } from '../dto/articles.dto.js';
+import { UpdateUserDto } from '../dto/user.dto.js';
 
 @Injectable()
 export class ArticlesService {
@@ -60,7 +61,13 @@ export class ArticlesService {
   async create(
     createArticleDto: CreateArticleDto,
   ): Promise<IMessage | IValidation | IError> {
-    const validationErrors = await this.validateDto({ createArticleDto });
+    const arrayHashtags = isArray(createArticleDto.hashtags)
+      ? createArticleDto.hashtags
+      : (createArticleDto.hashtags as string).split(', ');
+    const validationErrors = await this.validateDto({
+      createArticleDto,
+      hashtags: arrayHashtags,
+    });
     if (validationErrors) return validationErrors;
 
     const { title, description, image, minutesRead, generalInfo, hashtags } =
@@ -78,10 +85,8 @@ export class ArticlesService {
       image: Config.domain + '/images/get/' + uploadedImage,
       minutesRead,
       generalInfoFile,
-      hashtags,
+      hashtags: arrayHashtags,
     };
-
-    console.log(newArticle);
 
     await this.#repository.save(newArticle);
 
@@ -95,7 +100,19 @@ export class ArticlesService {
     id: string,
     updateArticleDto: UpdateArticleDto,
   ): Promise<IMessage | IValidation | IError> {
+    const arrayHashtags = updateArticleDto.hashtags
+      ? isArray(updateArticleDto.hashtags)
+        ? updateArticleDto.hashtags
+        : (updateArticleDto.hashtags as string).split(',')
+      : null;
+
+    updateArticleDto = {
+      ...updateArticleDto,
+      hashtags: arrayHashtags ?? updateArticleDto.hashtags ?? undefined,
+    };
+
     const validationErrors = await this.validateDto(updateArticleDto);
+
     if (validationErrors) return validationErrors;
 
     const articleToUpdate = await this.findArticleById(id);
@@ -120,7 +137,10 @@ export class ArticlesService {
     if (title) articleToUpdate.title = title;
     if (description) articleToUpdate.description = description;
     if (minutesRead !== undefined) articleToUpdate.minutesRead = minutesRead;
-    if (hashtags) articleToUpdate.hashtags = hashtags;
+    if (hashtags)
+      articleToUpdate.hashtags = isArray(hashtags)
+        ? hashtags
+        : (hashtags as string).split(',');
 
     await this.#repository.save(articleToUpdate);
 
@@ -132,7 +152,7 @@ export class ArticlesService {
   // ---------------------------------------------------------------------------
   async get(
     id?: string,
-    hashtags?: string[],
+    hashtags?: string[] | string,
   ): Promise<ArticlesModel | ArticlesModel[] | IError | IValidation> {
     if (id) {
       const article = await this.findArticleById(id);
