@@ -1,8 +1,10 @@
+fastapi
+uvicorn
+pandas
 pyreadstat
 catboost
 scikit-learn
 openpyxl
-pandas
 plotly
 vega_datasets
 matplotlib
@@ -13,4 +15,4 @@ watchdog
 streamlit-tags
 PyJWT
 protobuf~=3.19.0
-uvicorn
+numpy==1.25.1

@@ -11,4 +11,5 @@ export const Config = {
     database: process.env.APP_DATABASE || '',
     connection: process.env.DATABASE_URL || '',
   },
+  modelAPI: process.env.MODEL_API || 'http://127.0.0.1:8887/predict',
 };
