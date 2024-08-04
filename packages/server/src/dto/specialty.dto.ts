@@ -44,7 +44,7 @@ export class CreateSpecialtyDto implements ISpecialtyCreateDataDTO {
     description: 'The specialization group of the specialty',
   })
   @IsInt({ message: 'specializationGroup must be an integer' })
-  specializationGroup: number;
+  specializationGroup: 1 | 2 | 3 | 4 | 5;
 
   @ApiProperty({
     example: 'Engineering',
@@ -173,7 +173,7 @@ export class UpdateSpecialtyDto implements ISpecialtyUpdateDataDTO {
   })
   @IsInt({ message: 'specializationGroup must be an integer' })
   @IsOptional()
-  specializationGroup?: number;
+  specializationGroup?: 1 | 2 | 3 | 4 | 5;
 
   @ApiProperty({
     example: 'Engineering',
