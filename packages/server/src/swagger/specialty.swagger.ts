@@ -1,6 +1,7 @@
 import {
   CreateSpecialtyDto,
   UpdateSpecialtyDto,
+  FilterSpecialtyDto,
 } from '../dto/specialty.dto.js';
 
 export const specialtySwagger = {
@@ -27,20 +28,100 @@ export const specialtySwagger = {
         schema: {
           example: {
             name: ['name must be a string'],
-            class: ['class must be a number'],
-            specializationGroup: ['specializationGroup must be a string'],
-            clusterName: ['clusterName must be a string'],
-            clusterTag: ['clusterTag must be a string'],
-            specialtyCode: ['specialtyCode must be a string'],
-            specialtyName: ['specialtyName must be a string'],
-            formOfEducation: ['formOfEducation must be a string'],
-            typeOfStudy: ['typeOfStudy must be a string'],
-            languageOfStudy: ['languageOfStudy must be a string'],
-            universityName: ['universityName must be a string'],
-            monthlyIncome: ['monthlyIncome must be a number'],
-            careerOpportunities: [
-              'careerOpportunities must be an array of strings',
+            // Other validation errors...
+          },
+        },
+      },
+    },
+  },
+  get: {
+    summary: {
+      summary: 'Get specialty by ID or all specialties',
+    },
+    param: {
+      name: 'id',
+      required: false,
+      description: 'Specialty ID',
+    },
+    responses: {
+      success: {
+        status: 200,
+        description: 'Specialty(s) retrieved successfully',
+        schema: {
+          example: [
+            {
+              id: '123',
+              name: 'Specialty 1',
+              // Other fields...
+            },
+            {
+              id: '124',
+              name: 'Specialty 2',
+              // Other fields...
+            },
+          ],
+        },
+      },
+      notFound: {
+        status: 404,
+        description: 'Specialty not found',
+        schema: {
+          example: {
+            statusCode: 404,
+            message: 'Specialty not found',
+          },
+        },
+      },
+      badRequest: {
+        status: 400,
+        description: 'Bad request',
+        schema: {
+          example: {
+            statusCode: 400,
+            message: 'Invalid specialty ID',
+          },
+        },
+      },
+    },
+  },
+  filter: {
+    summary: {
+      summary: 'Filter specialties based on criteria',
+    },
+    query: {
+      type: FilterSpecialtyDto,
+    },
+    responses: {
+      success: {
+        status: 200,
+        description: 'Filtered specialties retrieved successfully',
+        schema: {
+          example: {
+            data: [
+              {
+                id: '123',
+                name: 'Specialty 1',
+                // Other fields...
+              },
+              {
+                id: '124',
+                name: 'Specialty 2',
+                // Other fields...
+              },
             ],
+            total: 2,
+            page: 1,
+            limit: 10,
+          },
+        },
+      },
+      validation: {
+        status: 422,
+        description: 'Validation error',
+        schema: {
+          example: {
+            name: ['name must be a string'],
+            // Other validation errors...
           },
         },
       },
@@ -48,7 +129,7 @@ export const specialtySwagger = {
   },
   update: {
     summary: {
-      summary: 'Update a specialty by ID',
+      summary: 'Update specialty by ID',
     },
     param: {
       name: 'id',
@@ -83,192 +164,7 @@ export const specialtySwagger = {
         schema: {
           example: {
             name: ['name must be a string'],
-            class: ['class must be a number'],
-            specializationGroup: ['specializationGroup must be a string'],
-            clusterName: ['clusterName must be a string'],
-            clusterTag: ['clusterTag must be a string'],
-            specialtyCode: ['specialtyCode must be a string'],
-            specialtyName: ['specialtyName must be a string'],
-            formOfEducation: ['formOfEducation must be a string'],
-            typeOfStudy: ['typeOfStudy must be a string'],
-            languageOfStudy: ['languageOfStudy must be a string'],
-            universityName: ['universityName must be a string'],
-            monthlyIncome: ['monthlyIncome must be a number'],
-            careerOpportunities: [
-              'careerOpportunities must be an array of strings',
-            ],
-          },
-        },
-      },
-    },
-  },
-  get: {
-    summary: {
-      summary: 'Get specialty by ID or all specialties',
-    },
-    param: {
-      name: 'id',
-      required: false,
-      description: 'Specialty ID',
-    },
-    responses: {
-      success: {
-        status: 200,
-        description: 'Specialty(s) retrieved successfully',
-        schema: {
-          example: [
-            {
-              id: '123',
-              name: 'Specialty Name',
-              class: 1,
-              specializationGroup: 'Group A',
-              clusterName: 'Cluster 1',
-              clusterTag: 'Tag 1',
-              specialtyCode: 'SP123',
-              specialtyName: 'Specialty 1',
-              formOfEducation: 'Full-time',
-              typeOfStudy: 'Bachelor',
-              languageOfStudy: 'English',
-              universityName: 'University 1',
-              monthlyIncome: 5000,
-              careerOpportunities: ['Opportunity 1', 'Opportunity 2'],
-            },
-          ],
-        },
-      },
-      notFound: {
-        status: 404,
-        description: 'Specialty not found',
-        schema: {
-          example: {
-            statusCode: 404,
-            message: 'Specialty not found',
-          },
-        },
-      },
-    },
-  },
-  filter: {
-    summary: {
-      summary: 'Filter specialties with pagination',
-    },
-    query: {
-      name: {
-        type: 'string',
-        description: 'Filter by name',
-      },
-      class: {
-        type: 'number',
-        description: 'Filter by class',
-      },
-      specializationGroup: {
-        type: 'string',
-        description: 'Filter by specialization group',
-      },
-      clusterName: {
-        type: 'string',
-        description: 'Filter by cluster name',
-      },
-      clusterTag: {
-        type: 'string',
-        description: 'Filter by cluster tag',
-      },
-      specialtyCode: {
-        type: 'string',
-        description: 'Filter by specialty code',
-      },
-      specialtyName: {
-        type: 'string',
-        description: 'Filter by specialty name',
-      },
-      formOfEducation: {
-        type: 'string',
-        description: 'Filter by form of education',
-      },
-      typeOfStudy: {
-        type: 'string',
-        description: 'Filter by type of study',
-      },
-      languageOfStudy: {
-        type: 'string',
-        description: 'Filter by language of study',
-      },
-      universityName: {
-        type: 'string',
-        description: 'Filter by university name',
-      },
-      monthlyIncome: {
-        type: 'number',
-        description: 'Filter by monthly income',
-      },
-      careerOpportunities: {
-        type: 'array',
-        items: {
-          type: 'string',
-        },
-        description: 'Filter by career opportunities',
-      },
-      page: {
-        type: 'number',
-        description: 'Page number for pagination',
-        default: 1,
-      },
-      limit: {
-        type: 'number',
-        description: 'Number of items per page',
-        default: 10,
-      },
-    },
-    responses: {
-      success: {
-        status: 200,
-        description: 'Specialties retrieved successfully',
-        schema: {
-          example: {
-            data: [
-              {
-                id: '123',
-                name: 'Specialty Name',
-                class: 1,
-                specializationGroup: 'Group A',
-                clusterName: 'Cluster 1',
-                clusterTag: 'Tag 1',
-                specialtyCode: 'SP123',
-                specialtyName: 'Specialty 1',
-                formOfEducation: 'Full-time',
-                typeOfStudy: 'Bachelor',
-                languageOfStudy: 'English',
-                universityName: 'University 1',
-                monthlyIncome: 5000,
-                careerOpportunities: ['Opportunity 1', 'Opportunity 2'],
-              },
-            ],
-            total: 1,
-            page: 1,
-            limit: 10,
-          },
-        },
-      },
-      validation: {
-        status: 422,
-        description: 'Validation error',
-        schema: {
-          example: {
-            name: ['name must be a string'],
-            class: ['class must be a number'],
-            specializationGroup: ['specializationGroup must be a string'],
-            clusterName: ['clusterName must be a string'],
-            clusterTag: ['clusterTag must be a string'],
-            specialtyCode: ['specialtyCode must be a string'],
-            specialtyName: ['specialtyName must be a string'],
-            formOfEducation: ['formOfEducation must be a string'],
-            typeOfStudy: ['typeOfStudy must be a string'],
-            languageOfStudy: ['languageOfStudy must be a string'],
-            universityName: ['universityName must be a string'],
-            monthlyIncome: ['monthlyIncome must be a number'],
-            careerOpportunities: [
-              'careerOpportunities must be an array of strings',
-            ],
+            // Other validation errors...
           },
         },
       },
@@ -299,6 +195,15 @@ export const specialtySwagger = {
           example: {
             statusCode: 404,
             message: 'Specialty not found',
+          },
+        },
+      },
+      validation: {
+        status: 422,
+        description: 'Validation error',
+        schema: {
+          example: {
+            id: ['Invalid specialty ID'],
           },
         },
       },
