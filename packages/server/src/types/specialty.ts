@@ -2,7 +2,7 @@ export interface ISpecialtyCreateDataDTO {
   name: string;
   EIOHPE: string; // Educational institutions of higher professional education
   class: number;
-  specializationGroup: number;
+  specializationGroup: 1 | 2 | 3 | 4 | 5;
   clusterName: string;
   clusterTag: string;
   specialtyDescription: string;
@@ -23,7 +23,7 @@ export interface ISpecialtyUpdateDataDTO {
   name?: string;
   EIOHPE?: string; // Educational institutions of higher professional education
   class?: number;
-  specializationGroup?: number;
+  specializationGroup?: 1 | 2 | 3 | 4 | 5;
   clusterName?: string;
   clusterTag?: string;
   specialtyDescription?: string;
@@ -43,7 +43,7 @@ export interface ISpecialtyUpdateDataDTO {
 export interface ISpecialtyFilterDTO {
   name?: string;
   class?: number;
-  specializationGroup?: number;
+  specializationGroup?: 1 | 2 | 3 | 4 | 5;
   clusterName?: string;
   clusterTag?: string;
   specialtyCode?: number;
@@ -54,4 +54,11 @@ export interface ISpecialtyFilterDTO {
   universityName?: string;
   monthlyIncome?: number;
   careerOpportunities?: string[];
+}
+
+export interface IPaginationResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
 }

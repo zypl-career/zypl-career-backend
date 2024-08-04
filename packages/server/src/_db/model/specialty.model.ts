@@ -3,7 +3,7 @@ export type SpecialtyModel = {
   name: string;
   EIOHPE: string; //educational institutions of higher professional education
   class: number;
-  specializationGroup: number;
+  specializationGroup: 1 | 2 | 3 | 4 | 5;
   clusterName: string;
   clusterTag: string;
   specialtyDescription: string;

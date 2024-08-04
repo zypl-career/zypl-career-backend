@@ -1,24 +1,28 @@
-import { AppDataSource } from '../../app/globals.app.js';
 import { SpecialtyEntity } from '../entity/_index.js';
+import { AppDataSource } from '../../app/globals.app.js';
 
 export const SpecialtyRepository = AppDataSource.getRepository(
   SpecialtyEntity,
 ).extend({
-  async findByFilters(filters: {
-    name?: string;
-    class?: number;
-    specializationGroup?: number;
-    clusterName?: string;
-    clusterTag?: string;
-    specialtyCode?: number;
-    specialtyName?: string;
-    formOfEducation?: string;
-    typeOfStudy?: string;
-    languageOfStudy?: string;
-    universityName?: string;
-    monthlyIncome?: number;
-    careerOpportunities?: string[];
-  }): Promise<SpecialtyEntity[]> {
+  async findByFilters(
+    filters: {
+      name?: string;
+      class?: number;
+      specializationGroup?: number;
+      clusterName?: string;
+      clusterTag?: string;
+      specialtyCode?: number;
+      specialtyName?: string;
+      formOfEducation?: string;
+      typeOfStudy?: string;
+      languageOfStudy?: string;
+      universityName?: string;
+      monthlyIncome?: number;
+      careerOpportunities?: string[];
+    },
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SpecialtyEntity[]> {
     const qb = this.createQueryBuilder('specialty');
 
     if (filters.name) {
@@ -95,6 +99,9 @@ export const SpecialtyRepository = AppDataSource.getRepository(
         { careerOpportunities: filters.careerOpportunities },
       );
     }
+
+    qb.skip((page - 1) * limit);
+    qb.take(limit);
 
     return qb.getMany();
   },
