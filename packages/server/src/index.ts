@@ -19,7 +19,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
-  await app.listen(8000);
+  await app.listen(8000, '0.0.0.0');
 }
 
-bootstrap().then(() => console.log('Server started on http://localhost:8000/'));
+bootstrap().then(() => console.log('Server started'));
