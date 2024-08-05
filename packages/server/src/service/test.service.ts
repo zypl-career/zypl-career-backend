@@ -36,7 +36,7 @@ export class ResultModalService {
         message: 'Result modal processed successfully',
       };
     } catch (error: any) {
-      return { error: error.message };
+      return { error: JSON.stringify(error) };
     }
   }
 }
