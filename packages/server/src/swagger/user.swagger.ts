@@ -1,4 +1,10 @@
-import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
+import { UserEntity } from '../_db/entity/user.entity.js';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  PaginationDto,
+  UpdateUserDto,
+} from '../dto/user.dto.js';
 
 export const userSwagger = {
   register: {
@@ -15,15 +21,29 @@ export const userSwagger = {
         schema: {
           example: {
             message: 'User registered successfully',
+            payload: {
+              surname: 'XXXX',
+              patronymic: 'XXX',
+              gender: 'male',
+              age: 25,
+              district: 'XX',
+              role: 'student',
+              school: 'XX XX',
+              email: 'XXXXX@XX.XX',
+              name: 'XXX',
+              id: 'UUID',
+              createdAt: '2024-08-06T10:23:47.803Z',
+              updatedAt: '2024-08-06T10:23:47.803Z',
+            },
           },
         },
       },
       conflict: {
-        status: 302,
+        status: 409,
         description: 'User already exists',
         schema: {
           example: {
-            statusCode: 302,
+            statusCode: 409,
             message: 'User already exists',
           },
         },
@@ -56,39 +76,27 @@ export const userSwagger = {
       required: false,
       description: 'User ID',
     },
+    query: {
+      name: 'pagination',
+      type: PaginationDto,
+    },
     responses: {
       success: {
         status: 200,
         description: 'User(s) retrieved successfully',
         schema: {
-          example: [
-            {
-              id: '123',
-              name: 'John',
-              surname: 'Doe',
-              patronymic: 'Smith',
-              gender: 'male',
-              age: 20,
-              district: 'District 1',
-              role: 'student',
-              school: 'High School #1',
-              email: 'john.doe@example.com',
-              password: 'hashedpassword',
-              createdAt: 1622548800000,
-              deletedAt: 0,
+          example: {
+            items: [
+              // user objects
+            ],
+            meta: {
+              totalItems: 100,
+              itemCount: 10,
+              itemsPerPage: 10,
+              totalPages: 10,
+              currentPage: 1,
             },
-            {
-              id: '124',
-              name: 'Jane',
-              surname: 'Smith',
-              gender: 'female',
-              role: 'teacher',
-              email: 'jane.smith@example.com',
-              password: 'hashedpassword',
-              createdAt: 1622548800000,
-              deletedAt: 0,
-            },
-          ],
+          },
         },
       },
       notFound: {
@@ -131,6 +139,20 @@ export const userSwagger = {
         schema: {
           example: {
             message: 'User updated successfully',
+            payload: {
+              surname: 'XXXX',
+              patronymic: 'XXX',
+              gender: 'male',
+              age: 25,
+              district: 'XX',
+              role: 'student',
+              school: 'XX XX',
+              email: 'XXXXX@XX.XX',
+              name: 'XXX',
+              id: 'UUID',
+              createdAt: '2024-08-06T10:23:47.803Z',
+              updatedAt: '2024-08-06T10:23:47.803Z',
+            },
           },
         },
       },

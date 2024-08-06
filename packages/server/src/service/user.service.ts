@@ -5,6 +5,7 @@ import {
   IUserLoginResult,
   IUserCreateDataDTO,
   IUserLoginDataDTO,
+  IConflict,
 } from '../types/_index.js';
 import {
   formatValidationErrors,
@@ -14,7 +15,12 @@ import {
   validateUUID,
 } from '../util/utils.js';
 import { plainToInstance } from 'class-transformer';
-import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  PaginationDto,
+  UpdateUserDto,
+} from '../dto/user.dto.js';
 import { validate } from 'class-validator';
 import { UserModel } from '../_db/model/user.model.js';
 import { IError, IMessage, IValidation } from '../types/_index.js';
@@ -54,7 +60,9 @@ export class UserService {
   // ---------------------------------------------------------------------------
   async register(
     user: IUserCreateDataDTO,
-  ): Promise<IMessage | IValidation | IError> {
+  ): Promise<
+    { message: string; payload: UserModel } | IValidation | IError | IConflict
+  > {
     const createUserDto = plainToInstance(CreateUserDto, user);
     const validationErrors = await this.validateDto(createUserDto);
     if (validationErrors) return validationErrors;
@@ -65,14 +73,16 @@ export class UserService {
     });
 
     if (existingUser) {
-      return { error: 'User already exists' };
+      return { conflict: 'User already exists' };
     }
 
-    await this.#repository.save(newUser);
+    const savedUser = await this.#repository.save(newUser);
 
-    return { message: 'User registered successfully' };
+    return {
+      message: 'User registered successfully',
+      payload: { ...savedUser, password: '****secret****' },
+    };
   }
-
   // ---------------------------------------------------------------------------
   // LOGIN
   // ---------------------------------------------------------------------------
@@ -104,7 +114,7 @@ export class UserService {
   async updateUser(
     id: string,
     user: UpdateUserDto,
-  ): Promise<IMessage | IValidation | IError> {
+  ): Promise<{ message: string; payload: UserModel } | IValidation | IError> {
     const validationErrors = await this.validateDto(user);
     if (validationErrors) return validationErrors;
 
@@ -119,9 +129,12 @@ export class UserService {
         : userToUpdate.password,
     });
 
-    await this.#repository.save(userToUpdate);
+    const updatedUser = await this.#repository.save(userToUpdate);
 
-    return { message: 'User updated successfully' };
+    return {
+      message: 'User updated successfully',
+      payload: { ...updatedUser, password: '****secret****' },
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -129,6 +142,7 @@ export class UserService {
   // ---------------------------------------------------------------------------
   async getUser(
     id?: string,
+    paginationDto?: PaginationDto,
   ): Promise<UserModel | UserModel[] | IError | IValidation> {
     if (id) {
       const user = await this.findUserById(id);
@@ -136,7 +150,11 @@ export class UserService {
       return this.sanitizeUser(user);
     }
 
-    const users = (await this.#repository.find()).map(this.sanitizeUser);
+    const { page, perPage } = paginationDto || {};
+    const skip = (page! - 1) * perPage!;
+    const users = (await this.#repository.find({ skip, take: perPage })).map(
+      this.sanitizeUser,
+    );
     return users;
   }
 
@@ -146,9 +164,7 @@ export class UserService {
   async deleteUser(id: string): Promise<IMessage | IError | IValidation> {
     const userToDelete = await this.findUserById(id);
     if ('error' in userToDelete) return userToDelete;
-
     await this.#repository.delete(id);
-
     return { message: 'User deleted successfully' };
   }
 }

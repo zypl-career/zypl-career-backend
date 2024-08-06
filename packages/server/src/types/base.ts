@@ -9,3 +9,7 @@ export interface IError {
 export interface IValidation {
   validation: string | object;
 }
+
+export interface IConflict {
+  conflict: string;
+}

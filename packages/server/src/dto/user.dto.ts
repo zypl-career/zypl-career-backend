@@ -225,3 +225,25 @@ export class LoginUserDto implements IUserLoginDataDTO {
   @IsString({ message: 'password must be a string' })
   password: string;
 }
+
+//----------------------------------------------------------------
+//DTO USER PAGINATION
+//----------------------------------------------------------------
+
+export class PaginationDto {
+  @ApiProperty({ example: 1, description: 'Page number', required: false })
+  @IsInt({ message: 'page must be an integer' })
+  @Min(1, { message: 'page must be at least 1' })
+  @IsOptional()
+  page?: number = 1;
+
+  @ApiProperty({
+    example: 10,
+    description: 'Number of items per page',
+    required: false,
+  })
+  @IsInt({ message: 'perPage must be an integer' })
+  @Min(1, { message: 'perPage must be at least 1' })
+  @IsOptional()
+  perPage?: number = 10;
+}

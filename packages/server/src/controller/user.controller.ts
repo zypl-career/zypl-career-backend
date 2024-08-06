@@ -11,6 +11,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
 import {
@@ -18,7 +19,7 @@ import {
   IUserCreateDataDTO,
   IUserLoginDataDTO,
 } from '../types/_index.js';
-import { UpdateUserDto } from '../dto/user.dto.js';
+import { PaginationDto, UpdateUserDto } from '../dto/user.dto.js';
 
 import { UserModel } from '../_db/model/user.model.js';
 
@@ -48,6 +49,8 @@ export class UserController {
         result.validation,
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
+    } else if ('conflict' in result) {
+      throw new HttpException(result.conflict, HttpStatus.CONFLICT);
     }
     return result;
   }
@@ -80,11 +83,11 @@ export class UserController {
   @ApiResponse(userSwagger.get.responses.badRequest)
   async getUser(
     @Param('id') id?: string,
+    @Query() paginationDto?: PaginationDto,
   ): Promise<IError | IValidation | UserModel | UserModel[]> {
-    const result = await this.service.getUser(id);
+    const result = await this.service.getUser(id, paginationDto);
     return this.handleServiceResult(result);
   }
-
   // ---------------------------------------------------------------------------
   // UPDATE USER
   // ---------------------------------------------------------------------------
