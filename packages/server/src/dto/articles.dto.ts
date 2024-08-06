@@ -63,10 +63,16 @@ export class CreateArticleDto implements IArticleCreateDataDTO {
       'List of hashtags associated with the article, as a comma-separated string',
     type: String,
     example: 'hashtag1, hashtag2, hashtag3',
-    isArray: true,
   })
   @IsString({ each: true, message: 'Each hashtag must be a string' })
+  @IsArray({ message: 'Hashtags must be an array of strings' })
   @ArrayNotEmpty({ message: 'Hashtags array should not be empty' })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.split(',').map((tag) => tag.trim());
+    }
+    return value;
+  })
   hashtags: string[];
 }
 
