@@ -1,10 +1,12 @@
+import { CitiesAndRegionsOfTajikistan } from '../_db/model/user.model.js';
+
 export interface IUserCreateDataDTO {
   name: string;
   surname: string;
   patronymic?: string;
   gender: TGender;
   age?: number;
-  district?: string;
+  district?: CitiesAndRegionsOfTajikistan;
   role: TRole;
   school?: string;
   email: string;
@@ -17,7 +19,7 @@ export interface IUserUpdateDataDTO {
   patronymic?: string;
   gender?: TGender;
   age?: number;
-  district?: string;
+  district?: CitiesAndRegionsOfTajikistan;
   role?: TRole;
   school?: string;
   email?: string;

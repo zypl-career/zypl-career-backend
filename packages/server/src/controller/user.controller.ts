@@ -21,7 +21,10 @@ import {
 } from '../types/_index.js';
 import { PaginationDto, UpdateUserDto } from '../dto/user.dto.js';
 
-import { UserModel } from '../_db/model/user.model.js';
+import {
+  CitiesAndRegionsOfTajikistan,
+  UserModel,
+} from '../_db/model/user.model.js';
 
 import {
   ApiTags,
@@ -116,6 +119,7 @@ export class UserController {
   @ApiQuery({
     name: 'district',
     type: 'string',
+    enum: CitiesAndRegionsOfTajikistan,
     required: false,
     description: 'Filter by district (like search)',
   })

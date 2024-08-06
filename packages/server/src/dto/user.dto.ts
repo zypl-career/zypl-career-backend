@@ -17,6 +17,7 @@ import {
   IUserLoginDataDTO,
   IUserUpdateDataDTO,
 } from '../types/user.js';
+import { CitiesAndRegionsOfTajikistan } from '../_db/model/user.model.js';
 
 //----------------------------------------------------------------
 // DTO USER CREATE
@@ -61,7 +62,7 @@ export class CreateUserDto implements IUserCreateDataDTO {
   })
   @IsString({ message: 'district must be a string' })
   @IsOptional()
-  district?: string;
+  district?: CitiesAndRegionsOfTajikistan;
 
   @ApiProperty({
     example: 'student',
@@ -154,7 +155,7 @@ export class UpdateUserDto implements IUserUpdateDataDTO {
   })
   @IsString({ message: 'district must be a string' })
   @IsOptional()
-  district?: string;
+  district?: CitiesAndRegionsOfTajikistan;
 
   @ApiProperty({
     example: 'student',

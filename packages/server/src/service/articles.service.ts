@@ -7,9 +7,18 @@ import { ImageStorageService } from './image-storage.service.js';
 import { Config } from '../app/config.app.js';
 import { ArticlesRepository } from '../_db/repository/articles.repository.js';
 import { ArticlesModel } from '../_db/model/articles.model.js';
-import { IError, IMessage, IValidation } from '../types/_index.js';
+import {
+  IError,
+  IMessage,
+  IValidation,
+  PaginatedArticlesResponse,
+} from '../types/_index.js';
 import { formatValidationErrors, validateUUID } from '../util/utils.js';
-import { CreateArticleDto, UpdateArticleDto } from '../dto/articles.dto.js';
+import {
+  CreateArticleDto,
+  GetArticlesDto,
+  UpdateArticleDto,
+} from '../dto/articles.dto.js';
 
 @Injectable()
 export class ArticlesService {
@@ -151,8 +160,14 @@ export class ArticlesService {
   // ---------------------------------------------------------------------------
   async get(
     id?: string,
-    hashtags?: string[] | string,
-  ): Promise<ArticlesModel | ArticlesModel[] | IError | IValidation> {
+    filters?: GetArticlesDto,
+  ): Promise<
+    | ArticlesModel
+    | ArticlesModel[]
+    | IError
+    | IValidation
+    | PaginatedArticlesResponse
+  > {
     if (id) {
       const article = await this.findArticleById(id);
       if ('error' in article) return article;
@@ -163,20 +178,42 @@ export class ArticlesService {
       return { ...article, generalInfoFile: generalInfoContent };
     }
 
-    if (hashtags) {
-      const articles = await this.#repository.findByHashtags(hashtags);
-      const articlesWithInfo = await Promise.all(
-        articles.map(async (article) => {
-          const generalInfoContent = await this.readGeneralInfoFromFile(
-            article.generalInfoFile,
-          );
-          return { ...article, generalInfoFile: generalInfoContent };
-        }),
-      );
-      return articlesWithInfo;
+    let articles: ArticlesModel[];
+    let totalArticles: number;
+
+    if (filters) {
+      const {
+        title,
+        description,
+        minutesRead,
+        generalInfo,
+        hashtags,
+        page,
+        limit,
+      } = filters;
+      const skip = page && limit ? (page - 1) * limit : undefined;
+
+      articles = await this.#repository.findWithFilters({
+        title,
+        description,
+        minutesRead,
+        generalInfo,
+        hashtags,
+        skip,
+        take: limit,
+      });
+      totalArticles = await this.#repository.countWithFilters({
+        title,
+        description,
+        minutesRead,
+        generalInfo,
+        hashtags,
+      });
+    } else {
+      articles = await this.#repository.find();
+      totalArticles = await this.#repository.count();
     }
 
-    const articles = await this.#repository.find();
     const articlesWithInfo = await Promise.all(
       articles.map(async (article) => {
         const generalInfoContent = await this.readGeneralInfoFromFile(
@@ -186,9 +223,13 @@ export class ArticlesService {
       }),
     );
 
-    return articlesWithInfo;
+    return {
+      total: totalArticles,
+      page: filters?.page || 1,
+      limit: filters?.limit || 10,
+      data: articlesWithInfo,
+    };
   }
-
   // ---------------------------------------------------------------------------
   // GET DISTINCT HASHTAGS
   // ---------------------------------------------------------------------------

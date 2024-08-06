@@ -93,31 +93,78 @@ export const articleSwagger = {
   },
   getAll: {
     summary: {
-      summary: 'Get all articles or filter by hashtags',
+      summary: 'Get all articles or filter by various criteria with pagination',
     },
-    query: {
-      name: 'hashtags',
-      required: false,
-      description: 'Filter by hashtags',
-    },
+    query: [
+      {
+        name: 'title',
+        required: false,
+        description: 'Filter by title (partial match)',
+        type: String,
+      },
+      {
+        name: 'description',
+        required: false,
+        description: 'Filter by description (partial match)',
+        type: String,
+      },
+      {
+        name: 'minutesRead',
+        required: false,
+        description: 'Filter by minutes to read',
+        type: Number,
+      },
+      {
+        name: 'generalInfo',
+        required: false,
+        description: 'Filter by general information (partial match)',
+        type: String,
+      },
+      {
+        name: 'hashtags',
+        required: false,
+        description: 'Filter by hashtags',
+        type: String,
+        isArray: true,
+      },
+      {
+        name: 'page',
+        required: false,
+        description: 'Page number for pagination',
+        type: Number,
+        example: 1,
+      },
+      {
+        name: 'limit',
+        required: false,
+        description: 'Number of items per page',
+        type: Number,
+        example: 10,
+      },
+    ],
     responses: {
       success: {
         status: 200,
         description: 'Articles retrieved successfully',
         schema: {
-          example: [
-            {
-              id: '123',
-              title: 'Article Title',
-              image: 'https://example.com/image.jpg',
-              description: 'This is a description of the article.',
-              minutesRead: 5,
-              generalInfoFile: 'media/articles-info/article.txt',
-              hashtags: ['tech', 'news'],
-              createdAt: 1622548800000,
-              updatedAt: 1622548800000,
-            },
-          ],
+          example: {
+            total: 100,
+            page: 1,
+            limit: 10,
+            data: [
+              {
+                id: '123',
+                title: 'Article Title',
+                image: 'https://example.com/image.jpg',
+                description: 'This is a description of the article.',
+                minutesRead: 5,
+                generalInfoFile: 'media/articles-info/article.txt',
+                hashtags: ['tech', 'news'],
+                createdAt: 1622548800000,
+                updatedAt: 1622548800000,
+              },
+            ],
+          },
         },
       },
       notFound: {

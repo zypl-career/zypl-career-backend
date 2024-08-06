@@ -28,7 +28,11 @@ import {
 import { articleSwagger } from '../swagger/articles.swagger.js';
 import { IError, IMessage, IValidation } from '../types/_index.js';
 import { ArticlesService } from '../service/articles.service.js';
-import { CreateArticleDto, UpdateArticleDto } from '../dto/articles.dto.js';
+import {
+  CreateArticleDto,
+  GetArticlesDto,
+  UpdateArticleDto,
+} from '../dto/articles.dto.js';
 
 @ApiTags('article')
 @Controller('/article')
@@ -76,16 +80,59 @@ export class ArticlesController {
     const result = await this.service.get(id);
     return this.handleServiceResult(result);
   }
-
   @Get('/get')
   @ApiOperation(articleSwagger.getAll.summary)
-  @ApiQuery(articleSwagger.getAll.query)
+  @ApiQuery({
+    name: 'title',
+    required: false,
+    description: 'Filter by title (partial match)',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'description',
+    required: false,
+    description: 'Filter by description (partial match)',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'minutesRead',
+    required: false,
+    description: 'Filter by minutes to read',
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'generalInfo',
+    required: false,
+    description: 'Filter by general information (partial match)',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'hashtags',
+    required: false,
+    description: 'Filter by hashtags',
+    type: String,
+    isArray: true,
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page',
+    type: Number,
+    example: 10,
+  })
   @ApiResponse(articleSwagger.getAll.responses.success)
   @ApiResponse(articleSwagger.getAll.responses.notFound)
   async getArticles(
-    @Query('hashtags') hashtags?: string[],
+    @Query() getArticlesDto: GetArticlesDto,
   ): Promise<IError | IValidation | ArticlesModel[] | ArticlesModel> {
-    const result = await this.service.get(undefined, hashtags);
+    const result = await this.service.get(undefined, getArticlesDto);
     return this.handleServiceResult(result);
   }
 

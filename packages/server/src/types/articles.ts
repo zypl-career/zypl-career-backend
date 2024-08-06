@@ -1,3 +1,5 @@
+import { ArticlesModel } from '../_db/model/articles.model.js';
+
 export interface IArticleCreateDataDTO {
   title: string;
   description: string;
@@ -14,4 +16,11 @@ export interface IArticleUpdateDataDTO {
   minutesRead?: number;
   generalInfo?: string;
   hashtags?: string[];
+}
+
+export interface PaginatedArticlesResponse {
+  total: number;
+  page: number;
+  limit: number;
+  data: ArticlesModel[];
 }
