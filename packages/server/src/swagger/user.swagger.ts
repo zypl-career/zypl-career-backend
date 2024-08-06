@@ -136,7 +136,22 @@ export const userSwagger = {
         schema: {
           example: {
             items: [
-              // user objects
+              {
+                id: 'UUID',
+                name: 'xxxx',
+                surname: 'xxx',
+                patronymic: 'xxx',
+                gender: 'male',
+                age: 22,
+                district: 'xxx',
+                role: 'student',
+                school: 'xx xx',
+                email: 'XX@XX.XX',
+                password: '***secret***',
+                createdAt: '2024-08-04T12:00:08.596Z',
+                updatedAt: '2024-08-04T12:00:08.596Z',
+                deletedAt: null,
+              },
             ],
             meta: {
               totalItems: 100,
