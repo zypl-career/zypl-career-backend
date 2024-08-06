@@ -29,6 +29,7 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { userSwagger } from '../swagger/_index.js';
 import { IError, IMessage, IValidation } from '../types/_index.js';
@@ -81,11 +82,73 @@ export class UserController {
   @ApiResponse(userSwagger.get.responses.success)
   @ApiResponse(userSwagger.get.responses.notFound)
   @ApiResponse(userSwagger.get.responses.badRequest)
+  @ApiQuery({
+    name: 'pagination',
+    type: PaginationDto,
+    required: false,
+    description: 'Pagination parameters',
+  })
+  @ApiQuery({
+    name: 'surname',
+    type: 'string',
+    required: false,
+    description: 'Filter by surname (like search)',
+  })
+  @ApiQuery({
+    name: 'patronymic',
+    type: 'string',
+    required: false,
+    description: 'Filter by patronymic (like search)',
+  })
+  @ApiQuery({
+    name: 'gender',
+    type: 'string',
+    enum: ['male', 'female'],
+    required: false,
+    description: 'Filter by gender',
+  })
+  @ApiQuery({
+    name: 'age',
+    type: 'number',
+    required: false,
+    description: 'Filter by age',
+  })
+  @ApiQuery({
+    name: 'district',
+    type: 'string',
+    required: false,
+    description: 'Filter by district (like search)',
+  })
+  @ApiQuery({
+    name: 'role',
+    type: 'string',
+    enum: ['student', 'teacher', 'parents'],
+    required: false,
+    description: 'Filter by role',
+  })
+  @ApiQuery({
+    name: 'school',
+    type: 'string',
+    required: false,
+    description: 'Filter by school',
+  })
+  @ApiQuery({
+    name: 'email',
+    type: 'string',
+    required: false,
+    description: 'Filter by email',
+  })
+  @ApiQuery({
+    name: 'name',
+    type: 'string',
+    required: false,
+    description: 'Filter by name (like search)',
+  })
   async getUser(
     @Param('id') id?: string,
     @Query() paginationDto?: PaginationDto,
   ): Promise<IError | IValidation | UserModel | UserModel[]> {
-    const result = await this.service.getUser(id, paginationDto);
+    const result = this.service.getUsers(id, paginationDto);
     return this.handleServiceResult(result);
   }
   // ---------------------------------------------------------------------------

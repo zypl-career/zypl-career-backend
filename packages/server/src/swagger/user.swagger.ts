@@ -80,6 +80,55 @@ export const userSwagger = {
       name: 'pagination',
       type: PaginationDto,
     },
+    filters: {
+      surname: {
+        description: 'Filter by surname (like search)',
+        type: 'string',
+        required: false,
+      },
+      patronymic: {
+        description: 'Filter by patronymic (like search)',
+        type: 'string',
+        required: false,
+      },
+      gender: {
+        description: 'Filter by gender',
+        type: 'string',
+        enum: ['male', 'female'],
+        required: false,
+      },
+      age: {
+        description: 'Filter by age',
+        type: 'number',
+        required: false,
+      },
+      district: {
+        description: 'Filter by district (like search)',
+        type: 'string',
+        required: false,
+      },
+      role: {
+        description: 'Filter by role',
+        type: 'string',
+        enum: ['student', 'teacher', 'parent'],
+        required: false,
+      },
+      school: {
+        description: 'Filter by school',
+        type: 'string',
+        required: false,
+      },
+      email: {
+        description: 'Filter by email',
+        type: 'string',
+        required: false,
+      },
+      name: {
+        description: 'Filter by name (like search)',
+        type: 'string',
+        required: false,
+      },
+    },
     responses: {
       success: {
         status: 200,

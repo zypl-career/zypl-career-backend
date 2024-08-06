@@ -7,6 +7,7 @@ import {
   IsIn,
   IsEmail,
   Length,
+  IsEnum,
 } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
@@ -231,19 +232,51 @@ export class LoginUserDto implements IUserLoginDataDTO {
 //----------------------------------------------------------------
 
 export class PaginationDto {
-  @ApiProperty({ example: 1, description: 'Page number', required: false })
-  @IsInt({ message: 'page must be an integer' })
-  @Min(1, { message: 'page must be at least 1' })
   @IsOptional()
-  page?: number = 1;
+  @IsInt()
+  @Min(1)
+  page: number = 1;
 
-  @ApiProperty({
-    example: 10,
-    description: 'Number of items per page',
-    required: false,
-  })
-  @IsInt({ message: 'perPage must be an integer' })
-  @Min(1, { message: 'perPage must be at least 1' })
   @IsOptional()
-  perPage?: number = 10;
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit: number = 10;
+
+  @IsOptional()
+  @IsString()
+  surname?: string;
+
+  @IsOptional()
+  @IsString()
+  patronymic?: string;
+
+  @IsOptional()
+  @IsEnum(['male', 'female'])
+  gender?: 'male' | 'female';
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  age?: number;
+
+  @IsOptional()
+  @IsString()
+  district?: string;
+
+  @IsOptional()
+  @IsEnum(['student', 'teacher', 'parents'])
+  role?: 'student' | 'teacher' | 'parents';
+
+  @IsOptional()
+  @IsString()
+  school?: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
 }

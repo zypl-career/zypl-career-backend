@@ -6,11 +6,12 @@ import {
   IUserCreateDataDTO,
   IUserLoginDataDTO,
   IConflict,
+  IUserUpdateDataDTO,
+  PaginationResult,
 } from '../types/_index.js';
 import {
   formatValidationErrors,
   generateHash,
-  generateRefreshToken,
   generateToken,
   validateUUID,
 } from '../util/utils.js';
@@ -29,9 +30,6 @@ import { IError, IMessage, IValidation } from '../types/_index.js';
 export class UserService {
   #repository = UserRepository;
 
-  // ---------------------------------------------------------------------------
-  // PRIVATE FUNCTIONS
-  // ---------------------------------------------------------------------------
   private async validateDto(dto: any): Promise<IValidation | null> {
     const errors = await validate(dto);
     if (errors.length > 0) {
@@ -55,9 +53,6 @@ export class UserService {
     return { ...user, password: '***secret***' };
   }
 
-  // ---------------------------------------------------------------------------
-  // REGISTER
-  // ---------------------------------------------------------------------------
   async register(
     user: IUserCreateDataDTO,
   ): Promise<
@@ -83,9 +78,7 @@ export class UserService {
       payload: { ...savedUser, password: '****secret****' },
     };
   }
-  // ---------------------------------------------------------------------------
-  // LOGIN
-  // ---------------------------------------------------------------------------
+
   async login(
     user: IUserLoginDataDTO,
   ): Promise<IUserLoginResult | IMessage | IValidation | IError> {
@@ -103,68 +96,130 @@ export class UserService {
     }
 
     return {
-      access: generateToken(existingUser.id, user.email),
-      refresh: generateRefreshToken(existingUser.id, user.email),
+      access: generateToken(existingUser.id, 'access'),
+      refresh: generateToken(existingUser.id, 'refresh'),
     };
   }
 
-  // ---------------------------------------------------------------------------
-  // USER UPDATE
-  // ---------------------------------------------------------------------------
-  async updateUser(
-    id: string,
-    user: UpdateUserDto,
-  ): Promise<{ message: string; payload: UserModel } | IValidation | IError> {
-    const validationErrors = await this.validateDto(user);
-    if (validationErrors) return validationErrors;
+  async getUser(id: string): Promise<UserModel | IError> {
+    const user = await this.findUserById(id);
+    if ('error' in user) return user;
 
-    const userToUpdate = await this.findUserById(id);
-
-    if ('error' in userToUpdate) return userToUpdate;
-
-    Object.assign(userToUpdate, {
-      ...user,
-      password: user.password
-        ? generateHash(user.password)
-        : userToUpdate.password,
-    });
-
-    const updatedUser = await this.#repository.save(userToUpdate);
-
-    return {
-      message: 'User updated successfully',
-      payload: { ...updatedUser, password: '****secret****' },
-    };
+    return this.sanitizeUser(user);
   }
-
-  // ---------------------------------------------------------------------------
-  // USER GET
-  // ---------------------------------------------------------------------------
-  async getUser(
+  async getUsers(
     id?: string,
-    paginationDto?: PaginationDto,
-  ): Promise<UserModel | UserModel[] | IError | IValidation> {
+    filters?: PaginationDto,
+  ): Promise<UserModel | PaginationResult<UserModel> | IError | IValidation> {
     if (id) {
       const user = await this.findUserById(id);
       if ('error' in user) return user;
-      return this.sanitizeUser(user);
-    }
 
-    const { page, perPage } = paginationDto || {};
-    const skip = (page! - 1) * perPage!;
-    const users = (await this.#repository.find({ skip, take: perPage })).map(
-      this.sanitizeUser,
-    );
-    return users;
+      return this.sanitizeUser(user);
+    } else if (filters) {
+      const paginationDto = plainToInstance(PaginationDto, filters);
+      const validationErrors = await this.validateDto(paginationDto);
+      if (validationErrors) return validationErrors;
+
+      const page = filters.page ?? 1;
+      const limit = filters.limit ?? undefined;
+
+      if (isNaN(page)) {
+        return { error: 'Page and limit must be numeric values' };
+      }
+
+      const queryBuilder = this.#repository.createQueryBuilder('user');
+
+      if (filters.surname) {
+        queryBuilder.andWhere('user.surname ILIKE :surname', {
+          surname: `%${filters.surname}%`,
+        });
+      }
+      if (filters.patronymic) {
+        queryBuilder.andWhere('user.patronymic ILIKE :patronymic', {
+          patronymic: `%${filters.patronymic}%`,
+        });
+      }
+      if (filters.gender) {
+        queryBuilder.andWhere('user.gender = :gender', {
+          gender: filters.gender,
+        });
+      }
+      if (filters.age) {
+        queryBuilder.andWhere('user.age = :age', { age: filters.age });
+      }
+      if (filters.district) {
+        queryBuilder.andWhere('user.district ILIKE :district', {
+          district: `%${filters.district}%`,
+        });
+      }
+      if (filters.role) {
+        queryBuilder.andWhere('user.role = :role', { role: filters.role });
+      }
+      if (filters.school) {
+        queryBuilder.andWhere('user.school ILIKE :school', {
+          school: `%${filters.school}%`,
+        });
+      }
+      if (filters.email) {
+        queryBuilder.andWhere('user.email ILIKE :email', {
+          email: `%${filters.email}%`,
+        });
+      }
+      if (filters.name) {
+        queryBuilder.andWhere('user.name ILIKE :name', {
+          name: `%${filters.name}%`,
+        });
+      }
+
+      const [items, totalItems] = await queryBuilder
+        .skip(limit && page ? (page - 1) * limit : undefined)
+        .take(limit)
+        .getManyAndCount();
+
+      return {
+        items: items.map((user) => this.sanitizeUser(user)),
+        meta: {
+          totalItems,
+          itemCount: items.length,
+          itemsPerPage: limit,
+          totalPages: Math.ceil(totalItems / limit),
+          currentPage: page,
+        },
+      };
+    } else {
+      return { error: 'Either an ID or filters must be provided' };
+    }
   }
 
-  // ---------------------------------------------------------------------------
-  // USER DELETE
-  // ---------------------------------------------------------------------------
-  async deleteUser(id: string): Promise<IMessage | IError | IValidation> {
-    const userToDelete = await this.findUserById(id);
-    if ('error' in userToDelete) return userToDelete;
-    await this.#repository.delete(id);
+  async updateUser(
+    id: string,
+    data: IUserUpdateDataDTO,
+  ): Promise<{ message: string; payload: UserModel } | IValidation | IError> {
+    const updateUserDto = plainToInstance(UpdateUserDto, data);
+    const validationErrors = await this.validateDto(updateUserDto);
+    if (validationErrors) return validationErrors;
+
+    const user = await this.findUserById(id);
+    if ('error' in user) return user;
+
+    const updatedUser = await this.#repository.save({
+      ...user,
+      ...data,
+    });
+
+    return {
+      message: 'User updated successfully',
+      payload: this.sanitizeUser(updatedUser),
+    };
+  }
+
+  async deleteUser(id: string): Promise<IMessage | IError> {
+    const user = await this.findUserById(id);
+    if ('error' in user) return user;
+
+    await this.#repository.delete(user);
+
     return { message: 'User deleted successfully' };
   }
 }
