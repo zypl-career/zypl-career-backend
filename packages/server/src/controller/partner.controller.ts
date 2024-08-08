@@ -1,4 +1,3 @@
-import { PartnerService } from '../service/partner.service.js';
 import {
   Controller,
   Delete,
@@ -9,17 +8,18 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-
+import { PartnerService } from '../service/partner.service.js';
 import { PartnerModel } from '../_db/model/partner.model.js';
-
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiParam,
+  ApiQuery,
   ApiBody,
   ApiConsumes,
 } from '@nestjs/swagger';
@@ -52,24 +52,54 @@ export class PartnerController {
   @ApiResponse(partnerSwagger.create.responses.conflict)
   @ApiResponse(partnerSwagger.create.responses.validation)
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('image'))
   async create(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
   ): Promise<IMessage | IValidation> {
-    const result = await this.service.create(file);
+    const result = await this.service.create(image);
     return this.handleServiceResult(result);
   }
 
-  @Get(['/get/:id', '/get'])
-  @ApiOperation(partnerSwagger.get.summary)
-  @ApiParam(partnerSwagger.get.param)
-  @ApiResponse(partnerSwagger.get.responses.success)
-  @ApiResponse(partnerSwagger.get.responses.notFound)
-  @ApiResponse(partnerSwagger.get.responses.badRequest)
+  @Get('/get/:id')
+  @ApiOperation(partnerSwagger.getById.summary)
+  @ApiParam(partnerSwagger.getById.param)
+  @ApiResponse(partnerSwagger.getById.responses.success)
+  @ApiResponse(partnerSwagger.getById.responses.notFound)
+  @ApiResponse(partnerSwagger.getById.responses.badRequest)
   async getPartner(
-    @Param('id') id?: string,
-  ): Promise<IError | IValidation | PartnerModel | PartnerModel[]> {
+    @Param('id') id: string,
+  ): Promise<IError | IValidation | PartnerModel> {
     const result = await this.service.getPartner(id);
+    return this.handleServiceResult(result);
+  }
+
+  @Get('/get')
+  @ApiOperation(partnerSwagger.getAll.summary)
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page',
+    type: Number,
+    example: 10,
+  })
+  @ApiResponse(partnerSwagger.getAll.responses.success)
+  @ApiResponse(partnerSwagger.getAll.responses.notFound)
+  async getPartners(
+    @Query() query: { page: number; limit: number },
+  ): Promise<
+    IError | IValidation | { page: number; limit: number; data: PartnerModel[] }
+  > {
+    const result = await this.service.getPaginatedPartners(
+      query.page,
+      query.limit,
+    );
     return this.handleServiceResult(result);
   }
 

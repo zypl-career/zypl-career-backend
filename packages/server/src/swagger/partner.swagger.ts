@@ -1,3 +1,4 @@
+// partner.swagger.js
 import { CreatePartnerDto, UpdatePartnerDto } from '../dto/partner.dto.js';
 
 export const partnerSwagger = {
@@ -39,34 +40,26 @@ export const partnerSwagger = {
       },
     },
   },
-  get: {
+  getById: {
     summary: {
-      summary: 'Get partner by ID or all partners',
+      summary: 'Get partner by ID',
     },
     param: {
       name: 'id',
-      required: false,
+      required: true,
       description: 'Partner ID',
     },
     responses: {
       success: {
         status: 200,
-        description: 'Partner(s) retrieved successfully',
+        description: 'Partner retrieved successfully',
         schema: {
-          example: [
-            {
-              id: '123',
-              image: 'https://example.com/image1.jpg',
-              createdAt: 1622548800000,
-              deletedAt: 0,
-            },
-            {
-              id: '124',
-              image: 'https://example.com/image2.jpg',
-              createdAt: 1622548800000,
-              deletedAt: 0,
-            },
-          ],
+          example: {
+            id: '123',
+            image: 'https://example.com/image1.jpg',
+            createdAt: 1622548800000,
+            deletedAt: 0,
+          },
         },
       },
       notFound: {
@@ -86,6 +79,72 @@ export const partnerSwagger = {
           example: {
             statusCode: 400,
             message: 'Invalid partner ID',
+          },
+        },
+      },
+    },
+  },
+  getAll: {
+    summary: {
+      summary: 'Get all partners with optional filters and pagination',
+    },
+    query: {
+      page: {
+        description: 'Page number for pagination',
+        required: false,
+        type: Number,
+        example: 1,
+      },
+      limit: {
+        description: 'Number of items per page',
+        required: false,
+        type: Number,
+        example: 10,
+      },
+      title: {
+        description: 'Filter by title (partial match)',
+        required: false,
+        type: String,
+      },
+      description: {
+        description: 'Filter by description (partial match)',
+        required: false,
+        type: String,
+      },
+    },
+    responses: {
+      success: {
+        status: 200,
+        description: 'Partners retrieved successfully with pagination details',
+        schema: {
+          example: {
+            total: 11,
+            page: 1,
+            limit: 10,
+            data: [
+              {
+                id: '123',
+                image: 'https://example.com/image1.jpg',
+                createdAt: 1622548800000,
+                deletedAt: 0,
+              },
+              {
+                id: '124',
+                image: 'https://example.com/image2.jpg',
+                createdAt: 1622548800000,
+                deletedAt: 0,
+              },
+            ],
+          },
+        },
+      },
+      notFound: {
+        status: 404,
+        description: 'No partners found matching the filters',
+        schema: {
+          example: {
+            statusCode: 404,
+            message: 'No partners found',
           },
         },
       },

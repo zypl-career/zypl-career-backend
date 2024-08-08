@@ -1,5 +1,6 @@
 export interface IMessage {
   message: string;
+  payload?: any;
 }
 
 export interface IError {
