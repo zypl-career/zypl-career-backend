@@ -1,4 +1,7 @@
-import { CitiesAndRegionsOfTajikistan } from '../_db/model/user.model.js';
+import {
+  CitiesAndRegionsOfTajikistan,
+  UserModel,
+} from '../_db/model/user.model.js';
 
 export interface IUserCreateDataDTO {
   name: string;
@@ -49,4 +52,11 @@ export interface PaginationResult<T> {
     totalPages: number;
     currentPage: number;
   };
+}
+
+export interface PaginatedUserResponse {
+  total: number;
+  page: number;
+  limit: number;
+  data: UserModel[];
 }

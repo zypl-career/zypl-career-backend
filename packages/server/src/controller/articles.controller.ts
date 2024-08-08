@@ -83,6 +83,20 @@ export class ArticlesController {
   @Get('/get')
   @ApiOperation(articleSwagger.getAll.summary)
   @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page',
+    type: Number,
+    example: 10,
+  })
+  @ApiQuery({
     name: 'title',
     required: false,
     description: 'Filter by title (partial match)',
@@ -112,20 +126,6 @@ export class ArticlesController {
     description: 'Filter by hashtags',
     type: String,
     isArray: true,
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    description: 'Page number for pagination',
-    type: Number,
-    example: 1,
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    description: 'Number of items per page',
-    type: Number,
-    example: 10,
   })
   @ApiResponse(articleSwagger.getAll.responses.success)
   @ApiResponse(articleSwagger.getAll.responses.notFound)

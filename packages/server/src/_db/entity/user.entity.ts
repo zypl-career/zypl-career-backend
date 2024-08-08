@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { CitiesAndRegionsOfTajikistan, UserModel } from '../model/_index.js';
 
 @Entity()
@@ -36,10 +43,10 @@ export class UserEntity extends BaseEntity implements UserModel {
   @Column()
   password: string;
 
-  @Column()
+  @CreateDateColumn()
   createdAt: number;
 
-  @Column()
+  @UpdateDateColumn()
   updatedAt: number;
 
   @Column({ nullable: true })
