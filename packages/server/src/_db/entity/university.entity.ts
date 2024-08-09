@@ -7,6 +7,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { UniversityModel } from '../model/_index.js';
+import { EnumCities } from '../../types/_index.js';
 
 @Entity({ name: 'universities' })
 export class UniversityEntity extends BaseEntity implements UniversityModel {
@@ -16,8 +17,8 @@ export class UniversityEntity extends BaseEntity implements UniversityModel {
   @Column()
   name: string;
 
-  @Column()
-  city: string;
+  @Column({ type: 'enum', enum: EnumCities })
+  city: EnumCities;
 
   @Column()
   generalInfoFile: string;

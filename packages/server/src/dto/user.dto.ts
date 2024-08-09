@@ -9,8 +9,8 @@ import {
   IsEnum,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { CitiesAndRegionsOfTajikistan } from '../_db/model/user.model.js';
 import { Transform } from 'class-transformer';
+import { EnumCities } from '../types/_index.js';
 
 //----------------------------------------------------------------
 // DTO USER CREATE
@@ -63,14 +63,14 @@ export class CreateUserDto {
   @ApiProperty({
     description: 'The district of the user',
     type: 'string',
-    enum: CitiesAndRegionsOfTajikistan,
+    enum: EnumCities,
     required: false,
   })
-  @IsEnum(CitiesAndRegionsOfTajikistan, {
+  @IsEnum(EnumCities, {
     message: 'district must be a valid district',
   })
   @IsOptional()
-  district?: CitiesAndRegionsOfTajikistan;
+  district?: EnumCities;
 
   @ApiProperty({
     description: 'The role of the user',
@@ -163,14 +163,14 @@ export class UpdateUserDto {
   @ApiProperty({
     description: 'The district of the user',
     type: 'string',
-    enum: CitiesAndRegionsOfTajikistan,
+    enum: EnumCities,
     required: false,
   })
-  @IsEnum(CitiesAndRegionsOfTajikistan, {
+  @IsEnum(EnumCities, {
     message: 'district must be a valid district',
   })
   @IsOptional()
-  district?: CitiesAndRegionsOfTajikistan;
+  district?: EnumCities;
 
   @ApiProperty({
     description: 'The role of the user',
@@ -259,14 +259,14 @@ export class GetUserDto {
   @ApiProperty({
     description: 'The district of the user',
     type: 'string',
-    enum: CitiesAndRegionsOfTajikistan,
+    enum: EnumCities,
     required: false,
   })
-  @IsEnum(CitiesAndRegionsOfTajikistan, {
+  @IsEnum(EnumCities, {
     message: 'district must be a valid district',
   })
   @IsOptional()
-  district?: CitiesAndRegionsOfTajikistan;
+  district?: EnumCities;
 
   @ApiProperty({
     description: 'The role of the user',

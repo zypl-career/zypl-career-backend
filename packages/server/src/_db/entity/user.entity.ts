@@ -6,7 +6,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CitiesAndRegionsOfTajikistan, UserModel } from '../model/_index.js';
+import { UserModel } from '../model/_index.js';
+import { EnumCities } from '../../types/_index.js';
 
 @Entity()
 export class UserEntity extends BaseEntity implements UserModel {
@@ -28,8 +29,8 @@ export class UserEntity extends BaseEntity implements UserModel {
   @Column({ nullable: true })
   age?: number;
 
-  @Column({ type: 'enum', enum: CitiesAndRegionsOfTajikistan, nullable: true })
-  district?: CitiesAndRegionsOfTajikistan;
+  @Column({ type: 'enum', enum: EnumCities, nullable: true })
+  district?: EnumCities;
 
   @Column()
   role: 'student' | 'teacher' | 'parents';

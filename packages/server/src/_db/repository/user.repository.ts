@@ -1,6 +1,6 @@
 import { AppDataSource } from '../../app/globals.app.js';
+import { EnumCities } from '../../types/_index.js';
 import { UserEntity } from '../entity/_index.js';
-import { CitiesAndRegionsOfTajikistan } from '../model/user.model.js';
 
 export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
   async findWithFilters({
@@ -18,7 +18,7 @@ export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
     surname?: string;
     gender?: 'male' | 'female';
     age?: number;
-    district?: CitiesAndRegionsOfTajikistan;
+    district?: EnumCities;
     role?: 'student' | 'teacher' | 'parents';
     email?: string;
     skip?: number;
@@ -74,7 +74,7 @@ export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
     surname?: string;
     gender?: 'male' | 'female';
     age?: number;
-    district?: CitiesAndRegionsOfTajikistan;
+    district?: EnumCities;
     role?: 'student' | 'teacher' | 'parents';
     email?: string;
   }): Promise<number> {

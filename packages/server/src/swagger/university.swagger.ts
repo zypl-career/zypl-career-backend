@@ -18,6 +18,15 @@ export const universitySwagger = {
         schema: {
           example: {
             message: 'University registered successfully',
+            payload: {
+              id: 'UUID',
+              name: 'Name university',
+              city: 'CITY',
+              generalInfo: 'General Information',
+              createdAt: '2024-08-09T07:55:23.499Z',
+              updatedAt: '2024-08-09T07:55:23.499Z',
+              deletedAt: null,
+            },
           },
         },
       },
@@ -54,30 +63,50 @@ export const universitySwagger = {
       description: 'University ID',
     },
     responses: {
+      successId: {
+        status: 200,
+        description: 'University(s) retrieved successfully',
+        schema: {
+          example: {
+            id: 'UUID',
+            name: 'Tajik National University',
+            city: 'Dushanbe',
+            generalInfo: 'General Information',
+            createdAt: '2024-08-09T07:47:51.792Z',
+            updatedAt: '2024-08-09T07:47:51.792Z',
+            deletedAt: null,
+          },
+        },
+      },
       success: {
         status: 200,
         description: 'University(s) retrieved successfully',
         schema: {
-          example: [
-            {
-              id: '123',
-              name: 'Harvard University',
-              address: 'Cambridge, MA',
-              contactEmail: 'info@harvard.edu',
-              generalInfo: 'media/university-info/harvard.txt',
-              createdAt: 1622548800000,
-              updatedAt: 1622548800000,
-            },
-            {
-              id: '124',
-              name: 'Stanford University',
-              address: 'Stanford, CA',
-              contactEmail: 'info@stanford.edu',
-              generalInfo: 'media/university-info/stanford.txt',
-              createdAt: 1622548800000,
-              updatedAt: 1622548800000,
-            },
-          ],
+          example: {
+            total: 3,
+            page: '1',
+            limit: '10',
+            data: [
+              {
+                id: 'UUID',
+                name: 'Tajik National University',
+                city: 'Dushanbe',
+                generalInfo: 'General Information',
+                createdAt: '2024-08-09T07:47:51.792Z',
+                updatedAt: '2024-08-09T07:47:51.792Z',
+                deletedAt: null,
+              },
+              {
+                id: 'UUID',
+                name: 'Tajik National University 1',
+                city: 'Dushanbe',
+                generalInfo: 'General Information',
+                createdAt: '2024-08-09T07:47:51.792Z',
+                updatedAt: '2024-08-09T07:47:51.792Z',
+                deletedAt: null,
+              },
+            ],
+          },
         },
       },
       notFound: {
@@ -120,6 +149,15 @@ export const universitySwagger = {
         schema: {
           example: {
             message: 'University updated successfully',
+            payload: {
+              id: 'UUID',
+              name: 'Name university',
+              city: 'CITY',
+              generalInfo: 'General Information',
+              createdAt: '2024-08-09T07:55:23.499Z',
+              updatedAt: '2024-08-09T07:55:23.499Z',
+              deletedAt: null,
+            },
           },
         },
       },

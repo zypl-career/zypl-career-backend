@@ -11,9 +11,13 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
-import { IUniversityCreateDataDTO } from '../types/university.js';
+import {
+  IUniversityCreateDataDTO,
+  IUniversityGetDataDTO,
+} from '../types/university.js';
 import { UpdateUniversityDto } from '../dto/university.dto.js';
 
 import { UniversityModel } from '../_db/model/university.model.js';
@@ -24,9 +28,10 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { universitySwagger } from '../swagger/_index.js';
-import { IError, IMessage, IValidation } from '../types/_index.js';
+import { EnumCities, IError, IMessage, IValidation } from '../types/_index.js';
 
 @ApiTags('university')
 @Controller('/university')
@@ -44,6 +49,8 @@ export class UniversityController {
         result.validation,
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
+    } else if ('conflict' in result) {
+      throw new HttpException(result.conflict, HttpStatus.CONFLICT);
     }
     return result;
   }
@@ -68,16 +75,56 @@ export class UniversityController {
   // ---------------------------------------------------------------------------
   // GET UNIVERSITY
   // ---------------------------------------------------------------------------
-  @Get(['/get/:id', '/get'])
+  @Get('/get/:id')
   @ApiOperation(universitySwagger.get.summary)
   @ApiParam(universitySwagger.get.param)
   @ApiResponse(universitySwagger.get.responses.success)
   @ApiResponse(universitySwagger.get.responses.notFound)
   @ApiResponse(universitySwagger.get.responses.badRequest)
   async getUniversity(
-    @Param('id') id?: string,
+    @Param('id') id: string,
   ): Promise<IError | IValidation | UniversityModel | UniversityModel[]> {
     const result = await this.service.get(id);
+    return this.handleServiceResult(result);
+  }
+
+  @Get('/get')
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page',
+    type: Number,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    description: 'Filter by name (partial match)',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'city',
+    required: false,
+    description: 'Filter by city ',
+    type: String,
+    enum: EnumCities,
+  })
+  @ApiOperation(universitySwagger.get.summary)
+  @ApiParam(universitySwagger.get.param)
+  @ApiResponse(universitySwagger.get.responses.success)
+  @ApiResponse(universitySwagger.get.responses.notFound)
+  @ApiResponse(universitySwagger.get.responses.badRequest)
+  async getUsers(
+    @Query() getUsersDto: IUniversityGetDataDTO,
+  ): Promise<IError | IValidation | UniversityModel[] | UniversityModel> {
+    const result = await this.service.get(undefined, getUsersDto);
     return this.handleServiceResult(result);
   }
 

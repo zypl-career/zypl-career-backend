@@ -1,7 +1,5 @@
-import {
-  CitiesAndRegionsOfTajikistan,
-  UserModel,
-} from '../_db/model/user.model.js';
+import { UserModel } from '../_db/model/_index.js';
+import { EnumCities } from './_index.js';
 
 export interface IUserCreateDataDTO {
   name: string;
@@ -9,7 +7,7 @@ export interface IUserCreateDataDTO {
   patronymic?: string;
   gender: TGender;
   age?: number;
-  district?: CitiesAndRegionsOfTajikistan;
+  district?: EnumCities;
   role: TRole;
   school?: string;
   email: string;
@@ -22,7 +20,7 @@ export interface IUserUpdateDataDTO {
   patronymic?: string;
   gender?: TGender;
   age?: number;
-  district?: CitiesAndRegionsOfTajikistan;
+  district?: EnumCities;
   role?: TRole;
   school?: string;
   email?: string;
