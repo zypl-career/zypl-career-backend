@@ -38,6 +38,8 @@ export class UsersController {
         result.validation,
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
+    } else if ('conflict' in result) {
+      throw new HttpException(result.conflict, HttpStatus.CONFLICT);
     }
     return result;
   }

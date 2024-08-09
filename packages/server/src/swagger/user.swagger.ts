@@ -1,3 +1,4 @@
+import { UserEntity } from '../_db/entity/user.entity.js';
 import { CreateUserDto, UpdateUserDto } from '../dto/user.dto.js';
 
 export const userSwagger = {
@@ -15,6 +16,18 @@ export const userSwagger = {
         schema: {
           example: {
             message: 'User created successfully',
+            payload: {
+              name: 'name',
+              surname: 'surname',
+              gender: 'female',
+              role: 'student',
+              email: 'email@email.email',
+              password: '****secret****',
+              patronymic: 'patronymic',
+              age: 22,
+              district: 'district',
+              school: 'school',
+            },
           },
         },
       },

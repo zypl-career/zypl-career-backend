@@ -7,11 +7,10 @@ import {
   Max,
   IsEmail,
   IsEnum,
-  IsArray,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { CitiesAndRegionsOfTajikistan } from '../_db/model/user.model.js';
-import { Express } from 'express';
+import { Transform } from 'class-transformer';
 
 //----------------------------------------------------------------
 // DTO USER CREATE
@@ -250,6 +249,7 @@ export class GetUserDto {
     type: 'number',
     required: false,
   })
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'age must be an integer' })
   @IsOptional()
   @Min(0, { message: 'age must be a positive integer' })
@@ -294,6 +294,7 @@ export class GetUserDto {
     type: 'number',
     required: false,
   })
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'page must be an integer' })
   @IsOptional()
   page?: number;
@@ -303,6 +304,7 @@ export class GetUserDto {
     type: 'number',
     required: false,
   })
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'limit must be an integer' })
   @IsOptional()
   limit?: number;

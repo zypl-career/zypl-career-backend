@@ -3,9 +3,18 @@ import { validate } from 'class-validator';
 import { UserRepository } from '../_db/repository/user.repository.js';
 import { UserModel } from '../_db/model/user.model.js';
 import { CreateUserDto, GetUserDto, UpdateUserDto } from '../dto/user.dto.js';
-import { formatValidationErrors, validateUUID } from '../util/utils.js';
-import { IError, IMessage, IValidation } from '../types/base.js';
-import { PaginatedUserResponse } from '../types/user.js';
+import {
+  formatValidationErrors,
+  generateHash,
+  validateUUID,
+} from '../util/utils.js';
+import { IConflict, IError, IMessage, IValidation } from '../types/base.js';
+import {
+  IUserCreateDataDTO,
+  IUserUpdateDataDTO,
+  PaginatedUserResponse,
+} from '../types/user.js';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -31,53 +40,57 @@ export class UserService {
   }
 
   async create(
-    createUserDto: CreateUserDto,
-  ): Promise<IMessage | IValidation | IError> {
+    user: IUserCreateDataDTO,
+  ): Promise<IMessage | IValidation | IError | IConflict> {
+    const createUserDto = plainToInstance(CreateUserDto, user);
     const validationErrors = await this.validateDto(createUserDto);
     if (validationErrors) return validationErrors;
 
-    const {
-      name,
-      surname,
-      patronymic,
-      gender,
-      age,
-      district,
-      role,
-      school,
-      email,
-      password,
-    } = createUserDto;
+    const newUser = { ...user, password: generateHash(user.password) };
 
-    const newUser = {
-      name,
-      surname,
-      patronymic,
-      gender,
-      age,
-      district,
-      role,
-      school,
-      email,
-      password,
-    };
+    const existingUser = await this.#repository.findOneBy({
+      email: newUser.email,
+    });
+
+    if (existingUser) {
+      return { conflict: 'User already exists' };
+    }
 
     await this.#repository.save(newUser);
 
-    return { message: 'User created successfully' };
+    return {
+      message: 'User registered successfully',
+      payload: { ...newUser, password: '****secret****' },
+    };
   }
-
   async update(
     id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<IMessage | IValidation | IError> {
-    const validationErrors = await this.validateDto(updateUserDto);
+    updateUser: IUserUpdateDataDTO,
+  ): Promise<IMessage | IValidation | IError | IConflict> {
+    const createUserDto = plainToInstance(UpdateUserDto, updateUser);
+    const validationErrors = await this.validateDto(createUserDto);
     if (validationErrors) return validationErrors;
 
     const userToUpdate = await this.findUserById(id);
     if ('error' in userToUpdate) return userToUpdate;
 
-    const updatedUser = { ...userToUpdate, ...updateUserDto };
+    if (updateUser.email) {
+      const existingUser = await this.#repository.findOneBy({
+        email: updateUser.email,
+      });
+
+      if (existingUser) {
+        return { conflict: 'Email already exists' };
+      }
+    }
+
+    if (updateUser.password) {
+      updateUser.password = generateHash(updateUser.password);
+    } else {
+      delete updateUser.password;
+    }
+
+    const updatedUser = { ...userToUpdate, ...updateUser };
 
     await this.#repository.save(updatedUser);
 
@@ -100,6 +113,9 @@ export class UserService {
     let totalUsers: number;
 
     if (filters) {
+      const createUserDto = plainToInstance(GetUserDto, filters);
+      const validationErrors = await this.validateDto(createUserDto);
+      if (validationErrors) return validationErrors;
       const { name, surname, gender, age, district, role, email, page, limit } =
         filters;
       const skip = page && limit ? (page - 1) * limit : undefined;
