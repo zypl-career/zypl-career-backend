@@ -47,6 +47,7 @@ export class CreateArticleDto implements IArticleCreateDataDTO {
     description: 'Minutes to read the article',
     type: 'integer',
   })
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'minutesRead must be an integer' })
   @Min(0, { message: 'minutesRead must be a positive integer' })
   minutesRead: number;
@@ -113,6 +114,7 @@ export class UpdateArticleDto implements IArticleUpdateDataDTO {
     type: 'integer',
     required: false,
   })
+  @Transform(({ value }) => parseInt(value, 10))
   @IsOptional()
   @IsInt({ message: 'minutesRead must be an integer' })
   @Min(0, { message: 'minutesRead must be a positive integer' })

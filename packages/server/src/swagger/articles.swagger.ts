@@ -15,6 +15,18 @@ export const articleSwagger = {
         schema: {
           example: {
             message: 'Article created successfully',
+            payload: {
+              id: 'UUID',
+              title: 'Title text',
+              description: 'Description text',
+              image: 'image url',
+              minutesRead: 10,
+              generalInfoFile: 'General info file',
+              hashtags: ['first', 'second'],
+              createdAt: '2024-08-10T10:26:19.373Z',
+              updatedAt: '2024-08-10T10:26:19.373Z',
+              deletedAt: null,
+            },
           },
         },
       },
@@ -220,6 +232,18 @@ export const articleSwagger = {
         schema: {
           example: {
             message: 'Article updated successfully',
+            payload: {
+              id: 'UUID',
+              title: 'Title text',
+              description: 'Description text',
+              image: 'image url',
+              minutesRead: 10,
+              generalInfoFile: 'General info file',
+              hashtags: ['first', 'second'],
+              createdAt: '2024-08-10T10:26:19.373Z',
+              updatedAt: '2024-08-10T10:26:19.373Z',
+              deletedAt: null,
+            },
           },
         },
       },
