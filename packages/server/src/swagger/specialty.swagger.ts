@@ -1,7 +1,7 @@
 import {
   CreateSpecialtyDto,
   UpdateSpecialtyDto,
-  FilterSpecialtyDto,
+  getSpecialtyDTO,
 } from '../dto/specialty.dto.js';
 
 export const specialtySwagger = {
@@ -19,6 +19,30 @@ export const specialtySwagger = {
         schema: {
           example: {
             message: 'Specialty created successfully',
+            payload: {
+              name: 'Computer Science',
+              EIOHPE: 'EIOHPE123',
+              class: 3,
+              specializationGroup: 2,
+              clusterName: 'Engineering',
+              clusterTag: 'ENG',
+              specialtyDescription: 'A specialization in computer science',
+              specialtyCode: 101,
+              specialtyName: 'Bachelor of Computer Science',
+              formOfEducation: 'Full-time',
+              typeOfStudy: 'On-campus',
+              languageOfStudy: 'English',
+              universityName: 'XYZ University',
+              monthlyIncome: 1000,
+              skillsLevel: 5,
+              futureGrowth: 'High',
+              overview: 'An overview of the specialty',
+              careerOpportunities: ['Software Development', 'Data Analysis'],
+              id: 'f0294650-c31e-473e-9e48-e8a1446f10ee',
+              createdAt: '2024-08-10T12:04:36.971Z',
+              updatedAt: '2024-08-10T12:04:36.971Z',
+              deletedAt: null,
+            },
           },
         },
       },
@@ -44,22 +68,71 @@ export const specialtySwagger = {
       description: 'Specialty ID',
     },
     responses: {
+      successId: {
+        status: 200,
+        description: 'Specialty(s) retrieved successfully',
+        schema: {
+          example: {
+            id: 'f0294650-c31e-473e-9e48-e8a1446f10ee',
+            name: 'Computer Science',
+            EIOHPE: 'EIOHPE123',
+            class: 3,
+            specializationGroup: 2,
+            clusterName: 'Engineering',
+            clusterTag: 'ENG',
+            specialtyDescription: 'A specialization in computer science',
+            specialtyCode: 101,
+            specialtyName: 'Bachelor of Computer Science',
+            formOfEducation: 'Full-time',
+            typeOfStudy: 'On-campus',
+            languageOfStudy: 'English',
+            universityName: 'XYZ University',
+            monthlyIncome: 1000,
+            skillsLevel: 5,
+            futureGrowth: 'High',
+            overview: 'An overview of the specialty',
+            careerOpportunities: ['Software Development', 'Data Analysis'],
+            createdAt: '2024-08-10T12:04:36.971Z',
+            updatedAt: '2024-08-10T12:04:36.971Z',
+            deletedAt: null,
+          },
+        },
+      },
       success: {
         status: 200,
         description: 'Specialty(s) retrieved successfully',
         schema: {
-          example: [
-            {
-              id: '123',
-              name: 'Specialty 1',
-              // Other fields...
-            },
-            {
-              id: '124',
-              name: 'Specialty 2',
-              // Other fields...
-            },
-          ],
+          example: {
+            total: 1,
+            page: '2',
+            limit: '1',
+            data: [
+              {
+                id: 'f0294650-c31e-473e-9e48-e8a1446f10ee',
+                name: 'Computer Science',
+                EIOHPE: 'EIOHPE123',
+                class: 3,
+                specializationGroup: 2,
+                clusterName: 'Engineering',
+                clusterTag: 'ENG',
+                specialtyDescription: 'A specialization in computer science',
+                specialtyCode: 101,
+                specialtyName: 'Bachelor of Computer Science',
+                formOfEducation: 'Full-time',
+                typeOfStudy: 'On-campus',
+                languageOfStudy: 'English',
+                universityName: 'XYZ University',
+                monthlyIncome: 1000,
+                skillsLevel: 5,
+                futureGrowth: 'High',
+                overview: 'An overview of the specialty',
+                careerOpportunities: ['Software Development', 'Data Analysis'],
+                createdAt: '2024-08-10T12:04:36.971Z',
+                updatedAt: '2024-08-10T12:04:36.971Z',
+                deletedAt: null,
+              },
+            ],
+          },
         },
       },
       notFound: {
@@ -89,7 +162,7 @@ export const specialtySwagger = {
       summary: 'Filter specialties based on criteria',
     },
     query: {
-      type: FilterSpecialtyDto,
+      type: getSpecialtyDTO,
     },
     responses: {
       success: {
@@ -145,6 +218,30 @@ export const specialtySwagger = {
         schema: {
           example: {
             message: 'Specialty updated successfully',
+            payload: {
+              name: 'Computer Science',
+              EIOHPE: 'EIOHPE123',
+              class: 3,
+              specializationGroup: 2,
+              clusterName: 'Engineering',
+              clusterTag: 'ENG',
+              specialtyDescription: 'A specialization in computer science',
+              specialtyCode: 101,
+              specialtyName: 'Bachelor of Computer Science',
+              formOfEducation: 'Full-time',
+              typeOfStudy: 'On-campus',
+              languageOfStudy: 'English',
+              universityName: 'XYZ University',
+              monthlyIncome: 1000,
+              skillsLevel: 5,
+              futureGrowth: 'High',
+              overview: 'An overview of the specialty',
+              careerOpportunities: ['Software Development', 'Data Analysis'],
+              id: 'f0294650-c31e-473e-9e48-e8a1446f10ee',
+              createdAt: '2024-08-10T12:04:36.971Z',
+              updatedAt: '2024-08-10T12:04:36.971Z',
+              deletedAt: null,
+            },
           },
         },
       },

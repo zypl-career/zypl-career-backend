@@ -3,7 +3,6 @@ import {
   IsInt,
   Min,
   IsOptional,
-  IsIn,
   IsArray,
   ArrayNotEmpty,
 } from 'class-validator';
@@ -13,8 +12,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   ISpecialtyCreateDataDTO,
   ISpecialtyUpdateDataDTO,
-  ISpecialtyFilterDTO,
+  ISpecialtyGetDataDTO,
 } from '../types/specialty.js';
+import { Transform } from 'class-transformer';
 
 //----------------------------------------------------------------
 // DTO SPECIALTY CREATE
@@ -303,9 +303,9 @@ export class UpdateSpecialtyDto implements ISpecialtyUpdateDataDTO {
 }
 
 //----------------------------------------------------------------
-// DTO SPECIALTY FILTER
+// DTO SPECIALTY GET
 //----------------------------------------------------------------
-export class FilterSpecialtyDto implements ISpecialtyFilterDTO {
+export class getSpecialtyDTO implements ISpecialtyGetDataDTO {
   @ApiProperty({
     example: 'Computer Science',
     description: 'The name of the specialty',
@@ -320,6 +320,7 @@ export class FilterSpecialtyDto implements ISpecialtyFilterDTO {
     description: 'The class level of the specialty',
     required: false,
   })
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'class must be an integer' })
   @IsOptional()
   class?: number;
@@ -329,6 +330,7 @@ export class FilterSpecialtyDto implements ISpecialtyFilterDTO {
     description: 'The specialization group of the specialty',
     required: false,
   })
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'specializationGroup must be an integer' })
   @IsOptional()
   specializationGroup?: 1 | 2 | 3 | 4 | 5;
@@ -356,6 +358,7 @@ export class FilterSpecialtyDto implements ISpecialtyFilterDTO {
     description: 'The specialty code',
     required: false,
   })
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'specialtyCode must be an integer' })
   @IsOptional()
   specialtyCode?: number;
@@ -410,6 +413,7 @@ export class FilterSpecialtyDto implements ISpecialtyFilterDTO {
     description: 'The monthly income from the specialty',
     required: false,
   })
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'monthlyIncome must be an integer' })
   @IsOptional()
   monthlyIncome?: number;
@@ -422,4 +426,24 @@ export class FilterSpecialtyDto implements ISpecialtyFilterDTO {
   @IsArray({ message: 'careerOpportunities must be an array' })
   @IsOptional()
   careerOpportunities?: string[];
+
+  @ApiProperty({
+    description: 'The page number for pagination',
+    type: 'number',
+    required: false,
+  })
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt({ message: 'page must be an integer' })
+  @IsOptional()
+  page?: number;
+
+  @ApiProperty({
+    description: 'The number of items per page for pagination',
+    type: 'number',
+    required: false,
+  })
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt({ message: 'limit must be an integer' })
+  @IsOptional()
+  limit?: number;
 }

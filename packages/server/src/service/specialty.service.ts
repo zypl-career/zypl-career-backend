@@ -3,13 +3,14 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { SpecialtyRepository } from '../_db/repository/specialty.repository.js';
 import {
-  ISpecialtyFilterDTO,
   ISpecialtyCreateDataDTO,
   ISpecialtyUpdateDataDTO,
+  ISpecialtyGetDataDTO,
 } from '../types/_index.js';
 import {
   CreateSpecialtyDto,
-  FilterSpecialtyDto,
+  getSpecialtyDTO,
+  UpdateSpecialtyDto,
 } from '../dto/specialty.dto.js';
 import { formatValidationErrors } from '../util/utils.js';
 import { SpecialtyModel } from '../_db/model/specialty.model.js';
@@ -45,115 +46,30 @@ export class SpecialtyService {
     return specialty;
   }
 
-  private sanitizeSpecialty(specialty: SpecialtyModel): SpecialtyModel {
-    return specialty; // Adjust if there are any sensitive fields to sanitize
-  }
-
-  private transformFilterToWhere(filters: ISpecialtyFilterDTO): any {
-    const qb = this.#repository.createQueryBuilder('specialty');
-
-    if (filters.name) {
-      qb.andWhere('specialty.name ILIKE :name', { name: `%${filters.name}%` });
-    }
-
-    if (filters.class !== undefined) {
-      qb.andWhere('specialty.class = :class', { class: filters.class });
-    }
-
-    if (filters.specializationGroup !== undefined) {
-      qb.andWhere('specialty.specializationGroup = :specializationGroup', {
-        specializationGroup: filters.specializationGroup,
-      });
-    }
-
-    if (filters.clusterName) {
-      qb.andWhere('specialty.clusterName = :clusterName', {
-        clusterName: filters.clusterName,
-      });
-    }
-
-    if (filters.clusterTag) {
-      qb.andWhere('specialty.clusterTag = :clusterTag', {
-        clusterTag: filters.clusterTag,
-      });
-    }
-
-    if (filters.specialtyCode !== undefined) {
-      qb.andWhere('specialty.specialtyCode = :specialtyCode', {
-        specialtyCode: filters.specialtyCode,
-      });
-    }
-
-    if (filters.specialtyName) {
-      qb.andWhere('specialty.specialtyName = :specialtyName', {
-        specialtyName: filters.specialtyName,
-      });
-    }
-
-    if (filters.formOfEducation) {
-      qb.andWhere('specialty.formOfEducation = :formOfEducation', {
-        formOfEducation: filters.formOfEducation,
-      });
-    }
-
-    if (filters.typeOfStudy) {
-      qb.andWhere('specialty.typeOfStudy = :typeOfStudy', {
-        typeOfStudy: filters.typeOfStudy,
-      });
-    }
-
-    if (filters.languageOfStudy) {
-      qb.andWhere('specialty.languageOfStudy = :languageOfStudy', {
-        languageOfStudy: filters.languageOfStudy,
-      });
-    }
-
-    if (filters.universityName) {
-      qb.andWhere('specialty.universityName = :universityName', {
-        universityName: filters.universityName,
-      });
-    }
-
-    if (filters.monthlyIncome !== undefined) {
-      qb.andWhere('specialty.monthlyIncome = :monthlyIncome', {
-        monthlyIncome: filters.monthlyIncome,
-      });
-    }
-
-    if (filters.careerOpportunities && filters.careerOpportunities.length > 0) {
-      qb.andWhere(
-        'EXISTS (SELECT 1 FROM UNNEST(specialty.careerOpportunities) AS opportunity WHERE opportunity = ANY(:careerOpportunities))',
-        { careerOpportunities: filters.careerOpportunities },
-      );
-    }
-
-    return qb;
-  }
-
   // ---------------------------------------------------------------------------
   // SPECIALTY CREATE
   // ---------------------------------------------------------------------------
-  async createSpecialty(
+  async create(
     specialty: ISpecialtyCreateDataDTO,
   ): Promise<IMessage | IValidation | IError> {
     const createSpecialtyDto = plainToInstance(CreateSpecialtyDto, specialty);
     const validationErrors = await this.validateDto(createSpecialtyDto);
     if (validationErrors) return validationErrors;
 
-    const newSpecialty = { ...specialty };
-    await this.#repository.save(newSpecialty);
+    const payload = await this.#repository.save(specialty);
 
-    return { message: 'Specialty created successfully' };
+    return { message: 'Specialty created successfully', payload };
   }
 
   // ---------------------------------------------------------------------------
   // SPECIALTY UPDATE
   // ---------------------------------------------------------------------------
-  async updateSpecialty(
+  async update(
     id: string,
     specialty: ISpecialtyUpdateDataDTO,
   ): Promise<IMessage | IValidation | IError> {
-    const validationErrors = await this.validateDto(specialty);
+    const updateSpecialtyDto = plainToInstance(UpdateSpecialtyDto, specialty);
+    const validationErrors = await this.validateDto(updateSpecialtyDto);
     if (validationErrors) return validationErrors;
 
     const specialtyToUpdate = await this.findSpecialtyById(id);
@@ -162,60 +78,89 @@ export class SpecialtyService {
 
     Object.assign(specialtyToUpdate, specialty);
 
-    await this.#repository.save(specialtyToUpdate);
+    const payload = await this.#repository.save(specialtyToUpdate);
 
-    return { message: 'Specialty updated successfully' };
+    return { message: 'Specialty updated successfully', payload };
   }
 
   // ---------------------------------------------------------------------------
   // SPECIALTY GET
   // ---------------------------------------------------------------------------
-  async getSpecialty(
+
+  async get(
     id?: string,
-  ): Promise<SpecialtyModel | SpecialtyModel[] | IError | IValidation> {
+    filters?: ISpecialtyGetDataDTO,
+  ): Promise<
+    | SpecialtyModel
+    | SpecialtyModel[]
+    | IError
+    | IValidation
+    | IPaginationResponse<SpecialtyModel>
+  > {
     if (id) {
       const specialty = await this.findSpecialtyById(id);
       if ('error' in specialty) return specialty;
-      return this.sanitizeSpecialty(specialty);
+
+      return specialty;
     }
 
-    const specialties = (await this.#repository.find()).map(
-      this.sanitizeSpecialty,
-    );
-    return specialties;
-  }
+    let specialties: SpecialtyModel[];
 
-  // ---------------------------------------------------------------------------
-  // SPECIALTY FILTER
-  // ---------------------------------------------------------------------------
-  async filterSpecialty(
-    filters: ISpecialtyFilterDTO,
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<IPaginationResponse<SpecialtyModel> | IValidation | IError> {
-    const filterDto = plainToInstance(FilterSpecialtyDto, filters);
-    const validationErrors = await this.validateDto(filterDto);
-    if (validationErrors) return validationErrors;
+    if (filters) {
+      const createUserDto = plainToInstance(getSpecialtyDTO, filters);
+      const validationErrors = await this.validateDto(createUserDto);
+      if (validationErrors) return validationErrors;
+      const {
+        name,
+        class: classNumber,
+        specializationGroup,
+        clusterName,
+        clusterTag,
+        specialtyCode,
+        specialtyName,
+        formOfEducation,
+        typeOfStudy,
+        languageOfStudy,
+        universityName,
+        monthlyIncome,
+        careerOpportunities,
+        page,
+        limit,
+      } = filters;
+      const skip = page && limit ? (page - 1) * limit : undefined;
 
-    const qb = this.transformFilterToWhere(filters);
-
-    const [specialties, total] = await qb
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-
+      specialties = await this.#repository.findWithFilters({
+        name,
+        class: classNumber,
+        specializationGroup,
+        clusterName,
+        clusterTag,
+        specialtyCode,
+        specialtyName,
+        formOfEducation,
+        typeOfStudy,
+        languageOfStudy,
+        universityName,
+        monthlyIncome,
+        careerOpportunities,
+        skip,
+        take: limit,
+      });
+    } else {
+      specialties = await this.#repository.find();
+    }
     return {
-      data: specialties.map(this.sanitizeSpecialty),
-      total,
-      page,
-      limit,
+      total: specialties.length,
+      page: filters?.page || 1,
+      limit: filters?.limit || 10,
+      data: specialties,
     };
   }
 
   // ---------------------------------------------------------------------------
   // SPECIALTY DELETE
   // ---------------------------------------------------------------------------
-  async deleteSpecialty(id: string): Promise<IMessage | IError | IValidation> {
+  async delete(id: string): Promise<IMessage | IError | IValidation> {
     const specialtyToDelete = await this.findSpecialtyById(id);
     if ('error' in specialtyToDelete) return specialtyToDelete;
 
