@@ -18,6 +18,16 @@ export const educationCenterSwagger = {
         schema: {
           example: {
             message: 'Education center created successfully',
+            payload: {
+              id: 'UUID',
+              title: 'Title',
+              image: 'image url',
+              generalInfo: 'info general ',
+              city: 'city',
+              createdAt: '2024-08-10T11:50:48.555Z',
+              updatedAt: '2024-08-10T11:50:48.555Z',
+              deletedAt: null,
+            },
           },
         },
       },
@@ -54,18 +64,42 @@ export const educationCenterSwagger = {
       description: 'Education center ID',
     },
     responses: {
+      successId: {
+        status: 200,
+        description: 'Education center retrieved successfully',
+        schema: {
+          example: {
+            id: 'UUID',
+            title: 'Name',
+            city: 'city',
+            image: 'image url',
+            generalInfo: 'General info',
+            createdAt: '2024-08-10T10:55:58.855Z',
+            updatedAt: '2024-08-10T10:55:58.855Z',
+            deletedAt: null,
+          },
+        },
+      },
       success: {
         status: 200,
         description: 'Education center retrieved successfully',
         schema: {
           example: {
-            id: '123',
-            title: 'Education Center Title',
-            image: 'https://example.com/image.jpg',
-            generalInfoFile: 'media/education-center-info/education-center.txt',
-            city: 'City Name',
-            createdAt: 1622548800000,
-            updatedAt: 1622548800000,
+            total: 6,
+            page: '1',
+            limit: '10',
+            data: [
+              {
+                id: 'UUID',
+                image: 'image url',
+                title: 'title',
+                generalInfoFile: 'url general info file',
+                city: 'city',
+                createdAt: '2024-08-10T10:55:58.855Z',
+                updatedAt: '2024-08-10T10:55:58.855Z',
+                deletedAt: null,
+              },
+            ],
           },
         },
       },
@@ -149,6 +183,16 @@ export const educationCenterSwagger = {
         schema: {
           example: {
             message: 'Education center updated successfully',
+            payload: {
+              id: 'UUID',
+              title: 'Title',
+              image: 'image url',
+              generalInfo: 'info general ',
+              city: 'city',
+              createdAt: '2024-08-10T11:50:48.555Z',
+              updatedAt: '2024-08-10T11:50:48.555Z',
+              deletedAt: null,
+            },
           },
         },
       },

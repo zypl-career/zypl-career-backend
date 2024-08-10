@@ -1,10 +1,19 @@
-import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNotEmpty,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Express } from 'express';
 import {
   IEducationCenterCreateDataDTO,
+  IEducationCenterGetDataDTO,
   IEducationCenterUpdateDataDTO,
 } from '../types/educational-centers.js';
+import { Transform } from 'class-transformer';
 
 //----------------------------------------------------------------
 // DTO EDUCATION CENTER CREATE
@@ -24,7 +33,7 @@ export class CreateEducationCenterDto implements IEducationCenterCreateDataDTO {
     description: 'The image file of the education center',
   })
   @IsOptional()
-  image?: Express.Multer.File; // File uploads are not validated by class-validator directly
+  image: Express.Multer.File;
 
   @ApiProperty({
     description: 'The general information about the education center',
@@ -82,4 +91,52 @@ export class UpdateEducationCenterDto implements IEducationCenterUpdateDataDTO {
   @IsOptional()
   @IsString({ message: 'city must be a string' })
   city?: string;
+}
+
+//----------------------------------------------------------------
+// DTO EDUCATION CENTER GET
+//----------------------------------------------------------------
+export class GetEducationCenterDto implements IEducationCenterGetDataDTO {
+  @ApiProperty({
+    description: 'title of the education center to filter by (partial match)',
+    required: false,
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'title must be a string' })
+  title?: string;
+
+  @ApiProperty({
+    description: 'city of the education center to filter',
+    required: false,
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'city must be a string' })
+  city?: string;
+
+  @ApiProperty({
+    description: 'Page number for pagination',
+    required: false,
+    type: Number,
+    default: 1,
+  })
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsOptional()
+  @IsInt({ message: 'page must be an integer' })
+  @Min(1, { message: 'page must be greater than or equal to 1' })
+  page?: number = 1;
+
+  @ApiProperty({
+    description: 'Number of items per page',
+    required: false,
+    type: Number,
+    default: 10,
+  })
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsOptional()
+  @IsInt({ message: 'limit must be an integer' })
+  @Min(1, { message: 'limit must be greater than or equal to 1' })
+  @Max(100, { message: 'limit must be less than or equal to 100' })
+  limit?: number = 10;
 }

@@ -150,31 +150,6 @@ export class UniversityService {
   // ---------------------------------------------------------------------------
   // UNIVERSITY GET
   // ---------------------------------------------------------------------------
-  async getAA(
-    id?: string,
-  ): Promise<UniversityModel | UniversityModel[] | IError | IValidation> {
-    if (id) {
-      const university = await this.findUniversityById(id);
-      if ('error' in university) return university;
-
-      const generalInfoContent = await this.readGeneralInfoFromFile(
-        university.generalInfoFile,
-      );
-      return { ...university, generalInfoFile: generalInfoContent };
-    }
-
-    const universities = await this.#repository.find();
-    const universitiesWithInfo = await Promise.all(
-      universities.map(async (university) => {
-        const generalInfoContent = await this.readGeneralInfoFromFile(
-          university.generalInfoFile,
-        );
-        return { ...university, generalInfoFile: generalInfoContent };
-      }),
-    );
-
-    return universitiesWithInfo;
-  }
 
   async get(
     id?: string,

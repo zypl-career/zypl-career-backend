@@ -26,7 +26,12 @@ import {
   ApiConsumes,
 } from '@nestjs/swagger';
 import { educationCenterSwagger } from '../swagger/educational-centers.swagger.js';
-import { IError, IMessage, IValidation } from '../types/_index.js';
+import {
+  IEducationCenterGetDataDTO,
+  IError,
+  IMessage,
+  IValidation,
+} from '../types/_index.js';
 import { EducationCenterService } from '../service/educational-centers.service.js';
 import {
   CreateEducationCenterDto,
@@ -63,18 +68,17 @@ export class EducationCenterController {
     @Body() createDto: CreateEducationCenterDto,
     @UploadedFile() image: Express.Multer.File,
   ): Promise<IMessage | IValidation> {
-    const { title, generalInfo, city } = createDto;
-    const result = await this.service.create(title, image, generalInfo, city);
+    const result = await this.service.create({ ...createDto, image: image });
     return this.handleServiceResult(result);
   }
 
   @Get('/get/:id')
   @ApiOperation(educationCenterSwagger.get.summary)
   @ApiParam(educationCenterSwagger.get.param)
-  @ApiResponse(educationCenterSwagger.get.responses.success)
+  @ApiResponse(educationCenterSwagger.get.responses.successId)
   @ApiResponse(educationCenterSwagger.get.responses.notFound)
   @ApiResponse(educationCenterSwagger.get.responses.badRequest)
-  async getEducationCenter(
+  async getUniversity(
     @Param('id') id: string,
   ): Promise<IError | IValidation | EducationCenterModel> {
     const result = await this.service.get(id);
@@ -82,16 +86,42 @@ export class EducationCenterController {
   }
 
   @Get('/get')
-  @ApiOperation(educationCenterSwagger.getAll.summary)
-  @ApiQuery(educationCenterSwagger.getAll.query)
-  @ApiResponse(educationCenterSwagger.getAll.responses.success)
-  @ApiResponse(educationCenterSwagger.getAll.responses.notFound)
-  async getEducationCenters(
-    @Query('city') city?: string,
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page',
+    type: Number,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'title',
+    required: false,
+    description: 'Filter by title (partial match)',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'city',
+    required: false,
+    description: 'Filter by city ',
+    type: String,
+  })
+  @ApiOperation(educationCenterSwagger.get.summary)
+  @ApiResponse(educationCenterSwagger.get.responses.success)
+  @ApiResponse(educationCenterSwagger.get.responses.notFound)
+  @ApiResponse(educationCenterSwagger.get.responses.badRequest)
+  async getUsers(
+    @Query() getEducationCenterDto: IEducationCenterGetDataDTO,
   ): Promise<
     IError | IValidation | EducationCenterModel[] | EducationCenterModel
   > {
-    const result = await this.service.get(undefined, city);
+    const result = await this.service.get(undefined, getEducationCenterDto);
     return this.handleServiceResult(result);
   }
 
@@ -109,14 +139,7 @@ export class EducationCenterController {
     @Body() updateDto: UpdateEducationCenterDto,
     @UploadedFile() image?: Express.Multer.File,
   ): Promise<IMessage | IValidation> {
-    const { title, generalInfo, city } = updateDto;
-    const result = await this.service.update(
-      id,
-      title,
-      image,
-      generalInfo,
-      city,
-    );
+    const result = await this.service.update(id, { ...updateDto, image });
     return this.handleServiceResult(result);
   }
 
