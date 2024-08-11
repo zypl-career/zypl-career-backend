@@ -14,7 +14,6 @@ import { UserEntity } from './user.entity.js';
 
 @Entity({ name: 'tests' })
 export class TestEntity extends BaseEntity implements TestModel {
-  userId: string;
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

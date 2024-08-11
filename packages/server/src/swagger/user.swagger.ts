@@ -1,5 +1,5 @@
 import { UserEntity } from '../_db/entity/user.entity.js';
-import { CreateUserDto, UpdateUserDto } from '../dto/user.dto.js';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
 
 export const userSwagger = {
   create: {
@@ -289,6 +289,36 @@ export const userSwagger = {
         schema: {
           example: {
             id: ['Invalid user ID'],
+          },
+        },
+      },
+    },
+  },
+  login: {
+    summary: {
+      summary: 'User login',
+    },
+    body: {
+      type: LoginUserDto,
+    },
+    responses: {
+      success: {
+        status: 200,
+        description: 'User logged in successfully',
+        schema: {
+          example: {
+            access: 'your_jwt_token',
+            refresh: 'your_refresh_token',
+          },
+        },
+      },
+      validation: {
+        status: 422,
+        description: 'Login failed',
+        schema: {
+          example: {
+            email: ['email must be a valid email address'],
+            password: ['password must be a string'],
           },
         },
       },

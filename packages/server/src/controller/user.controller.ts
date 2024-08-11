@@ -20,7 +20,13 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { userSwagger } from '../swagger/user.swagger.js';
-import { IError, IMessage, IValidation } from '../types/_index.js';
+import {
+  IError,
+  IMessage,
+  IUserLoginDataDTO,
+  IUserLoginResult,
+  IValidation,
+} from '../types/_index.js';
 import { CreateUserDto, GetUserDto, UpdateUserDto } from '../dto/user.dto.js';
 import { UserService } from '../service/user.service.js';
 import { UserModel } from '../_db/model/user.model.js';
@@ -29,6 +35,10 @@ import { UserModel } from '../_db/model/user.model.js';
 @Controller('/user')
 export class UsersController {
   constructor(private readonly service: UserService) {}
+
+  // ---------------------------------------------------------------------------
+  // PRIVATE FUNCTIONS
+  // ---------------------------------------------------------------------------
 
   private handleServiceResult(result: any) {
     if ('error' in result) {
@@ -44,6 +54,9 @@ export class UsersController {
     return result;
   }
 
+  // ---------------------------------------------------------------------------
+  // CREATE USER
+  // ---------------------------------------------------------------------------
   @Post('/create')
   @HttpCode(201)
   @ApiOperation(userSwagger.create.summary)
@@ -58,6 +71,9 @@ export class UsersController {
     return this.handleServiceResult(result);
   }
 
+  // ---------------------------------------------------------------------------
+  // GET USER BY ID
+  // ---------------------------------------------------------------------------
   @Get('/get/:id')
   @ApiOperation(userSwagger.get.summary)
   @ApiParam(userSwagger.get.param)
@@ -140,6 +156,9 @@ export class UsersController {
     return this.handleServiceResult(result);
   }
 
+  // ---------------------------------------------------------------------------
+  // UPDATE USER
+  // ---------------------------------------------------------------------------
   @Patch('/update/:id')
   @ApiOperation(userSwagger.update.summary)
   @ApiParam(userSwagger.update.param)
@@ -155,6 +174,9 @@ export class UsersController {
     return this.handleServiceResult(result);
   }
 
+  // ---------------------------------------------------------------------------
+  // DELETE USER
+  // ---------------------------------------------------------------------------
   @Delete('/delete/:id')
   @ApiOperation(userSwagger.delete.summary)
   @ApiParam(userSwagger.delete.param)
@@ -165,6 +187,22 @@ export class UsersController {
     @Param('id') id: string,
   ): Promise<IMessage | IError | IValidation> {
     const result = await this.service.delete(id);
+    return this.handleServiceResult(result);
+  }
+
+  // ---------------------------------------------------------------------------
+  // LOGIN
+  // ---------------------------------------------------------------------------
+  @Post('/login')
+  @HttpCode(200)
+  @ApiOperation(userSwagger.login.summary)
+  @ApiBody(userSwagger.login.body)
+  @ApiResponse(userSwagger.login.responses.success)
+  @ApiResponse(userSwagger.login.responses.validation)
+  async login(
+    @Body() user: IUserLoginDataDTO,
+  ): Promise<IUserLoginResult | undefined> {
+    const result = await this.service.login(user);
     return this.handleServiceResult(result);
   }
 }

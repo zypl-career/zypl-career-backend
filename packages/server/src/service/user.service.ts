@@ -2,15 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { UserRepository } from '../_db/repository/user.repository.js';
 import { UserModel } from '../_db/model/user.model.js';
-import { CreateUserDto, GetUserDto, UpdateUserDto } from '../dto/user.dto.js';
+import {
+  CreateUserDto,
+  GetUserDto,
+  LoginUserDto,
+  UpdateUserDto,
+} from '../dto/user.dto.js';
 import {
   formatValidationErrors,
   generateHash,
+  generateRefreshToken,
+  generateToken,
   validateUUID,
 } from '../util/utils.js';
 import { IConflict, IError, IMessage, IValidation } from '../types/base.js';
 import {
   IUserCreateDataDTO,
+  IUserLoginDataDTO,
+  IUserLoginResult,
   IUserUpdateDataDTO,
   PaginatedUserResponse,
 } from '../types/user.js';
@@ -39,6 +48,27 @@ export class UserService {
     return user;
   }
 
+  async login(
+    user: IUserLoginDataDTO,
+  ): Promise<IUserLoginResult | IMessage | IValidation | IError> {
+    const loginUserDto = plainToInstance(LoginUserDto, user);
+    const validationErrors = await this.validateDto(loginUserDto);
+    if (validationErrors) return validationErrors;
+
+    const existingUser = await this.#repository.findOneBy({
+      email: user.email,
+      password: generateHash(user.password),
+    });
+
+    if (!existingUser) {
+      return { error: 'Invalid login credentials' };
+    }
+
+    return {
+      access: generateToken(existingUser.id, user.email),
+      refresh: generateRefreshToken(existingUser.id, user.email),
+    };
+  }
   async create(
     user: IUserCreateDataDTO,
   ): Promise<IMessage | IValidation | IError | IConflict> {

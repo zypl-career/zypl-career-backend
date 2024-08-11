@@ -23,6 +23,9 @@ export class AuthMiddleware implements NestMiddleware {
 
     try {
       const user = verifyToken(token);
+      if ((user as any).type === 'refresh') {
+        throw new UnauthorizedException('Invalid token');
+      }
       req.user = user;
       next();
     } catch (err) {

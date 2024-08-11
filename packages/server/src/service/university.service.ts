@@ -150,7 +150,6 @@ export class UniversityService {
   // ---------------------------------------------------------------------------
   // UNIVERSITY GET
   // ---------------------------------------------------------------------------
-
   async get(
     id?: string,
     filters?: IUniversityGetDataDTO,

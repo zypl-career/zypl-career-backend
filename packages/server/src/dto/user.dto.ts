@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { EnumCities } from '../types/_index.js';
+import { EnumCities, IUserLoginDataDTO } from '../types/_index.js';
 
 //----------------------------------------------------------------
 // DTO USER CREATE
@@ -308,4 +308,23 @@ export class GetUserDto {
   @IsInt({ message: 'limit must be an integer' })
   @IsOptional()
   limit?: number;
+}
+
+//----------------------------------------------------------------
+// DTO USER GET
+//----------------------------------------------------------------
+export class LoginUserDto implements IUserLoginDataDTO {
+  @ApiProperty({
+    example: 'john.doe@example.com',
+    description: 'The email of the user',
+  })
+  @IsEmail({}, { message: 'email must be a valid email address' })
+  email: string;
+
+  @ApiProperty({
+    example: 'password123',
+    description: 'The password of the user',
+  })
+  @IsString({ message: 'password must be a string' })
+  password: string;
 }

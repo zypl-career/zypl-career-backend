@@ -35,6 +35,6 @@ dotenv.config();
 })
 export class ModuleApp implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('/12345');
+    consumer.apply(AuthMiddleware).forRoutes('/result-modal');
   }
 }

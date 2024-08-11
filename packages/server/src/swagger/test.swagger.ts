@@ -1,4 +1,4 @@
-import { ResultModalDto } from '../dto/test.dto.js';
+import { createTestModalDto } from '../dto/test.dto.js';
 
 export const resultModalSwagger = {
   process: {
@@ -6,7 +6,7 @@ export const resultModalSwagger = {
       summary: 'Process result modal',
     },
     body: {
-      type: ResultModalDto,
+      type: createTestModalDto,
     },
     responses: {
       success: {
@@ -41,6 +41,11 @@ export const resultModalSwagger = {
           },
         },
       },
+    },
+  },
+  get: {
+    summary: {
+      summary: 'Process result modal',
     },
   },
 };

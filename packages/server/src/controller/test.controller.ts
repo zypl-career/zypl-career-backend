@@ -6,17 +6,18 @@ import {
   HttpCode,
   HttpStatus,
   HttpException,
+  Get,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { ResultModalService } from '../service/test.service.js';
-import { ResultModalDto } from '../dto/test.dto.js';
+import { ResultModelService } from '../service/test.service.js';
+import { createTestModalDto } from '../dto/test.dto.js';
 import { IError, IMessage, IValidation } from '../types/base.js';
 import { resultModalSwagger } from '../swagger/test.swagger.js';
 
 @ApiTags('result-modal')
 @Controller('/result-modal')
 export class ResultModalController {
-  constructor(private readonly resultModalService: ResultModalService) {}
+  constructor(private readonly resultModalService: ResultModelService) {}
 
   @Post()
   @HttpCode(200)
@@ -26,9 +27,11 @@ export class ResultModalController {
   @ApiResponse(resultModalSwagger.process.responses.unauthorized)
   @ApiResponse(resultModalSwagger.process.responses.error)
   async processResultModal(
-    @Body() requestData: ResultModalDto,
+    @Body() requestData: createTestModalDto,
+    @Headers('authorization') auth: string,
   ): Promise<IMessage | IValidation | IError> {
-    const result = await this.resultModalService.handleResultModal(requestData);
+    const token = auth && (auth.split(' ')[1] as string);
+    const result = await this.resultModalService.create(requestData, token);
     if ('error' in result) {
       throw new HttpException(result.error, HttpStatus.BAD_REQUEST);
     } else if ('validation' in result) {
@@ -37,6 +40,18 @@ export class ResultModalController {
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
+    return result;
+  }
+
+  @Get('/get')
+  @HttpCode(200)
+  @ApiOperation(resultModalSwagger.process.summary)
+  // @ApiBody(resultModalSwagger.process.body)
+  // @ApiResponse(resultModalSwagger.process.responses.success)
+  // @ApiResponse(resultModalSwagger.process.responses.unauthorized)
+  // @ApiResponse(resultModalSwagger.process.responses.error)
+  async get() {
+    const result = await this.resultModalService.get();
     return result;
   }
 }
