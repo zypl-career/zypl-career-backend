@@ -1,5 +1,6 @@
 export interface IMessage {
   message: string;
+  info?: string;
   payload?: any;
 }
 

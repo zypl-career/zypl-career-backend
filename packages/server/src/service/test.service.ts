@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { createTestModalDto as ResultModelDto } from '../dto/test.dto.js';
+import {
+  getTestDTO,
+  createTestModalDto as ResultModelDto,
+} from '../dto/test.dto.js';
 import { IError, IMessage, IValidation } from '../types/base.js';
 import { convertData } from '../util/test.js';
 import { Config } from '../app/config.app.js';
@@ -8,6 +11,7 @@ import { TestRepository } from '../_db/repository/test.repository.js';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { UserRepository } from '../_db/repository/user.repository.js';
+import { TestModel } from '../_db/model/test.model.js';
 
 @Injectable()
 export class ResultModelService {
@@ -25,6 +29,9 @@ export class ResultModelService {
     return null;
   }
 
+  // ---------------------------------------------------------------------------
+  // CREATE
+  // ---------------------------------------------------------------------------
   async create(
     requestData: ResultModelDto,
     token: string,
@@ -33,13 +40,6 @@ export class ResultModelService {
     const validationErrors = await this.validateDto(resultModel);
     if (validationErrors) return validationErrors;
     try {
-      const verify = verifyToken(token);
-      if (!verify) {
-        return {
-          error: 'Invalid token',
-        };
-      }
-
       const data = convertData(requestData);
       const options = {
         method: 'POST',
@@ -51,6 +51,23 @@ export class ResultModelService {
       if (response.status !== 200) {
         return {
           error: response.statusText,
+        };
+      }
+
+      if (token) {
+        const verify = verifyToken(token);
+        if (!verify) {
+          return {
+            message: 'Result modal processed successfully',
+            info: 'This data not saved because user is not authenticated',
+            payload: jsonResponse,
+          };
+        }
+      } else {
+        return {
+          message: 'Result modal processed successfully',
+          info: 'This data not saved because user is not authenticated',
+          payload: jsonResponse,
         };
       }
 
@@ -87,8 +104,36 @@ export class ResultModelService {
     }
   }
 
-  async get() {
-    const res = await this.#repository.find();
-    return res;
+  // ---------------------------------------------------------------------------
+  // GET
+  // ---------------------------------------------------------------------------
+  async get(filters?: getTestDTO, token?: string) {
+    let articles: TestModel[];
+
+    if (!token) return;
+
+    const verify = verifyToken(token);
+
+    if (!verify) return;
+
+    if ((verify as any).email === 'admin@gmail.com') {
+    }
+
+    if (filters) {
+      const { page, limit } = filters;
+      const skip = page && limit ? (page - 1) * limit : undefined;
+      articles = await this.#repository.findWithFilters({
+        skip,
+        take: limit,
+      });
+    } else {
+      articles = await this.#repository.find();
+    }
+    return {
+      total: articles.length,
+      page: filters?.page || 1,
+      limit: filters?.limit || 10,
+      data: articles,
+    };
   }
 }

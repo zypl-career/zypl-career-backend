@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { UserRepository } from '../_db/repository/user.repository.js';
 import { UserModel } from '../_db/model/user.model.js';
@@ -50,7 +50,13 @@ export class UserService {
 
   async login(
     user: IUserLoginDataDTO,
-  ): Promise<IUserLoginResult | IMessage | IValidation | IError> {
+  ): Promise<
+    | IUserLoginResult
+    | IMessage
+    | IValidation
+    | IError
+    | { unauthorized: string }
+  > {
     const loginUserDto = plainToInstance(LoginUserDto, user);
     const validationErrors = await this.validateDto(loginUserDto);
     if (validationErrors) return validationErrors;
@@ -61,7 +67,7 @@ export class UserService {
     });
 
     if (!existingUser) {
-      return { error: 'Invalid login credentials' };
+      return { unauthorized: 'Invalid login credentials' };
     }
 
     return {
