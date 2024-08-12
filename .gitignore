@@ -10,3 +10,4 @@ lerna-debug.log
 tsconfig.tsbuildinfo
 schema.graphql
 .DS_Store
+.vercel
