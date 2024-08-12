@@ -1,3 +1,5 @@
+import { EnumCities } from '../../types/_index.js';
+
 export type UserModel = {
   id: string;
   name: string;
@@ -5,7 +7,7 @@ export type UserModel = {
   patronymic?: string;
   gender: 'male' | 'female';
   age?: number;
-  district?: string;
+  district?: EnumCities;
   role: 'student' | 'teacher' | 'parents';
   school?: string;
   email: string;

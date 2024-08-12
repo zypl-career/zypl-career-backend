@@ -1,9 +1,10 @@
+import { UserEntity } from '../_db/entity/user.entity.js';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
 
 export const userSwagger = {
-  register: {
+  create: {
     summary: {
-      summary: 'Register a new user',
+      summary: 'Create a new user',
     },
     body: {
       type: CreateUserDto,
@@ -11,19 +12,31 @@ export const userSwagger = {
     responses: {
       success: {
         status: 201,
-        description: 'User registered successfully',
+        description: 'User created successfully',
         schema: {
           example: {
-            message: 'User registered successfully',
+            message: 'User created successfully',
+            payload: {
+              name: 'name',
+              surname: 'surname',
+              gender: 'female',
+              role: 'student',
+              email: 'email@email.email',
+              password: '****secret****',
+              patronymic: 'patronymic',
+              age: 22,
+              district: 'district',
+              school: 'school',
+            },
           },
         },
       },
       conflict: {
-        status: 302,
+        status: 409,
         description: 'User already exists',
         schema: {
           example: {
-            statusCode: 302,
+            statusCode: 409,
             message: 'User already exists',
           },
         },
@@ -33,15 +46,11 @@ export const userSwagger = {
         description: 'Validation error',
         schema: {
           example: {
-            surname: ['surname must be a string'],
-            gender: ['gender must be either male or female'],
-            role: ['role must be either student, teacher, or parents'],
-            email: ['email must be a valid email address'],
-            password: [
-              'password must be between 8 and 20 characters',
-              'password must be a string',
-            ],
-            name: ['name must be a string'],
+            name: ['Name is required'],
+            surname: ['Surname is required'],
+            email: ['Email must be a valid email'],
+            password: ['Password is required'],
+            role: ['Role must be either student, teacher, or parents'],
           },
         },
       },
@@ -49,46 +58,31 @@ export const userSwagger = {
   },
   get: {
     summary: {
-      summary: 'Get user by ID or all users',
+      summary: 'Get user by ID',
     },
     param: {
       name: 'id',
-      required: false,
       description: 'User ID',
     },
     responses: {
       success: {
         status: 200,
-        description: 'User(s) retrieved successfully',
+        description: 'User retrieved successfully',
         schema: {
-          example: [
-            {
-              id: '123',
-              name: 'John',
-              surname: 'Doe',
-              patronymic: 'Smith',
-              gender: 'male',
-              age: 20,
-              district: 'District 1',
-              role: 'student',
-              school: 'High School #1',
-              email: 'john.doe@example.com',
-              password: 'hashedpassword',
-              createdAt: 1622548800000,
-              deletedAt: 0,
-            },
-            {
-              id: '124',
-              name: 'Jane',
-              surname: 'Smith',
-              gender: 'female',
-              role: 'teacher',
-              email: 'jane.smith@example.com',
-              password: 'hashedpassword',
-              createdAt: 1622548800000,
-              deletedAt: 0,
-            },
-          ],
+          example: {
+            id: '123',
+            name: 'John',
+            surname: 'Doe',
+            patronymic: 'Middle',
+            gender: 'male',
+            age: 30,
+            district: 'Dushanbe',
+            role: 'student',
+            school: 'High School',
+            email: 'john.doe@example.com',
+            createdAt: 1622548800000,
+            updatedAt: 1622548800000,
+          },
         },
       },
       notFound: {
@@ -103,11 +97,115 @@ export const userSwagger = {
       },
       badRequest: {
         status: 400,
-        description: 'Bad request',
+        description: 'Invalid user ID',
         schema: {
           example: {
             statusCode: 400,
             message: 'Invalid user ID',
+          },
+        },
+      },
+    },
+  },
+  getAll: {
+    summary: {
+      summary: 'Get all users or filter by various criteria with pagination',
+    },
+    query: [
+      {
+        name: 'name',
+        required: false,
+        description: 'Filter by name (partial match)',
+        type: String,
+      },
+      {
+        name: 'surname',
+        required: false,
+        description: 'Filter by surname (partial match)',
+        type: String,
+      },
+      {
+        name: 'gender',
+        required: false,
+        description: 'Filter by gender',
+        type: String,
+        enum: ['male', 'female'],
+      },
+      {
+        name: 'age',
+        required: false,
+        description: 'Filter by age',
+        type: Number,
+      },
+      {
+        name: 'district',
+        required: false,
+        description: 'Filter by district',
+        type: String,
+      },
+      {
+        name: 'role',
+        required: false,
+        description: 'Filter by role',
+        type: String,
+        enum: ['student', 'teacher', 'parents'],
+      },
+      {
+        name: 'email',
+        required: false,
+        description: 'Filter by email (partial match)',
+        type: String,
+      },
+      {
+        name: 'page',
+        required: false,
+        description: 'Page number for pagination',
+        type: Number,
+        example: 1,
+      },
+      {
+        name: 'limit',
+        required: false,
+        description: 'Number of items per page',
+        type: Number,
+        example: 10,
+      },
+    ],
+    responses: {
+      success: {
+        status: 200,
+        description: 'Users retrieved successfully',
+        schema: {
+          example: {
+            total: 100,
+            page: 1,
+            limit: 10,
+            data: [
+              {
+                id: '123',
+                name: 'John',
+                surname: 'Doe',
+                patronymic: 'Middle',
+                gender: 'male',
+                age: 30,
+                district: 'Dushanbe',
+                role: 'student',
+                school: 'High School',
+                email: 'john.doe@example.com',
+                createdAt: 1622548800000,
+                updatedAt: 1622548800000,
+              },
+            ],
+          },
+        },
+      },
+      notFound: {
+        status: 404,
+        description: 'Users not found',
+        schema: {
+          example: {
+            statusCode: 404,
+            message: 'Users not found',
           },
         },
       },
@@ -149,15 +247,9 @@ export const userSwagger = {
         description: 'Validation error',
         schema: {
           example: {
-            surname: ['surname must be a string'],
-            gender: ['gender must be either male or female'],
-            role: ['role must be either student, teacher, or parents'],
-            email: ['email must be a valid email address'],
-            password: [
-              'password must be between 8 and 20 characters',
-              'password must be a string',
-            ],
-            name: ['name must be a string'],
+            name: ['Name must be a string'],
+            email: ['Email must be a valid email'],
+            role: ['Role must be either student, teacher, or parents'],
           },
         },
       },

@@ -16,7 +16,7 @@ import {
 import {
   ISpecialtyCreateDataDTO,
   ISpecialtyUpdateDataDTO,
-  ISpecialtyFilterDTO,
+  ISpecialtyGetDataDTO,
 } from '../types/_index.js';
 import { SpecialtyModel } from '../_db/model/specialty.model.js';
 
@@ -68,40 +68,36 @@ export class SpecialtyController {
   async createSpecialty(
     @Body() specialty: ISpecialtyCreateDataDTO,
   ): Promise<IMessage | IValidation> {
-    const result = await this.service.createSpecialty(specialty);
+    const result = await this.service.create(specialty);
     return this.handleServiceResult(result);
   }
 
   // ---------------------------------------------------------------------------
   // GET SPECIALTY
   // ---------------------------------------------------------------------------
-  @Get(['/get/:id', '/get'])
+  @Get('/get/:id')
   @ApiOperation(specialtySwagger.get.summary)
   @ApiParam(specialtySwagger.get.param)
-  @ApiResponse(specialtySwagger.get.responses.success)
+  @ApiResponse(specialtySwagger.get.responses.successId)
   @ApiResponse(specialtySwagger.get.responses.notFound)
   @ApiResponse(specialtySwagger.get.responses.badRequest)
-  async getSpecialty(
+  async getById(
     @Param('id') id?: string,
   ): Promise<IError | IValidation | SpecialtyModel | SpecialtyModel[]> {
-    const result = await this.service.getSpecialty(id);
+    const result = await this.service.get(id);
     return this.handleServiceResult(result);
   }
 
-  // ---------------------------------------------------------------------------
-  // FILTER SPECIALTY
-  // ---------------------------------------------------------------------------
-  @Get('/filter')
-  @ApiOperation(specialtySwagger.filter.summary)
+  @Get('/get')
+  @ApiOperation(specialtySwagger.get.summary)
   @ApiQuery(specialtySwagger.filter.query)
-  @ApiResponse(specialtySwagger.filter.responses.success)
-  @ApiResponse(specialtySwagger.filter.responses.validation)
-  async filterSpecialty(
-    @Query() filters: ISpecialtyFilterDTO,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-  ): Promise<IPaginationResponse<SpecialtyModel> | IValidation | IError> {
-    const result = await this.service.filterSpecialty(filters, page, limit);
+  @ApiResponse(specialtySwagger.get.responses.success)
+  @ApiResponse(specialtySwagger.get.responses.notFound)
+  @ApiResponse(specialtySwagger.get.responses.badRequest)
+  async get(
+    @Query() filters: ISpecialtyGetDataDTO,
+  ): Promise<IError | IValidation | SpecialtyModel | SpecialtyModel[]> {
+    const result = await this.service.get(undefined, filters);
     return this.handleServiceResult(result);
   }
 
@@ -119,7 +115,7 @@ export class SpecialtyController {
     @Param('id') id: string,
     @Body() updatedSpecialtyData: ISpecialtyUpdateDataDTO,
   ): Promise<IMessage | IValidation> {
-    const result = await this.service.updateSpecialty(id, updatedSpecialtyData);
+    const result = await this.service.update(id, updatedSpecialtyData);
     return this.handleServiceResult(result);
   }
 
@@ -135,7 +131,7 @@ export class SpecialtyController {
   async deleteSpecialty(
     @Param('id') id: string,
   ): Promise<IError | IMessage | IValidation> {
-    const result = await this.service.deleteSpecialty(id);
+    const result = await this.service.delete(id);
     return this.handleServiceResult(result);
   }
 }

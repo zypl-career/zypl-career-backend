@@ -2,17 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { UniversityRepository } from '../_db/repository/university.repository.js';
 import {
   IUniversityCreateDataDTO,
+  IUniversityGetDataDTO,
   IUniversityUpdateDataDTO,
+  PaginatedUniversityResponse,
 } from '../types/university.js';
 import { formatValidationErrors, validateUUID } from '../util/utils.js';
 import { plainToInstance } from 'class-transformer';
 import {
   CreateUniversityDto,
+  getUniversityDTO,
   UpdateUniversityDto,
 } from '../dto/university.dto.js';
 import { validate } from 'class-validator';
 import { UniversityModel } from '../_db/model/university.model.js';
-import { IError, IMessage, IValidation } from '../types/_index.js';
+import { IConflict, IError, IMessage, IValidation } from '../types/_index.js';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -66,7 +69,7 @@ export class UniversityService {
   // ---------------------------------------------------------------------------
   async create(
     university: IUniversityCreateDataDTO,
-  ): Promise<IMessage | IValidation | IError> {
+  ): Promise<IMessage | IValidation | IError | IConflict> {
     const createUniversityDto = plainToInstance(
       CreateUniversityDto,
       university,
@@ -79,7 +82,7 @@ export class UniversityService {
     });
 
     if (existingUniversity) {
-      return { error: 'University already exists' };
+      return { conflict: 'University already exists' };
     }
 
     const universityId = uuidv4();
@@ -94,9 +97,22 @@ export class UniversityService {
       generalInfoFile,
     };
 
-    await this.#repository.save(newUniversity);
+    const saveUniversity = await this.#repository.save(newUniversity);
 
-    return { message: 'University registered successfully' };
+    const payload = {
+      id: saveUniversity.id,
+      name: saveUniversity.name,
+      city: saveUniversity.city,
+      generalInfo: university.generalInfo,
+      createdAt: saveUniversity.createdAt,
+      updatedAt: saveUniversity.updatedAt,
+      deletedAt: saveUniversity.deletedAt,
+    };
+
+    return {
+      message: 'University registered successfully',
+      payload,
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -136,28 +152,65 @@ export class UniversityService {
   // ---------------------------------------------------------------------------
   async get(
     id?: string,
-  ): Promise<UniversityModel | UniversityModel[] | IError | IValidation> {
+    filters?: IUniversityGetDataDTO,
+  ): Promise<
+    | UniversityModel
+    | UniversityModel[]
+    | IError
+    | IValidation
+    | PaginatedUniversityResponse
+  > {
     if (id) {
       const university = await this.findUniversityById(id);
       if ('error' in university) return university;
-
       const generalInfoContent = await this.readGeneralInfoFromFile(
         university.generalInfoFile,
       );
-      return { ...university, generalInfoFile: generalInfoContent };
+
+      const result = {
+        id: university.id,
+        name: university.name,
+        city: university.city,
+        generalInfo: generalInfoContent,
+        createdAt: university.createdAt,
+        updatedAt: university.updatedAt,
+        deletedAt: null,
+      };
+
+      return result as any;
     }
 
-    const universities = await this.#repository.find();
-    const universitiesWithInfo = await Promise.all(
-      universities.map(async (university) => {
-        const generalInfoContent = await this.readGeneralInfoFromFile(
-          university.generalInfoFile,
-        );
-        return { ...university, generalInfoFile: generalInfoContent };
-      }),
-    );
+    let universities: UniversityModel[];
+    let totalUsers: number;
 
-    return universitiesWithInfo;
+    if (filters) {
+      const createUserDto = plainToInstance(getUniversityDTO, filters);
+      const validationErrors = await this.validateDto(createUserDto);
+      if (validationErrors) return validationErrors;
+      const { name, city, page, limit } = filters;
+      const skip = page && limit ? (page - 1) * limit : undefined;
+
+      universities = await this.#repository.findWithFilters({
+        name,
+        city,
+        skip,
+        take: limit,
+      });
+
+      totalUsers = await this.#repository.countWithFilters({
+        name,
+        city,
+      });
+    } else {
+      universities = await this.#repository.find();
+      totalUsers = await this.#repository.count();
+    }
+    return {
+      total: totalUsers,
+      page: filters?.page || 1,
+      limit: filters?.limit || 10,
+      data: universities,
+    };
   }
 
   // ---------------------------------------------------------------------------

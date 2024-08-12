@@ -1,15 +1,13 @@
+fastapi
+uvicorn
+pandas
 pyreadstat
 catboost
 scikit-learn
 openpyxl
-streamlit==1.10.0
-streamlit-aggrid
-streamlit-searchbox
-pandas
 plotly
 vega_datasets
 matplotlib
-psycopg2
 sqlalchemy
 python-dotenv
 awesome_streamlit
@@ -17,3 +15,4 @@ watchdog
 streamlit-tags
 PyJWT
 protobuf~=3.19.0
+numpy==1.25.1

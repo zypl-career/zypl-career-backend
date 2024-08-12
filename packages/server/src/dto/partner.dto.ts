@@ -1,34 +1,38 @@
-import { IsString, IsOptional, IsUrl } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import {
-  IPartnerCreateDataDTO,
-  IPartnerUpdateDataDTO,
-} from '../types/partner.js';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
-//----------------------------------------------------------------
-// DTO PARTNER CREATE
-//----------------------------------------------------------------
-export class CreatePartnerDto implements IPartnerCreateDataDTO {
+export class CreatePartnerDto {
   @ApiProperty({
+    description: 'The image file for the partner.',
     type: 'string',
     format: 'binary',
-    description: 'The image file of the partner',
   })
-  @IsUrl({}, { message: 'image must be a valid URL' })
-  file: Express.Multer.File;
+  image: Express.Multer.File;
 }
 
-//----------------------------------------------------------------
-// DTO PARTNER UPDATE
-//----------------------------------------------------------------
-export class UpdatePartnerDto implements IPartnerUpdateDataDTO {
+export class UpdatePartnerDto {
   @ApiProperty({
+    description: 'The updated image file for the partner.',
     type: 'string',
     format: 'binary',
-    description: 'The image file of the partner',
-    required: false,
   })
-  @IsUrl({}, { message: 'image must be a valid URL' })
+  image: Express.Multer.File;
+}
+
+export class GetPartnersDto {
+  @ApiPropertyOptional({
+    description: 'Number of items per page.',
+    type: Number,
+    example: 10,
+  })
   @IsOptional()
-  file?: Express.Multer.File;
+  limit?: number;
+
+  @ApiPropertyOptional({
+    description: 'Page number for pagination.',
+    type: Number,
+    example: 1,
+  })
+  @IsOptional()
+  page?: number;
 }

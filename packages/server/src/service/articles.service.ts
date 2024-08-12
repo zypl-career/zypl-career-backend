@@ -7,9 +7,21 @@ import { ImageStorageService } from './image-storage.service.js';
 import { Config } from '../app/config.app.js';
 import { ArticlesRepository } from '../_db/repository/articles.repository.js';
 import { ArticlesModel } from '../_db/model/articles.model.js';
-import { IError, IMessage, IValidation } from '../types/_index.js';
+import {
+  IArticleCreateDataDTO,
+  IArticleUpdateDataDTO,
+  IError,
+  IMessage,
+  IValidation,
+  PaginatedArticlesResponse,
+} from '../types/_index.js';
 import { formatValidationErrors, validateUUID } from '../util/utils.js';
-import { CreateArticleDto, UpdateArticleDto } from '../dto/articles.dto.js';
+import {
+  CreateArticleDto,
+  GetArticlesDto,
+  UpdateArticleDto,
+} from '../dto/articles.dto.js';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ArticlesService {
@@ -58,19 +70,17 @@ export class ArticlesService {
   // CREATE
   // ---------------------------------------------------------------------------
   async create(
-    createArticleDto: CreateArticleDto,
+    article: IArticleCreateDataDTO,
   ): Promise<IMessage | IValidation | IError> {
-    const arrayHashtags = isArray(createArticleDto.hashtags)
-      ? createArticleDto.hashtags
-      : (createArticleDto.hashtags as string).split(', ');
-    const validationErrors = await this.validateDto({
-      createArticleDto,
-      hashtags: arrayHashtags,
-    });
+    const arrayHashtags = isArray(article.hashtags)
+      ? article.hashtags
+      : (article.hashtags as string).split(', ');
+
+    const createArticleDto = plainToInstance(CreateArticleDto, article);
+    const validationErrors = await this.validateDto(createArticleDto);
     if (validationErrors) return validationErrors;
 
-    const { title, description, image, minutesRead, generalInfo, hashtags } =
-      createArticleDto;
+    const { title, description, image, minutesRead, generalInfo } = article;
 
     const uploadedImage = await this.#imageService.uploadImage(image);
     const generalInfoFile = await this.saveGeneralInfoToFile(
@@ -87,9 +97,9 @@ export class ArticlesService {
       hashtags: arrayHashtags,
     };
 
-    await this.#repository.save(newArticle);
+    const result = await this.#repository.save(newArticle);
 
-    return { message: 'Article created successfully' };
+    return { message: 'Article created successfully', payload: result };
   }
 
   // ---------------------------------------------------------------------------
@@ -97,21 +107,20 @@ export class ArticlesService {
   // ---------------------------------------------------------------------------
   async update(
     id: string,
-    updateArticleDto: UpdateArticleDto,
+    updateArticle: IArticleUpdateDataDTO,
   ): Promise<IMessage | IValidation | IError> {
-    const arrayHashtags = updateArticleDto.hashtags
-      ? isArray(updateArticleDto.hashtags)
-        ? updateArticleDto.hashtags
-        : (updateArticleDto.hashtags as string).split(',')
+    const arrayHashtags = updateArticle.hashtags
+      ? isArray(updateArticle.hashtags)
+        ? updateArticle.hashtags
+        : (updateArticle.hashtags as string).split(',')
       : null;
 
-    updateArticleDto = {
-      ...updateArticleDto,
-      hashtags: arrayHashtags ?? updateArticleDto.hashtags ?? undefined,
+    updateArticle = {
+      ...updateArticle,
+      hashtags: arrayHashtags ?? updateArticle.hashtags ?? undefined,
     };
-
+    const updateArticleDto = plainToInstance(UpdateArticleDto, updateArticle);
     const validationErrors = await this.validateDto(updateArticleDto);
-
     if (validationErrors) return validationErrors;
 
     const articleToUpdate = await this.findArticleById(id);
@@ -119,7 +128,7 @@ export class ArticlesService {
     if ('error' in articleToUpdate) return articleToUpdate;
 
     const { title, description, image, minutesRead, generalInfo, hashtags } =
-      updateArticleDto;
+      updateArticle;
 
     if (image) {
       const uploadedImage = await this.#imageService.uploadImage(image);
@@ -141,9 +150,9 @@ export class ArticlesService {
         ? hashtags
         : (hashtags as string).split(',');
 
-    await this.#repository.save(articleToUpdate);
+    const result = await this.#repository.save(articleToUpdate);
 
-    return { message: 'Article updated successfully' };
+    return { message: 'Article updated successfully', payload: result };
   }
 
   // ---------------------------------------------------------------------------
@@ -151,8 +160,14 @@ export class ArticlesService {
   // ---------------------------------------------------------------------------
   async get(
     id?: string,
-    hashtags?: string[] | string,
-  ): Promise<ArticlesModel | ArticlesModel[] | IError | IValidation> {
+    filters?: GetArticlesDto,
+  ): Promise<
+    | ArticlesModel
+    | ArticlesModel[]
+    | IError
+    | IValidation
+    | PaginatedArticlesResponse
+  > {
     if (id) {
       const article = await this.findArticleById(id);
       if ('error' in article) return article;
@@ -163,20 +178,42 @@ export class ArticlesService {
       return { ...article, generalInfoFile: generalInfoContent };
     }
 
-    if (hashtags) {
-      const articles = await this.#repository.findByHashtags(hashtags);
-      const articlesWithInfo = await Promise.all(
-        articles.map(async (article) => {
-          const generalInfoContent = await this.readGeneralInfoFromFile(
-            article.generalInfoFile,
-          );
-          return { ...article, generalInfoFile: generalInfoContent };
-        }),
-      );
-      return articlesWithInfo;
+    let articles: ArticlesModel[];
+    let totalArticles: number;
+
+    if (filters) {
+      const {
+        title,
+        description,
+        minutesRead,
+        generalInfo,
+        hashtags,
+        page,
+        limit,
+      } = filters;
+      const skip = page && limit ? (page - 1) * limit : undefined;
+
+      articles = await this.#repository.findWithFilters({
+        title,
+        description,
+        minutesRead,
+        generalInfo,
+        hashtags,
+        skip,
+        take: limit,
+      });
+      totalArticles = await this.#repository.countWithFilters({
+        title,
+        description,
+        minutesRead,
+        generalInfo,
+        hashtags,
+      });
+    } else {
+      articles = await this.#repository.find();
+      totalArticles = await this.#repository.count();
     }
 
-    const articles = await this.#repository.find();
     const articlesWithInfo = await Promise.all(
       articles.map(async (article) => {
         const generalInfoContent = await this.readGeneralInfoFromFile(
@@ -186,9 +223,13 @@ export class ArticlesService {
       }),
     );
 
-    return articlesWithInfo;
+    return {
+      total: totalArticles,
+      page: filters?.page || 1,
+      limit: filters?.limit || 10,
+      data: articlesWithInfo,
+    };
   }
-
   // ---------------------------------------------------------------------------
   // GET DISTINCT HASHTAGS
   // ---------------------------------------------------------------------------

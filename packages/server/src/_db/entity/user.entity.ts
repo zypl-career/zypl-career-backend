@@ -4,12 +4,12 @@ import {
   Column,
   BaseEntity,
   CreateDateColumn,
-  DeleteDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserModel } from '../model/_index.js';
+import { EnumCities } from '../../types/_index.js';
 
-@Entity({ name: 'users' })
+@Entity()
 export class UserEntity extends BaseEntity implements UserModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -23,16 +23,16 @@ export class UserEntity extends BaseEntity implements UserModel {
   @Column({ nullable: true })
   patronymic?: string;
 
-  @Column({ type: 'enum', enum: ['male', 'female'] })
+  @Column()
   gender: 'male' | 'female';
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ nullable: true })
   age?: number;
 
-  @Column({ nullable: true })
-  district?: string;
+  @Column({ type: 'enum', enum: EnumCities, nullable: true })
+  district?: EnumCities;
 
-  @Column({ type: 'enum', enum: ['student', 'teacher', 'parents'] })
+  @Column()
   role: 'student' | 'teacher' | 'parents';
 
   @Column({ nullable: true })
@@ -50,6 +50,6 @@ export class UserEntity extends BaseEntity implements UserModel {
   @UpdateDateColumn()
   updatedAt: number;
 
-  @DeleteDateColumn({ nullable: true })
+  @Column({ nullable: true })
   deletedAt: number;
 }

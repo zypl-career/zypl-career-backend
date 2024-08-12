@@ -1,108 +1,231 @@
 import { SpecialtyEntity } from '../entity/_index.js';
 import { AppDataSource } from '../../app/globals.app.js';
+import { ISpecialtyGetDataDTO } from '../../types/specialty.js';
 
 export const SpecialtyRepository = AppDataSource.getRepository(
   SpecialtyEntity,
 ).extend({
-  async findByFilters(
-    filters: {
-      name?: string;
-      class?: number;
-      specializationGroup?: number;
-      clusterName?: string;
-      clusterTag?: string;
-      specialtyCode?: number;
-      specialtyName?: string;
-      formOfEducation?: string;
-      typeOfStudy?: string;
-      languageOfStudy?: string;
-      universityName?: string;
-      monthlyIncome?: number;
-      careerOpportunities?: string[];
-    },
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<SpecialtyEntity[]> {
-    const qb = this.createQueryBuilder('specialty');
+  async findWithFilters({
+    name,
+    class: classNumber,
+    specializationGroup,
+    clusterName,
+    clusterTag,
+    specialtyCode,
+    specialtyName,
+    formOfEducation,
+    typeOfStudy,
+    languageOfStudy,
+    universityName,
+    monthlyIncome,
+    careerOpportunities,
+    skip,
+    take,
+  }: {
+    name?: string;
+    class?: number;
+    specializationGroup?: 1 | 2 | 3 | 4 | 5;
+    clusterName?: string;
+    clusterTag?: string;
+    specialtyCode?: number;
+    specialtyName?: string;
+    formOfEducation?: string;
+    typeOfStudy?: string;
+    languageOfStudy?: string;
+    universityName?: string;
+    monthlyIncome?: number;
+    careerOpportunities?: string[];
+    skip?: number;
+    take?: number;
+  }): Promise<SpecialtyEntity[]> {
+    const queryBuilder = this.createQueryBuilder('specialties');
 
-    if (filters.name) {
-      qb.andWhere('specialty.name ILIKE :name', { name: `%${filters.name}%` });
-    }
-
-    if (filters.class !== undefined) {
-      qb.andWhere('specialty.class = :class', { class: filters.class });
-    }
-
-    if (filters.specializationGroup !== undefined) {
-      qb.andWhere('specialty.specializationGroup = :specializationGroup', {
-        specializationGroup: filters.specializationGroup,
+    if (name) {
+      queryBuilder.andWhere('specialties.name ILIKE :name', {
+        name: `%${name}%`,
       });
     }
 
-    if (filters.clusterName) {
-      qb.andWhere('specialty.clusterName = :clusterName', {
-        clusterName: filters.clusterName,
+    if (classNumber) {
+      queryBuilder.andWhere('specialties.class = :classNumber', {
+        classNumber,
       });
     }
 
-    if (filters.clusterTag) {
-      qb.andWhere('specialty.clusterTag = :clusterTag', {
-        clusterTag: filters.clusterTag,
-      });
-    }
-
-    if (filters.specialtyCode !== undefined) {
-      qb.andWhere('specialty.specialtyCode = :specialtyCode', {
-        specialtyCode: filters.specialtyCode,
-      });
-    }
-
-    if (filters.specialtyName) {
-      qb.andWhere('specialty.specialtyName = :specialtyName', {
-        specialtyName: filters.specialtyName,
-      });
-    }
-
-    if (filters.formOfEducation) {
-      qb.andWhere('specialty.formOfEducation = :formOfEducation', {
-        formOfEducation: filters.formOfEducation,
-      });
-    }
-
-    if (filters.typeOfStudy) {
-      qb.andWhere('specialty.typeOfStudy = :typeOfStudy', {
-        typeOfStudy: filters.typeOfStudy,
-      });
-    }
-
-    if (filters.languageOfStudy) {
-      qb.andWhere('specialty.languageOfStudy = :languageOfStudy', {
-        languageOfStudy: filters.languageOfStudy,
-      });
-    }
-
-    if (filters.universityName) {
-      qb.andWhere('specialty.universityName = :universityName', {
-        universityName: filters.universityName,
-      });
-    }
-
-    if (filters.monthlyIncome !== undefined) {
-      qb.andWhere('specialty.monthlyIncome = :monthlyIncome', {
-        monthlyIncome: filters.monthlyIncome,
-      });
-    }
-
-    if (filters.careerOpportunities && filters.careerOpportunities.length > 0) {
-      qb.andWhere(
-        'EXISTS (SELECT 1 FROM UNNEST(specialty.careerOpportunities) AS opportunity WHERE opportunity = ANY(:careerOpportunities))',
-        { careerOpportunities: filters.careerOpportunities },
+    if (specializationGroup) {
+      queryBuilder.andWhere(
+        'specialties.specializationGroup = :specializationGroup',
+        { specializationGroup },
       );
     }
 
-    qb.skip((page - 1) * limit);
-    qb.take(limit);
+    if (clusterName) {
+      queryBuilder.andWhere('specialties.clusterName ILIKE :clusterName', {
+        clusterName: `%${clusterName}%`,
+      });
+    }
 
-    return qb.getMany();
+    if (clusterTag) {
+      queryBuilder.andWhere('specialties.clusterTag ILIKE :clusterTag', {
+        clusterTag: `%${clusterTag}%`,
+      });
+    }
+
+    if (specialtyCode) {
+      queryBuilder.andWhere('specialties.specialtyCode = :specialtyCode', {
+        specialtyCode,
+      });
+    }
+
+    if (specialtyName) {
+      queryBuilder.andWhere('specialties.specialtyName ILIKE :specialtyName', {
+        specialtyName: `%${specialtyName}%`,
+      });
+    }
+
+    if (formOfEducation) {
+      queryBuilder.andWhere(
+        'specialties.formOfEducation ILIKE :formOfEducation',
+        { formOfEducation: `%${formOfEducation}%` },
+      );
+    }
+
+    if (typeOfStudy) {
+      queryBuilder.andWhere('specialties.typeOfStudy ILIKE :typeOfStudy', {
+        typeOfStudy: `%${typeOfStudy}%`,
+      });
+    }
+
+    if (languageOfStudy) {
+      queryBuilder.andWhere(
+        'specialties.languageOfStudy ILIKE :languageOfStudy',
+        { languageOfStudy: `%${languageOfStudy}%` },
+      );
+    }
+
+    if (universityName) {
+      queryBuilder.andWhere(
+        'specialties.universityName ILIKE :universityName',
+        { universityName: `%${universityName}%` },
+      );
+    }
+
+    if (monthlyIncome) {
+      queryBuilder.andWhere('specialties.monthlyIncome = :monthlyIncome', {
+        monthlyIncome,
+      });
+    }
+
+    if (careerOpportunities && careerOpportunities.length > 0) {
+      queryBuilder.andWhere(
+        'specialties.careerOpportunities && ARRAY[:...careerOpportunities]',
+        { careerOpportunities },
+      );
+    }
+
+    return queryBuilder.skip(skip).take(take).getMany();
+  },
+
+  async countWithFilters({
+    name,
+    class: classNumber,
+    specializationGroup,
+    clusterName,
+    clusterTag,
+    specialtyCode,
+    specialtyName,
+    formOfEducation,
+    typeOfStudy,
+    languageOfStudy,
+    universityName,
+    monthlyIncome,
+    careerOpportunities,
+  }: ISpecialtyGetDataDTO): Promise<number> {
+    const queryBuilder = this.createQueryBuilder('specialties');
+
+    if (name) {
+      queryBuilder.andWhere('specialties.name ILIKE :name', {
+        name: `%${name}%`,
+      });
+    }
+
+    if (classNumber) {
+      queryBuilder.andWhere('specialties.class = :classNumber', {
+        classNumber,
+      });
+    }
+
+    if (specializationGroup) {
+      queryBuilder.andWhere(
+        'specialties.specializationGroup = :specializationGroup',
+        { specializationGroup },
+      );
+    }
+
+    if (clusterName) {
+      queryBuilder.andWhere('specialties.clusterName ILIKE :clusterName', {
+        clusterName: `%${clusterName}%`,
+      });
+    }
+
+    if (clusterTag) {
+      queryBuilder.andWhere('specialties.clusterTag ILIKE :clusterTag', {
+        clusterTag: `%{clusterTag}%`,
+      });
+    }
+
+    if (specialtyCode) {
+      queryBuilder.andWhere('specialties.specialtyCode = :specialtyCode', {
+        specialtyCode,
+      });
+    }
+
+    if (specialtyName) {
+      queryBuilder.andWhere('specialties.specialtyName ILIKE :specialtyName', {
+        specialtyName: `%{specialtyName}%`,
+      });
+    }
+
+    if (formOfEducation) {
+      queryBuilder.andWhere(
+        'specialties.formOfEducation ILIKE :formOfEducation',
+        { formOfEducation: `%{formOfEducation}%` },
+      );
+    }
+
+    if (typeOfStudy) {
+      queryBuilder.andWhere('specialties.typeOfStudy ILIKE :typeOfStudy', {
+        typeOfStudy: `%{typeOfStudy}%`,
+      });
+    }
+
+    if (languageOfStudy) {
+      queryBuilder.andWhere(
+        'specialties.languageOfStudy ILIKE :languageOfStudy',
+        { languageOfStudy: `%{languageOfStudy}%` },
+      );
+    }
+
+    if (universityName) {
+      queryBuilder.andWhere(
+        'specialties.universityName ILIKE :universityName',
+        { universityName: `%{universityName}%` },
+      );
+    }
+
+    if (monthlyIncome) {
+      queryBuilder.andWhere('specialties.monthlyIncome = :monthlyIncome', {
+        monthlyIncome,
+      });
+    }
+
+    if (careerOpportunities && careerOpportunities.length > 0) {
+      queryBuilder.andWhere(
+        'specialties.careerOpportunities && ARRAY[:...careerOpportunities]',
+        { careerOpportunities },
+      );
+    }
+
+    return queryBuilder.getCount();
   },
 });

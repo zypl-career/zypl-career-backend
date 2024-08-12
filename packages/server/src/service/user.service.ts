@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
-
+import { validate } from 'class-validator';
 import { UserRepository } from '../_db/repository/user.repository.js';
+import { UserModel } from '../_db/model/user.model.js';
 import {
-  IUserLoginResult,
-  IUserCreateDataDTO,
-  IUserLoginDataDTO,
-} from '../types/_index.js';
+  CreateUserDto,
+  GetUserDto,
+  LoginUserDto,
+  UpdateUserDto,
+} from '../dto/user.dto.js';
 import {
   formatValidationErrors,
   generateHash,
@@ -13,19 +15,20 @@ import {
   generateToken,
   validateUUID,
 } from '../util/utils.js';
+import { IConflict, IError, IMessage, IValidation } from '../types/base.js';
+import {
+  IUserCreateDataDTO,
+  IUserLoginDataDTO,
+  IUserLoginResult,
+  IUserUpdateDataDTO,
+  PaginatedUserResponse,
+} from '../types/user.js';
 import { plainToInstance } from 'class-transformer';
-import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
-import { validate } from 'class-validator';
-import { UserModel } from '../_db/model/user.model.js';
-import { IError, IMessage, IValidation } from '../types/_index.js';
 
 @Injectable()
 export class UserService {
   #repository = UserRepository;
 
-  // ---------------------------------------------------------------------------
-  // PRIVATE FUNCTIONS
-  // ---------------------------------------------------------------------------
   private async validateDto(dto: any): Promise<IValidation | null> {
     const errors = await validate(dto);
     if (errors.length > 0) {
@@ -45,37 +48,6 @@ export class UserService {
     return user;
   }
 
-  private sanitizeUser(user: UserModel): UserModel {
-    return { ...user, password: '***secret***' };
-  }
-
-  // ---------------------------------------------------------------------------
-  // REGISTER
-  // ---------------------------------------------------------------------------
-  async register(
-    user: IUserCreateDataDTO,
-  ): Promise<IMessage | IValidation | IError> {
-    const createUserDto = plainToInstance(CreateUserDto, user);
-    const validationErrors = await this.validateDto(createUserDto);
-    if (validationErrors) return validationErrors;
-
-    const newUser = { ...user, password: generateHash(user.password) };
-    const existingUser = await this.#repository.findOneBy({
-      email: newUser.email,
-    });
-
-    if (existingUser) {
-      return { error: 'User already exists' };
-    }
-
-    await this.#repository.save(newUser);
-
-    return { message: 'User registered successfully' };
-  }
-
-  // ---------------------------------------------------------------------------
-  // LOGIN
-  // ---------------------------------------------------------------------------
   async login(
     user: IUserLoginDataDTO,
   ): Promise<IUserLoginResult | IMessage | IValidation | IError> {
@@ -97,53 +69,121 @@ export class UserService {
       refresh: generateRefreshToken(existingUser.id, user.email),
     };
   }
+  async create(
+    user: IUserCreateDataDTO,
+  ): Promise<IMessage | IValidation | IError | IConflict> {
+    const createUserDto = plainToInstance(CreateUserDto, user);
+    const validationErrors = await this.validateDto(createUserDto);
+    if (validationErrors) return validationErrors;
 
-  // ---------------------------------------------------------------------------
-  // USER UPDATE
-  // ---------------------------------------------------------------------------
-  async updateUser(
+    const newUser = { ...user, password: generateHash(user.password) };
+
+    const existingUser = await this.#repository.findOneBy({
+      email: newUser.email,
+    });
+
+    if (existingUser) {
+      return { conflict: 'User already exists' };
+    }
+
+    await this.#repository.save(newUser);
+
+    return {
+      message: 'User registered successfully',
+      payload: { ...newUser, password: '****secret****' },
+    };
+  }
+  async update(
     id: string,
-    user: UpdateUserDto,
-  ): Promise<IMessage | IValidation | IError> {
-    const validationErrors = await this.validateDto(user);
+    updateUser: IUserUpdateDataDTO,
+  ): Promise<IMessage | IValidation | IError | IConflict> {
+    const createUserDto = plainToInstance(UpdateUserDto, updateUser);
+    const validationErrors = await this.validateDto(createUserDto);
     if (validationErrors) return validationErrors;
 
     const userToUpdate = await this.findUserById(id);
-
     if ('error' in userToUpdate) return userToUpdate;
 
-    Object.assign(userToUpdate, {
-      ...user,
-      password: user.password
-        ? generateHash(user.password)
-        : userToUpdate.password,
-    });
+    if (updateUser.email) {
+      const existingUser = await this.#repository.findOneBy({
+        email: updateUser.email,
+      });
 
-    await this.#repository.save(userToUpdate);
+      if (existingUser) {
+        return { conflict: 'Email already exists' };
+      }
+    }
+
+    if (updateUser.password) {
+      updateUser.password = generateHash(updateUser.password);
+    } else {
+      delete updateUser.password;
+    }
+
+    const updatedUser = { ...userToUpdate, ...updateUser };
+
+    await this.#repository.save(updatedUser);
 
     return { message: 'User updated successfully' };
   }
 
-  // ---------------------------------------------------------------------------
-  // USER GET
-  // ---------------------------------------------------------------------------
-  async getUser(
+  async get(
     id?: string,
-  ): Promise<UserModel | UserModel[] | IError | IValidation> {
+    filters?: GetUserDto,
+  ): Promise<
+    UserModel | UserModel[] | IError | IValidation | PaginatedUserResponse
+  > {
     if (id) {
       const user = await this.findUserById(id);
       if ('error' in user) return user;
-      return this.sanitizeUser(user);
+      return user;
     }
 
-    const users = (await this.#repository.find()).map(this.sanitizeUser);
-    return users;
+    let users: UserModel[];
+    let totalUsers: number;
+
+    if (filters) {
+      const createUserDto = plainToInstance(GetUserDto, filters);
+      const validationErrors = await this.validateDto(createUserDto);
+      if (validationErrors) return validationErrors;
+      const { name, surname, gender, age, district, role, email, page, limit } =
+        filters;
+      const skip = page && limit ? (page - 1) * limit : undefined;
+
+      users = await this.#repository.findWithFilters({
+        name,
+        surname,
+        gender,
+        age,
+        district,
+        role,
+        email,
+        skip,
+        take: limit,
+      });
+      totalUsers = await this.#repository.countWithFilters({
+        name,
+        surname,
+        gender,
+        age,
+        district,
+        role,
+        email,
+      });
+    } else {
+      users = await this.#repository.find();
+      totalUsers = await this.#repository.count();
+    }
+
+    return {
+      total: totalUsers,
+      page: filters?.page || 1,
+      limit: filters?.limit || 10,
+      data: users,
+    };
   }
 
-  // ---------------------------------------------------------------------------
-  // USER DELETE
-  // ---------------------------------------------------------------------------
-  async deleteUser(id: string): Promise<IMessage | IError | IValidation> {
+  async delete(id: string): Promise<IMessage | IError | IValidation> {
     const userToDelete = await this.findUserById(id);
     if ('error' in userToDelete) return userToDelete;
 

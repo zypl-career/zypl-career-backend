@@ -5,3 +5,4 @@ export * from './partner.service.js';
 export * from './articles.service.js';
 export * from './educational-centers.service.js';
 export * from './specialty.service.js';
+export * from './test.service.js';

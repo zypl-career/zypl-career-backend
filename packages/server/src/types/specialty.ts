@@ -40,7 +40,7 @@ export interface ISpecialtyUpdateDataDTO {
   careerOpportunities?: string[];
 }
 
-export interface ISpecialtyFilterDTO {
+export interface ISpecialtyGetDataDTO {
   name?: string;
   class?: number;
   specializationGroup?: 1 | 2 | 3 | 4 | 5;
@@ -54,6 +54,8 @@ export interface ISpecialtyFilterDTO {
   universityName?: string;
   monthlyIncome?: number;
   careerOpportunities?: string[];
+  page?: number;
+  limit?: number;
 }
 
 export interface IPaginationResponse<T> {

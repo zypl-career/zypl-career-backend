@@ -11,7 +11,6 @@ import base64
 
 app = FastAPI()
 
-# Allow CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,7 +24,6 @@ class UserInput(BaseModel):
     answers: dict
 
 
-# Load files and initial setup
 data = pd.read_csv('last_dataset.csv')
 loaded_model = pickle.load(open('last_model.pickle', 'rb'))
 trans = pd.read_csv('translations.csv')

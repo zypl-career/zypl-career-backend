@@ -1,0 +1,3202 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/article/create": {
+      "post": {
+        "operationId": "ArticlesController_create",
+        "summary": "Create a new article",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Article created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Article created successfully"
+                  }
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "Article already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 302,
+                    "message": "Article already exists"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "title": ["Title must be a string"],
+                    "image": ["Image is required"],
+                    "description": ["Description is required"],
+                    "minutesRead": ["Minutes read must be a number"],
+                    "hashtags": ["Hashtags must be an array"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["article"]
+      }
+    },
+    "/article/get/{id}": {
+      "get": {
+        "operationId": "ArticlesController_getArticle",
+        "summary": "Get article by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Article ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "123",
+                    "title": "Article Title",
+                    "image": "https://example.com/image.jpg",
+                    "description": "This is a description of the article.",
+                    "minutesRead": 5,
+                    "generalInfoFile": "media/articles-info/article.txt",
+                    "hashtags": ["tech", "news"],
+                    "createdAt": 1622548800000,
+                    "updatedAt": 1622548800000
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid article ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "Invalid article ID"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Article not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["article"]
+      }
+    },
+    "/article/get": {
+      "get": {
+        "operationId": "ArticlesController_getArticles",
+        "summary": "Get all articles or filter by various criteria with pagination",
+        "parameters": [
+          {
+            "name": "title",
+            "required": false,
+            "in": "query",
+            "description": "Filter by title (partial match)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "description",
+            "required": false,
+            "in": "query",
+            "description": "Filter by description (partial match)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minutesRead",
+            "required": false,
+            "in": "query",
+            "description": "Filter by minutes to read",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "generalInfo",
+            "required": false,
+            "in": "query",
+            "description": "Filter by general information (partial match)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hashtags",
+            "required": false,
+            "in": "query",
+            "description": "Filter by hashtags",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number for pagination",
+            "example": 1,
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "example": 10,
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Articles retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "total": 100,
+                    "page": 1,
+                    "limit": 10,
+                    "data": [
+                      {
+                        "id": "123",
+                        "title": "Article Title",
+                        "image": "https://example.com/image.jpg",
+                        "description": "This is a description of the article.",
+                        "minutesRead": 5,
+                        "generalInfoFile": "media/articles-info/article.txt",
+                        "hashtags": ["tech", "news"],
+                        "createdAt": 1622548800000,
+                        "updatedAt": 1622548800000
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Articles not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Articles not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["article"]
+      }
+    },
+    "/article/hashtags": {
+      "get": {
+        "operationId": "ArticlesController_getAllHashtags",
+        "summary": "Get all unique hashtags",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Hashtags retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": ["tech", "news", "education"]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to retrieve hashtags",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "error": "Failed to retrieve hashtags"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["article"]
+      }
+    },
+    "/article/update/{id}": {
+      "patch": {
+        "operationId": "ArticlesController_updateArticle",
+        "summary": "Update article by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Article ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Article updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Article updated successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Article not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "title": ["Title must be a string"],
+                    "image": ["Image must be a valid URL"],
+                    "description": ["Description must be a string"],
+                    "minutesRead": ["Minutes read must be a number"],
+                    "hashtags": ["Hashtags must be an array"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["article"]
+      }
+    },
+    "/article/delete/{id}": {
+      "delete": {
+        "operationId": "ArticlesController_deleteArticle",
+        "summary": "Delete article by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Article ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Article deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Article not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": ["Invalid article ID"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["article"]
+      }
+    },
+    "/education-center/create": {
+      "post": {
+        "operationId": "EducationCenterController_create",
+        "summary": "Create a new education center",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEducationCenterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Education center created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Education center created successfully"
+                  }
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "Education center already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 302,
+                    "message": "Education center already exists"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "title": ["Title must be a string"],
+                    "image": ["Image is required"],
+                    "generalInfo": ["General info is required"],
+                    "city": ["City is required"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["education-center"]
+      }
+    },
+    "/education-center/get/{id}": {
+      "get": {
+        "operationId": "EducationCenterController_getEducationCenter",
+        "summary": "Get education center by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Education center ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Education center retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "123",
+                    "title": "Education Center Title",
+                    "image": "https://example.com/image.jpg",
+                    "generalInfoFile": "media/education-center-info/education-center.txt",
+                    "city": "City Name",
+                    "createdAt": 1622548800000,
+                    "updatedAt": 1622548800000
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid education center ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "Invalid education center ID"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Education center not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Education center not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["education-center"]
+      }
+    },
+    "/education-center/get": {
+      "get": {
+        "operationId": "EducationCenterController_getEducationCenters",
+        "summary": "Get all education centers or filter by city",
+        "parameters": [
+          {
+            "name": "city",
+            "required": false,
+            "in": "query",
+            "description": "Filter by city",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Education centers retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "123",
+                      "title": "Education Center Title",
+                      "image": "https://example.com/image.jpg",
+                      "generalInfoFile": "media/education-center-info/education-center.txt",
+                      "city": "City Name",
+                      "createdAt": 1622548800000,
+                      "updatedAt": 1622548800000
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Education centers not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Education centers not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["education-center"]
+      }
+    },
+    "/education-center/update/{id}": {
+      "patch": {
+        "operationId": "EducationCenterController_updateEducationCenter",
+        "summary": "Update education center by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Education center ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEducationCenterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Education center updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Education center updated successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Education center not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Education center not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "title": ["Title must be a string"],
+                    "image": ["Image must be a valid URL"],
+                    "generalInfo": ["General info must be a string"],
+                    "city": ["City must be a string"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["education-center"]
+      }
+    },
+    "/education-center/delete/{id}": {
+      "delete": {
+        "operationId": "EducationCenterController_deleteEducationCenter",
+        "summary": "Delete education center by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Education center ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Education center deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Education center deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Education center not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Education center not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": ["Invalid education center ID"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["education-center"]
+      }
+    },
+    "/images/upload": {
+      "post": {
+        "operationId": "ImageController_uploadImage",
+        "summary": "Upload an image",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Image uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "cid": "QmT5NvUtoM5nX6eWyJ77zDeRDUcLBr5Y6z6B43qQJdYYa8"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "file": ["file must be a valid format"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["images"]
+      }
+    },
+    "/images/get/{cid}": {
+      "get": {
+        "operationId": "ImageController_getImage",
+        "summary": "Get image by CID",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Image retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "Invalid CID"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Image not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Image not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["images"]
+      }
+    },
+    "/partner/create": {
+      "post": {
+        "operationId": "PartnerController_create",
+        "summary": "Create a new partner",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePartnerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Partner created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Partner created successfully"
+                  }
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "Partner already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 302,
+                    "message": "Partner already exists"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "image": ["image must be a valid URL"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["partner"]
+      }
+    },
+    "/partner/get/{id}": {
+      "get": {
+        "operationId": "PartnerController_getPartner",
+        "summary": "Get partner by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Partner ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Partner retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "123",
+                    "image": "https://example.com/image1.jpg",
+                    "createdAt": 1622548800000,
+                    "deletedAt": 0
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "Invalid partner ID"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Partner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Partner not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["partner"]
+      }
+    },
+    "/partner/get": {
+      "get": {
+        "operationId": "PartnerController_getPartners",
+        "summary": "Get all partners with optional filters and pagination",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "example": 10,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number for pagination",
+            "example": 1,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Partners retrieved successfully with pagination details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "total": 11,
+                    "page": 1,
+                    "limit": 10,
+                    "data": [
+                      {
+                        "id": "123",
+                        "image": "https://example.com/image1.jpg",
+                        "createdAt": 1622548800000,
+                        "deletedAt": 0
+                      },
+                      {
+                        "id": "124",
+                        "image": "https://example.com/image2.jpg",
+                        "createdAt": 1622548800000,
+                        "deletedAt": 0
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No partners found matching the filters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "No partners found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["partner"]
+      }
+    },
+    "/partner/update/{id}": {
+      "patch": {
+        "operationId": "PartnerController_updatePartner",
+        "summary": "Update partner by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Partner ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePartnerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Partner updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Partner updated successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Partner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Partner not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "image": ["image must be a valid URL"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["partner"]
+      }
+    },
+    "/partner/delete/{id}": {
+      "delete": {
+        "operationId": "PartnerController_deletePartner",
+        "summary": "Delete partner by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Partner ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Partner deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Partner deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Partner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Partner not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": ["Invalid partner ID"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["partner"]
+      }
+    },
+    "/result-modal": {
+      "post": {
+        "operationId": "ResultModalController_processResultModal",
+        "summary": "Process result modal",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResultModalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Result modal processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Result modal processed successfully",
+                    "payload": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "Invalid token"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 500,
+                    "message": "Error message"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["result-modal"]
+      }
+    },
+    "/specialty/create": {
+      "post": {
+        "operationId": "SpecialtyController_createSpecialty",
+        "summary": "Create a new specialty",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSpecialtyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Specialty created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Specialty created successfully"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "name": ["name must be a string"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["specialty"]
+      }
+    },
+    "/specialty/get/{id}": {
+      "get": {
+        "operationId": "SpecialtyController_getSpecialty",
+        "summary": "Get specialty by ID or all specialties",
+        "parameters": [
+          {
+            "name": "id",
+            "required": false,
+            "in": "path",
+            "description": "Specialty ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Specialty(s) retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "123",
+                      "name": "Specialty 1"
+                    },
+                    {
+                      "id": "124",
+                      "name": "Specialty 2"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "Invalid specialty ID"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Specialty not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Specialty not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["specialty"]
+      }
+    },
+    "/specialty/get": {
+      "get": {
+        "operationId": "SpecialtyController_getSpecialty",
+        "summary": "Get specialty by ID or all specialties",
+        "parameters": [
+          {
+            "name": "id",
+            "required": false,
+            "in": "path",
+            "description": "Specialty ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Specialty(s) retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "123",
+                      "name": "Specialty 1"
+                    },
+                    {
+                      "id": "124",
+                      "name": "Specialty 2"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "Invalid specialty ID"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Specialty not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Specialty not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["specialty"]
+      }
+    },
+    "/specialty/filter": {
+      "get": {
+        "operationId": "SpecialtyController_filterSpecialty",
+        "summary": "Filter specialties based on criteria",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "example": "Computer Science",
+            "description": "The name of the specialty",
+            "required": false,
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": 3,
+            "description": "The class level of the specialty",
+            "required": false,
+            "name": "class",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "example": 2,
+            "description": "The specialization group of the specialty",
+            "required": false,
+            "name": "specializationGroup",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "example": "Engineering",
+            "description": "The cluster name of the specialty",
+            "required": false,
+            "name": "clusterName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "ENG",
+            "description": "The cluster tag of the specialty",
+            "required": false,
+            "name": "clusterTag",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": 101,
+            "description": "The specialty code",
+            "required": false,
+            "name": "specialtyCode",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "example": "Bachelor of Computer Science",
+            "description": "The name of the specialty",
+            "required": false,
+            "name": "specialtyName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "Full-time",
+            "description": "The form of education",
+            "required": false,
+            "name": "formOfEducation",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "On-campus",
+            "description": "The type of study",
+            "required": false,
+            "name": "typeOfStudy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "English",
+            "description": "The language of study",
+            "required": false,
+            "name": "languageOfStudy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": "XYZ University",
+            "description": "The university name",
+            "required": false,
+            "name": "universityName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "example": 1000,
+            "description": "The monthly income from the specialty",
+            "required": false,
+            "name": "monthlyIncome",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "example": ["Software Development", "Data Analysis"],
+            "description": "Career opportunities available",
+            "required": false,
+            "name": "careerOpportunities",
+            "in": "query",
+            "schema": {
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Filtered specialties retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "data": [
+                      {
+                        "id": "123",
+                        "name": "Specialty 1"
+                      },
+                      {
+                        "id": "124",
+                        "name": "Specialty 2"
+                      }
+                    ],
+                    "total": 2,
+                    "page": 1,
+                    "limit": 10
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "name": ["name must be a string"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["specialty"]
+      }
+    },
+    "/specialty/update/{id}": {
+      "patch": {
+        "operationId": "SpecialtyController_updateSpecialty",
+        "summary": "Update specialty by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Specialty ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSpecialtyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Specialty updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Specialty updated successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Specialty not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Specialty not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "name": ["name must be a string"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["specialty"]
+      }
+    },
+    "/specialty/delete/{id}": {
+      "delete": {
+        "operationId": "SpecialtyController_deleteSpecialty",
+        "summary": "Delete specialty by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Specialty ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Specialty deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "Specialty deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Specialty not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Specialty not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": ["Invalid specialty ID"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["specialty"]
+      }
+    },
+    "/university/create": {
+      "post": {
+        "operationId": "UniversityController_register",
+        "summary": "Create a new university",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUniversityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "University registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "University registered successfully"
+                  }
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "University already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 302,
+                    "message": "University already exists"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "name": ["name must be a string"],
+                    "address": ["address must be a string"],
+                    "contactEmail": [
+                      "contactEmail must be a valid email address"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["university"]
+      }
+    },
+    "/university/get/{id}": {
+      "get": {
+        "operationId": "UniversityController_getUniversity",
+        "summary": "Get university by ID or all universities",
+        "parameters": [
+          {
+            "name": "id",
+            "required": false,
+            "in": "path",
+            "description": "University ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "University(s) retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "123",
+                      "name": "Harvard University",
+                      "address": "Cambridge, MA",
+                      "contactEmail": "info@harvard.edu",
+                      "generalInfo": "media/university-info/harvard.txt",
+                      "createdAt": 1622548800000,
+                      "updatedAt": 1622548800000
+                    },
+                    {
+                      "id": "124",
+                      "name": "Stanford University",
+                      "address": "Stanford, CA",
+                      "contactEmail": "info@stanford.edu",
+                      "generalInfo": "media/university-info/stanford.txt",
+                      "createdAt": 1622548800000,
+                      "updatedAt": 1622548800000
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "Invalid university ID"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "University not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "University not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["university"]
+      }
+    },
+    "/university/get": {
+      "get": {
+        "operationId": "UniversityController_getUniversity",
+        "summary": "Get university by ID or all universities",
+        "parameters": [
+          {
+            "name": "id",
+            "required": false,
+            "in": "path",
+            "description": "University ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "University(s) retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": "123",
+                      "name": "Harvard University",
+                      "address": "Cambridge, MA",
+                      "contactEmail": "info@harvard.edu",
+                      "generalInfo": "media/university-info/harvard.txt",
+                      "createdAt": 1622548800000,
+                      "updatedAt": 1622548800000
+                    },
+                    {
+                      "id": "124",
+                      "name": "Stanford University",
+                      "address": "Stanford, CA",
+                      "contactEmail": "info@stanford.edu",
+                      "generalInfo": "media/university-info/stanford.txt",
+                      "createdAt": 1622548800000,
+                      "updatedAt": 1622548800000
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "Invalid university ID"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "University not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "University not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["university"]
+      }
+    },
+    "/university/update/{id}": {
+      "patch": {
+        "operationId": "UniversityController_updateUniversity",
+        "summary": "Update university by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "University ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUniversityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "University updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "University updated successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "University not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "University not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "name": ["name must be a string"],
+                    "address": ["address must be a string"],
+                    "contactEmail": [
+                      "contactEmail must be a valid email address"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["university"]
+      }
+    },
+    "/university/delete/{id}": {
+      "delete": {
+        "operationId": "UniversityController_deleteUniversity",
+        "summary": "Delete university by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "University ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "University deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "University deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "University not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "University not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": ["Invalid university ID"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["university"]
+      }
+    },
+    "/user/create": {
+      "post": {
+        "operationId": "UsersController_createUser",
+        "summary": "Create a new user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "User created successfully"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "User already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 409,
+                    "message": "User already exists"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "name": ["Name is required"],
+                    "surname": ["Surname is required"],
+                    "email": ["Email must be a valid email"],
+                    "password": ["Password is required"],
+                    "role": ["Role must be either student, teacher, or parents"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["user"]
+      }
+    },
+    "/user/get/{id}": {
+      "get": {
+        "operationId": "UsersController_getUser",
+        "summary": "Get user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "123",
+                    "name": "John",
+                    "surname": "Doe",
+                    "patronymic": "Middle",
+                    "gender": "male",
+                    "age": 30,
+                    "district": "Dushanbe",
+                    "role": "student",
+                    "school": "High School",
+                    "email": "john.doe@example.com",
+                    "createdAt": 1622548800000,
+                    "updatedAt": 1622548800000
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "Invalid user ID"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "User not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["user"]
+      }
+    },
+    "/user/get": {
+      "get": {
+        "operationId": "UsersController_getUsers",
+        "summary": "Get all users or filter by various criteria with pagination",
+        "parameters": [
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Filter by name (partial match)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "surname",
+            "required": false,
+            "in": "query",
+            "description": "Filter by surname (partial match)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "gender",
+            "required": false,
+            "in": "query",
+            "description": "Filter by gender",
+            "schema": {
+              "enum": ["male", "female"],
+              "type": "string"
+            }
+          },
+          {
+            "name": "age",
+            "required": false,
+            "in": "query",
+            "description": "Filter by age",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "district",
+            "required": false,
+            "in": "query",
+            "description": "Filter by district",
+            "schema": {
+              "enum": [
+                "Dushanbe",
+                "Bokhtar",
+                "Kulob",
+                "Vahdat",
+                "Tursunzoda",
+                "Panjakent",
+                "Norak",
+                "Danghara",
+                "Farkhor",
+                "Hissor",
+                "Gafurov",
+                "Roghun",
+                "Shahritus",
+                "Shahrinav",
+                "Taboshar",
+                "Chkalovsk",
+                "Khorugh",
+                "Murghab",
+                "Qayroqqum",
+                "Sarband",
+                "Vose",
+                "Asht",
+                "Baljuvon",
+                "Darvoz",
+                "Devashtich",
+                "Fayzobod",
+                "Ishkoshim",
+                "Jabbor Rasulov",
+                "Jilikul",
+                "Jirgatol",
+                "Khovaling",
+                "Kuhistoni Mastchoh",
+                "Lakhsh",
+                "Muminobod",
+                "Nurobod",
+                "Nosiri Khusrav",
+                "Panj",
+                "Rasht",
+                "Roshtqala",
+                "Rumi",
+                "Rudaki",
+                "Rushon",
+                "Sangvor",
+                "Shughnon",
+                "Temurmalik",
+                "Tojikobod",
+                "Varzob",
+                "Vakhsh",
+                "Vanj",
+                "Zafar",
+                "Zarafshon",
+                "Yovon",
+                "Dusti",
+                "Khuroson",
+                "Kushoniyon",
+                "Levakant",
+                "Qubodiyon",
+                "Balkhi",
+                "Khujand",
+                "Buston",
+                "Ghafurov",
+                "Isfara",
+                "Istaravshan",
+                "Konibodom",
+                "Mastchoh",
+                "Spitamen",
+                "Zafarobod",
+                "Rasulov",
+                "Shahriston",
+                "Ayni",
+                "Penjikent"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "description": "Filter by role",
+            "schema": {
+              "enum": ["student", "teacher", "parents"],
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "required": false,
+            "in": "query",
+            "description": "Filter by email (partial match)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number for pagination",
+            "example": 1,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "example": 10,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "total": 100,
+                    "page": 1,
+                    "limit": 10,
+                    "data": [
+                      {
+                        "id": "123",
+                        "name": "John",
+                        "surname": "Doe",
+                        "patronymic": "Middle",
+                        "gender": "male",
+                        "age": 30,
+                        "district": "Dushanbe",
+                        "role": "student",
+                        "school": "High School",
+                        "email": "john.doe@example.com",
+                        "createdAt": 1622548800000,
+                        "updatedAt": 1622548800000
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Users not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "Users not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["user"]
+      }
+    },
+    "/user/update/{id}": {
+      "patch": {
+        "operationId": "UsersController_updateUser",
+        "summary": "Update user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "User updated successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "User not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "name": ["Name must be a string"],
+                    "email": ["Email must be a valid email"],
+                    "role": ["Role must be either student, teacher, or parents"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["user"]
+      }
+    },
+    "/user/delete/{id}": {
+      "delete": {
+        "operationId": "UsersController_deleteUser",
+        "summary": "Delete user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "message": "User deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 404,
+                    "message": "User not found"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": ["Invalid user ID"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["user"]
+      }
+    }
+  },
+  "info": {
+    "title": "Career API",
+    "description": "The Career API documentation",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "CreateArticleDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the article"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the article"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "The image file of the article"
+          },
+          "minutesRead": {
+            "type": "integer",
+            "description": "Minutes to read the article"
+          },
+          "generalInfo": {
+            "type": "string",
+            "description": "General information about the article"
+          },
+          "hashtags": {
+            "type": "string",
+            "description": "List of hashtags associated with the article, as a comma-separated string",
+            "example": "hashtag1, hashtag2, hashtag3"
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "image",
+          "minutesRead",
+          "generalInfo",
+          "hashtags"
+        ]
+      },
+      "UpdateArticleDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the article"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the article"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "The image file of the article"
+          },
+          "minutesRead": {
+            "type": "integer",
+            "description": "Minutes to read the article"
+          },
+          "generalInfo": {
+            "type": "string",
+            "description": "General information about the article"
+          },
+          "hashtags": {
+            "description": "List of hashtags associated with the article",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateEducationCenterDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the education center"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "The image file of the education center"
+          },
+          "generalInfo": {
+            "type": "string",
+            "description": "The general information about the education center"
+          },
+          "city": {
+            "type": "string",
+            "description": "The city where the education center is located"
+          }
+        },
+        "required": ["title", "image", "generalInfo", "city"]
+      },
+      "UpdateEducationCenterDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the education center"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "The image file of the education center"
+          },
+          "generalInfo": {
+            "type": "string",
+            "description": "The general information about the education center"
+          },
+          "city": {
+            "type": "string",
+            "description": "The city where the education center is located"
+          }
+        }
+      },
+      "CreatePartnerDto": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "The image file for the partner.",
+            "format": "binary"
+          }
+        },
+        "required": ["image"]
+      },
+      "UpdatePartnerDto": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "The updated image file for the partner.",
+            "format": "binary"
+          }
+        },
+        "required": ["image"]
+      },
+      "ResultModalDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Sample Name",
+            "description": "The name"
+          },
+          "first": {
+            "example": [1, 2, 3],
+            "description": "Array of numbers",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "second": {
+            "example": ["a", "b"],
+            "description": "Array of strings",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "third": {
+            "type": "string",
+            "example": "Sample String",
+            "description": "A string value"
+          },
+          "fourth": {
+            "type": "string",
+            "example": "Sample String",
+            "description": "A string value"
+          },
+          "fifth": {
+            "type": "string",
+            "example": "Sample String",
+            "description": "A string value"
+          },
+          "sixth": {
+            "type": "string",
+            "example": "Sample String",
+            "description": "A string value"
+          },
+          "seventh": {
+            "type": "string",
+            "example": "Sample String",
+            "description": "A string value"
+          },
+          "time_spent": {
+            "type": "number",
+            "example": 120,
+            "description": "Time spent"
+          }
+        },
+        "required": [
+          "name",
+          "first",
+          "second",
+          "third",
+          "fourth",
+          "fifth",
+          "sixth",
+          "seventh",
+          "time_spent"
+        ]
+      },
+      "CreateSpecialtyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Computer Science",
+            "description": "The name of the specialty"
+          },
+          "EIOHPE": {
+            "type": "string",
+            "example": "EIOHPE123",
+            "description": "Educational institutions of higher professional education"
+          },
+          "class": {
+            "type": "number",
+            "example": 3,
+            "description": "The class level of the specialty"
+          },
+          "specializationGroup": {
+            "type": "number",
+            "example": 2,
+            "description": "The specialization group of the specialty"
+          },
+          "clusterName": {
+            "type": "string",
+            "example": "Engineering",
+            "description": "The cluster name of the specialty"
+          },
+          "clusterTag": {
+            "type": "string",
+            "example": "ENG",
+            "description": "The cluster tag of the specialty"
+          },
+          "specialtyDescription": {
+            "type": "string",
+            "example": "A specialization in computer science",
+            "description": "The description of the specialty"
+          },
+          "specialtyCode": {
+            "type": "number",
+            "example": 101,
+            "description": "The specialty code"
+          },
+          "specialtyName": {
+            "type": "string",
+            "example": "Bachelor of Computer Science",
+            "description": "The name of the specialty"
+          },
+          "formOfEducation": {
+            "type": "string",
+            "example": "Full-time",
+            "description": "The form of education"
+          },
+          "typeOfStudy": {
+            "type": "string",
+            "example": "On-campus",
+            "description": "The type of study"
+          },
+          "languageOfStudy": {
+            "type": "string",
+            "example": "English",
+            "description": "The language of study"
+          },
+          "universityName": {
+            "type": "string",
+            "example": "XYZ University",
+            "description": "The university name"
+          },
+          "monthlyIncome": {
+            "type": "number",
+            "example": 1000,
+            "description": "The monthly income from the specialty"
+          },
+          "skillsLevel": {
+            "type": "number",
+            "example": 5,
+            "description": "The skills level required for the specialty"
+          },
+          "futureGrowth": {
+            "type": "string",
+            "example": "High",
+            "description": "Future growth opportunities for the specialty"
+          },
+          "overview": {
+            "type": "string",
+            "example": "An overview of the specialty",
+            "description": "The overview of the specialty"
+          },
+          "careerOpportunities": {
+            "example": ["Software Development", "Data Analysis"],
+            "description": "Career opportunities available",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "EIOHPE",
+          "class",
+          "specializationGroup",
+          "clusterName",
+          "clusterTag",
+          "specialtyDescription",
+          "specialtyCode",
+          "specialtyName",
+          "formOfEducation",
+          "typeOfStudy",
+          "languageOfStudy",
+          "universityName",
+          "monthlyIncome",
+          "skillsLevel",
+          "futureGrowth",
+          "overview",
+          "careerOpportunities"
+        ]
+      },
+      "UpdateSpecialtyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Computer Science",
+            "description": "The name of the specialty"
+          },
+          "EIOHPE": {
+            "type": "string",
+            "example": "EIOHPE123",
+            "description": "Educational institutions of higher professional education"
+          },
+          "class": {
+            "type": "number",
+            "example": 3,
+            "description": "The class level of the specialty"
+          },
+          "specializationGroup": {
+            "type": "number",
+            "example": 2,
+            "description": "The specialization group of the specialty"
+          },
+          "clusterName": {
+            "type": "string",
+            "example": "Engineering",
+            "description": "The cluster name of the specialty"
+          },
+          "clusterTag": {
+            "type": "string",
+            "example": "ENG",
+            "description": "The cluster tag of the specialty"
+          },
+          "specialtyDescription": {
+            "type": "string",
+            "example": "A specialization in computer science",
+            "description": "The description of the specialty"
+          },
+          "specialtyCode": {
+            "type": "number",
+            "example": 101,
+            "description": "The specialty code"
+          },
+          "specialtyName": {
+            "type": "string",
+            "example": "Bachelor of Computer Science",
+            "description": "The name of the specialty"
+          },
+          "formOfEducation": {
+            "type": "string",
+            "example": "Full-time",
+            "description": "The form of education"
+          },
+          "typeOfStudy": {
+            "type": "string",
+            "example": "On-campus",
+            "description": "The type of study"
+          },
+          "languageOfStudy": {
+            "type": "string",
+            "example": "English",
+            "description": "The language of study"
+          },
+          "universityName": {
+            "type": "string",
+            "example": "XYZ University",
+            "description": "The university name"
+          },
+          "monthlyIncome": {
+            "type": "number",
+            "example": 1000,
+            "description": "The monthly income from the specialty"
+          },
+          "skillsLevel": {
+            "type": "number",
+            "example": 5,
+            "description": "The skills level required for the specialty"
+          },
+          "futureGrowth": {
+            "type": "string",
+            "example": "High",
+            "description": "Future growth opportunities for the specialty"
+          },
+          "overview": {
+            "type": "string",
+            "example": "An overview of the specialty",
+            "description": "The overview of the specialty"
+          },
+          "careerOpportunities": {
+            "example": ["Software Development", "Data Analysis"],
+            "description": "Career opportunities available",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateUniversityDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Harvard",
+            "description": "The name of the university"
+          },
+          "city": {
+            "type": "string",
+            "example": "Cambridge",
+            "description": "The city of the university"
+          },
+          "generalInfo": {
+            "type": "string",
+            "example": "general_info.pdf",
+            "description": "The general info file of the university"
+          }
+        },
+        "required": ["name", "city", "generalInfo"]
+      },
+      "UpdateUniversityDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Harvard",
+            "description": "The name of the university"
+          },
+          "city": {
+            "type": "string",
+            "example": "Cambridge",
+            "description": "The city of the university"
+          },
+          "generalInfo": {
+            "type": "string",
+            "example": "general_info.pdf",
+            "description": "The general info file of the university"
+          }
+        }
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the user"
+          },
+          "surname": {
+            "type": "string",
+            "description": "The surname of the user"
+          },
+          "patronymic": {
+            "type": "string",
+            "description": "The patronymic of the user"
+          },
+          "gender": {
+            "type": "string",
+            "description": "The gender of the user",
+            "enum": ["male", "female"]
+          },
+          "age": {
+            "type": "number",
+            "description": "The age of the user"
+          },
+          "district": {
+            "type": "string",
+            "description": "The district of the user",
+            "enum": [
+              "Dushanbe",
+              "Bokhtar",
+              "Kulob",
+              "Vahdat",
+              "Tursunzoda",
+              "Panjakent",
+              "Norak",
+              "Danghara",
+              "Farkhor",
+              "Hissor",
+              "Gafurov",
+              "Roghun",
+              "Shahritus",
+              "Shahrinav",
+              "Taboshar",
+              "Chkalovsk",
+              "Khorugh",
+              "Murghab",
+              "Qayroqqum",
+              "Sarband",
+              "Vose",
+              "Asht",
+              "Baljuvon",
+              "Darvoz",
+              "Devashtich",
+              "Fayzobod",
+              "Ishkoshim",
+              "Jabbor Rasulov",
+              "Jilikul",
+              "Jirgatol",
+              "Khovaling",
+              "Kuhistoni Mastchoh",
+              "Lakhsh",
+              "Muminobod",
+              "Nurobod",
+              "Nosiri Khusrav",
+              "Panj",
+              "Rasht",
+              "Roshtqala",
+              "Rumi",
+              "Rudaki",
+              "Rushon",
+              "Sangvor",
+              "Shughnon",
+              "Temurmalik",
+              "Tojikobod",
+              "Varzob",
+              "Vakhsh",
+              "Vanj",
+              "Zafar",
+              "Zarafshon",
+              "Yovon",
+              "Dusti",
+              "Khuroson",
+              "Kushoniyon",
+              "Levakant",
+              "Qubodiyon",
+              "Balkhi",
+              "Khujand",
+              "Buston",
+              "Ghafurov",
+              "Isfara",
+              "Istaravshan",
+              "Konibodom",
+              "Mastchoh",
+              "Spitamen",
+              "Zafarobod",
+              "Rasulov",
+              "Shahriston",
+              "Ayni",
+              "Penjikent"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "description": "The role of the user",
+            "enum": ["student", "teacher", "parents"]
+          },
+          "school": {
+            "type": "string",
+            "description": "The school of the user"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email of the user"
+          },
+          "password": {
+            "type": "string",
+            "description": "The password of the user"
+          }
+        },
+        "required": ["name", "surname", "gender", "role", "email", "password"]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the user"
+          },
+          "surname": {
+            "type": "string",
+            "description": "The surname of the user"
+          },
+          "patronymic": {
+            "type": "string",
+            "description": "The patronymic of the user"
+          },
+          "gender": {
+            "type": "string",
+            "description": "The gender of the user",
+            "enum": ["male", "female"]
+          },
+          "age": {
+            "type": "number",
+            "description": "The age of the user"
+          },
+          "district": {
+            "type": "string",
+            "description": "The district of the user",
+            "enum": [
+              "Dushanbe",
+              "Bokhtar",
+              "Kulob",
+              "Vahdat",
+              "Tursunzoda",
+              "Panjakent",
+              "Norak",
+              "Danghara",
+              "Farkhor",
+              "Hissor",
+              "Gafurov",
+              "Roghun",
+              "Shahritus",
+              "Shahrinav",
+              "Taboshar",
+              "Chkalovsk",
+              "Khorugh",
+              "Murghab",
+              "Qayroqqum",
+              "Sarband",
+              "Vose",
+              "Asht",
+              "Baljuvon",
+              "Darvoz",
+              "Devashtich",
+              "Fayzobod",
+              "Ishkoshim",
+              "Jabbor Rasulov",
+              "Jilikul",
+              "Jirgatol",
+              "Khovaling",
+              "Kuhistoni Mastchoh",
+              "Lakhsh",
+              "Muminobod",
+              "Nurobod",
+              "Nosiri Khusrav",
+              "Panj",
+              "Rasht",
+              "Roshtqala",
+              "Rumi",
+              "Rudaki",
+              "Rushon",
+              "Sangvor",
+              "Shughnon",
+              "Temurmalik",
+              "Tojikobod",
+              "Varzob",
+              "Vakhsh",
+              "Vanj",
+              "Zafar",
+              "Zarafshon",
+              "Yovon",
+              "Dusti",
+              "Khuroson",
+              "Kushoniyon",
+              "Levakant",
+              "Qubodiyon",
+              "Balkhi",
+              "Khujand",
+              "Buston",
+              "Ghafurov",
+              "Isfara",
+              "Istaravshan",
+              "Konibodom",
+              "Mastchoh",
+              "Spitamen",
+              "Zafarobod",
+              "Rasulov",
+              "Shahriston",
+              "Ayni",
+              "Penjikent"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "description": "The role of the user",
+            "enum": ["student", "teacher", "parents"]
+          },
+          "school": {
+            "type": "string",
+            "description": "The school of the user"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email of the user"
+          },
+          "password": {
+            "type": "string",
+            "description": "The password of the user"
+          }
+        }
+      }
+    }
+  }
+}

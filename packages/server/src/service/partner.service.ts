@@ -12,9 +12,6 @@ export class PartnerService {
   #repository = PartnerRepository;
   #imageService = new ImageStorageService();
 
-  // ---------------------------------------------------------------------------
-  // PRIVATE FUNCTIONS
-  // ---------------------------------------------------------------------------
   private async validateDto(dto: any): Promise<IValidation | null> {
     const errors = await validate(dto);
     if (errors.length > 0) {
@@ -34,9 +31,6 @@ export class PartnerService {
     return partner;
   }
 
-  // ---------------------------------------------------------------------------
-  // REGISTER
-  // ---------------------------------------------------------------------------
   async create(
     partner: Express.Multer.File,
   ): Promise<IMessage | IValidation | IError> {
@@ -47,14 +41,12 @@ export class PartnerService {
       ...partner,
       image: Config.domain + '/images/get/' + uploadedImage,
     };
+
     await this.#repository.save(newPartner);
 
     return { message: 'Partner registered successfully' };
   }
 
-  // ---------------------------------------------------------------------------
-  // PARTNER UPDATE
-  // ---------------------------------------------------------------------------
   async updatePartner(
     id: string,
     file: Express.Multer.File,
@@ -73,14 +65,11 @@ export class PartnerService {
       };
     }
 
-    const res = await this.#repository.save(partnerToUpdate);
+    await this.#repository.save(partnerToUpdate);
 
-    return { message: JSON.stringify(res) };
+    return { message: 'User successfully updated' };
   }
 
-  // ---------------------------------------------------------------------------
-  // PARTNER GET
-  // ---------------------------------------------------------------------------
   async getPartner(
     id?: string,
   ): Promise<PartnerModel | PartnerModel[] | IError | IValidation> {
@@ -93,9 +82,26 @@ export class PartnerService {
     return await this.#repository.find();
   }
 
-  // ---------------------------------------------------------------------------
-  // PARTNER DELETE
-  // ---------------------------------------------------------------------------
+  async getPaginatedPartners(
+    page: number,
+    limit: number,
+  ): Promise<
+    | { total: number; page: number; limit: number; data: PartnerModel[] }
+    | IError
+  > {
+    const [partners, total] = await Promise.all([
+      this.#repository.findWithFilters({ page, limit }),
+      this.#repository.countWithFilters(),
+    ]);
+
+    return {
+      total,
+      page,
+      limit,
+      data: partners,
+    };
+  }
+
   async deletePartner(id: string): Promise<IMessage | IError | IValidation> {
     const partnerToDelete = await this.findPartnerById(id);
     if ('error' in partnerToDelete) return partnerToDelete;
