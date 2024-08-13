@@ -6,20 +6,16 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
-  ManyToOne,
-  JoinColumn,
 } from 'typeorm';
 import { TestModel } from '../model/test.model.js';
-import { UserEntity } from './user.entity.js';
 
 @Entity({ name: 'tests' })
 export class TestEntity extends BaseEntity implements TestModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => UserEntity)
-  @JoinColumn({ name: 'userId' })
-  user: UserEntity;
+  @Column({ name: 'userId' })
+  userId: string;
 
   @Column('simple-array')
   resultTest: number[];

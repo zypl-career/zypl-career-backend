@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import {
   getTestDTO,
   createTestModalDto as ResultModelDto,
@@ -27,6 +27,14 @@ export class ResultModelService {
       return { validation: formatValidationErrors(errors) };
     }
     return null;
+  }
+
+  private async findTestResultById(id: string): Promise<TestModel | IError> {
+    const specialty = await this.#repository.findOne({ where: { id } });
+    if (!specialty) {
+      return { error: 'test not found' };
+    }
+    return specialty;
   }
 
   // ---------------------------------------------------------------------------
@@ -81,19 +89,10 @@ export class ResultModelService {
         };
       }
 
-      const test = await this.#repository.save({
-        user: user,
-        resultTest: jsonResponse,
-      });
-
-      const payload = {
-        id: test.id,
+      const payload = await this.#repository.save({
         userId: user.id,
         resultTest: jsonResponse,
-        createdAt: test.createdAt,
-        updatedAt: test.updatedAt,
-        deletedAt: test.deletedAt,
-      };
+      });
 
       return {
         message: 'Result modal processed successfully',
@@ -107,27 +106,67 @@ export class ResultModelService {
   // ---------------------------------------------------------------------------
   // GET
   // ---------------------------------------------------------------------------
-  async get(filters?: getTestDTO, token?: string) {
+  async get(filters?: getTestDTO, token?: string, id?: string) {
     let articles: TestModel[];
 
-    if (!token) return;
+    if (!token) {
+      return {
+        unauthorized: 'invalid token',
+      };
+    }
 
     const verify = verifyToken(token);
 
-    if (!verify) return;
+    if (!verify) {
+      return {
+        unauthorized: 'invalid token',
+      };
+    }
+
+    if (id) {
+      const testResult = await this.findTestResultById(id);
+      if ('error' in testResult) return testResult;
+
+      return testResult;
+    }
 
     if ((verify as any).email === 'admin@gmail.com') {
+      if (filters) {
+        const resultModel = plainToInstance(getTestDTO, filters);
+        const validationErrors = await this.validateDto(resultModel);
+        if (validationErrors) return validationErrors;
+        const { page, limit } = filters;
+        const skip = page && limit ? (page - 1) * limit : undefined;
+        articles = await this.#repository.findWithFilters({
+          skip,
+          take: limit,
+        });
+      } else {
+        articles = await this.#repository.find();
+      }
+      return {
+        total: articles.length,
+        page: filters?.page || 1,
+        limit: filters?.limit || 10,
+        data: articles,
+      };
     }
 
     if (filters) {
+      const resultModel = plainToInstance(getTestDTO, filters);
+      const validationErrors = await this.validateDto(resultModel);
+      if (validationErrors) return validationErrors;
       const { page, limit } = filters;
       const skip = page && limit ? (page - 1) * limit : undefined;
       articles = await this.#repository.findWithFilters({
+        userId: (verify as any).id,
         skip,
         take: limit,
       });
     } else {
-      articles = await this.#repository.find();
+      articles = await this.#repository.findWithFilters({
+        userId: (verify as any).id,
+      });
     }
     return {
       total: articles.length,

@@ -50,9 +50,10 @@ export class UsersController {
       );
     } else if ('conflict' in result) {
       throw new HttpException(result.conflict, HttpStatus.CONFLICT);
-    } else if ('unauthorized') {
+    } else if ('unauthorized' in result) {
       throw new HttpException(result.unauthorized, HttpStatus.UNAUTHORIZED);
     }
+
     return result;
   }
 
