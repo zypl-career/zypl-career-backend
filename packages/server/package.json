@@ -10,7 +10,7 @@
     "db": "docker-compose up",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start:watch": "nodemon --delay o ./_/src/index.js",
+    "start:watch": "nodemon --trace-warnings --delay o ./_/src/index.js",
     "start": "node ./_/src/index.js",
     "watch": "tsc -b -w",
     "start:dev": "nest start --watch",

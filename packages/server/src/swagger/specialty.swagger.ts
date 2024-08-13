@@ -157,6 +157,7 @@ export const specialtySwagger = {
       },
     },
   },
+  
   filter: {
     summary: {
       summary: 'Filter specialties based on criteria',
