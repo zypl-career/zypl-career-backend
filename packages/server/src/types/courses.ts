@@ -22,3 +22,10 @@ export interface ICoursesGetDto {
   page?: number;
   limit?: number;
 }
+
+export interface PaginatedCoursesResponse<T> {
+  total: number;
+  page: number;
+  limit: number;
+  data: T[];
+}

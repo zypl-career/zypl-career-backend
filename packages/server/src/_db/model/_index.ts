@@ -5,4 +5,4 @@ export * from './educational-centers.model.js';
 export * from './articles.model.js';
 export * from './specialty.model.js';
 export * from './test.model.js';
-export * from './courses.js';
+export * from './courses.model.js';
