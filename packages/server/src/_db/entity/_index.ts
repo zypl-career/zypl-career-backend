@@ -5,3 +5,4 @@ export * from './educational-centers.entity.js';
 export * from './articles.entity.js';
 export * from './specialty.entity.js';
 export * from './test.entity.js';
+export * from './courses.entity.js';
