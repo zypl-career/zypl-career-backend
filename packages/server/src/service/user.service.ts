@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { UserRepository } from '../_db/repository/user.repository.js';
 import { UserModel } from '../_db/model/user.model.js';
