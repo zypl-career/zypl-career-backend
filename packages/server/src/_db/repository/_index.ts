@@ -6,3 +6,4 @@ export * from './articles.repository.js';
 export * from './specialty.repository.js';
 export * from './test.repository.js';
 export * from './courses.repository.js';
+export * from './lessons.repository.js';

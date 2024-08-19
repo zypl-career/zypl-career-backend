@@ -9,3 +9,4 @@ export * from './test.service.js';
 export * from './courses.service.js';
 export * from './video-storage.service.js';
 export * from './video-storage-ipfs.service.js';
+export * from './lessons.service.js';

@@ -8,3 +8,4 @@ export * from './test.controller.js';
 export * from './educational-centers.controller.js';
 export * from './courses.controller.js';
 export * from './vidoe.controller.js';
+export * from './lessons.controller.js';
