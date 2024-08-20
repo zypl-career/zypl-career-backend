@@ -7,3 +7,4 @@ export * from './specialty.swagger.js';
 export * from './test.swagger.js';
 export * from './educational-centers.swagger.js';
 export * from './courses.swagger.js';
+export * from './lessons.swagger.js';

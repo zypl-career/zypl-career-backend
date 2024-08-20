@@ -6,3 +6,4 @@ export * from './articles.model.js';
 export * from './specialty.model.js';
 export * from './test.model.js';
 export * from './courses.model.js';
+export * from './lessons.model.js';
