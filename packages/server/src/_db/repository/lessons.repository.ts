@@ -8,12 +8,14 @@ export const LessonsRepository = AppDataSource.getRepository(
     courseId,
     name,
     status,
+    type,
     skip,
     take,
   }: {
     courseId?: string;
     name?: string;
     status?: 'lock' | 'in_progress' | 'finish';
+    type?: 'pdf' | 'video';
     skip?: number;
     take?: number;
   }): Promise<LessonsEntity[]> {
@@ -33,6 +35,10 @@ export const LessonsRepository = AppDataSource.getRepository(
       queryBuilder.andWhere('lessons.status = :status', { status });
     }
 
+    if (type) {
+      queryBuilder.andWhere('lessons.type = :type', { type });
+    }
+
     return queryBuilder.skip(skip).take(take).getMany();
   },
 
@@ -40,10 +46,12 @@ export const LessonsRepository = AppDataSource.getRepository(
     courseId,
     name,
     status,
+    type,
   }: {
     courseId?: string;
     name?: string;
     status?: 'lock' | 'in_progress' | 'finish';
+    type?: 'pdf' | 'video';
   }): Promise<number> {
     const queryBuilder = this.createQueryBuilder('lessons');
 
@@ -59,6 +67,10 @@ export const LessonsRepository = AppDataSource.getRepository(
 
     if (status) {
       queryBuilder.andWhere('lessons.status = :status', { status });
+    }
+
+    if (type) {
+      queryBuilder.andWhere('lessons.type = :type', { type });
     }
 
     return queryBuilder.getCount();
@@ -87,7 +99,7 @@ export const LessonsRepository = AppDataSource.getRepository(
     return this.createQueryBuilder('lessons')
       .where('lessons.courseId = :courseId', { courseId })
       .andWhere('lessons.item > :currentItem', { currentItem })
-      .orderBy('lessons.item', 'ASC') // Order by item to get the next lesson
+      .orderBy('lessons.item', 'ASC')
       .getOne();
   },
 });

@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { v4 as uuidv4 } from 'uuid';
-import { LessonsRepository } from '../_db/repository/_index.js';
+import {
+  CoursesRepository,
+  LessonsRepository,
+} from '../_db/repository/_index.js';
 import { LessonsModel } from '../_db/model/_index.js';
 import {
   ILessonCreateDataDTO,
@@ -23,12 +26,14 @@ import { validateUUID, formatValidationErrors } from '../util/utils.js';
 import { VideoStorageIPFSService } from './video-storage-ipfs.service.js';
 import { join } from 'path';
 import { promises as fs } from 'fs';
+import { Config } from '../app/config.app.js';
 
 @Injectable()
 export class LessonsService {
   #repository = LessonsRepository;
   #videoService = new VideoStorageIPFSService();
   #mediaPath = './media/lessons';
+  #coursesRepository = CoursesRepository;
 
   // ---------------------------------------------------------------------------
   // PRIVATE FUNCTIONS
@@ -41,11 +46,14 @@ export class LessonsService {
     return null;
   }
 
-  private async findLessonById(id: string): Promise<LessonsModel | IError> {
+  private async findLessonById(
+    id: string,
+  ): Promise<LessonsModel | IError | IValidation> {
     if (!validateUUID(id)) {
-      return { error: 'Invalid lesson ID' };
+      return { validation: 'Invalid lesson ID' };
     }
-    const lesson = await this.#repository.findOneById(id);
+    const lesson = await this.#repository.findOneBy({ id: id });
+
     if (!lesson) {
       return { error: 'Lesson not found' };
     }
@@ -57,7 +65,7 @@ export class LessonsService {
     const filePath = join(this.#mediaPath, `${fileId}.pdf`);
     await fs.mkdir(this.#mediaPath, { recursive: true });
     await fs.writeFile(filePath, file.buffer);
-    return filePath;
+    return fileId;
   }
 
   // ---------------------------------------------------------------------------
@@ -71,15 +79,37 @@ export class LessonsService {
     const validationErrors = await this.validateDto(createLessonDto);
     if (validationErrors) return validationErrors;
 
-    const { name, description, resource, courseId, status } = lesson;
+    const { name, description, resource, courseId } = lesson;
+    let status: 'in_progress' | 'lock' | 'finish' | null = null;
+    let type: 'pdf' | 'video' | null = null;
+
+    if (!validateUUID(courseId)) {
+      return { validation: 'Invalid courseId (UUID)' };
+    }
+
+    const findCourse = await CoursesRepository.findOneBy({ id: courseId });
+
+    if (!findCourse) {
+      return { validation: `Course with id ${courseId} not found` };
+    }
+
+    const findLesson = await this.#repository.find();
+
+    if (!findLesson.length) {
+      status = 'in_progress';
+    }
+
     let resourceForSave = '';
 
     if (resource.mimetype === 'video/mp4') {
       resourceForSave = await this.#videoService.uploadVideo(resource);
+      type = 'video';
     } else if (resource.mimetype === 'application/pdf') {
-      resourceForSave = await this.savePdf(resource);
+      resourceForSave =
+        Config.domain + '/pdf/' + (await this.savePdf(resource));
+      type = 'pdf';
     } else {
-      return { error: 'Unsupported file type' };
+      return { validation: 'Unsupported file type. File must be mp4 or pdf' };
     }
 
     const newLesson = {
@@ -87,10 +117,11 @@ export class LessonsService {
       description,
       resource: resourceForSave,
       courseId,
-      status,
+      status: status ?? 'lock',
+      type: type ?? 'video',
     };
 
-    const result = await this.#repository.save(newLesson);
+    const result = await this.#repository.save(newLesson as any);
 
     return { message: 'Lesson created successfully', payload: result };
   }
@@ -108,6 +139,21 @@ export class LessonsService {
 
     const lessonToUpdate = await this.findLessonById(id);
     if ('error' in lessonToUpdate) return lessonToUpdate;
+    if ('validation' in lessonToUpdate) return lessonToUpdate;
+
+    if (updateLesson.courseId && !validateUUID(updateLesson.courseId)) {
+      return { validation: 'Invalid courseId (UUID)' };
+    }
+
+    if (updateLesson.courseId) {
+      const find = await this.#coursesRepository.findOneBy({
+        id: updateLesson.courseId,
+      });
+
+      if (!find) {
+        return { error: `Course with ${updateLesson.courseId} not found` };
+      }
+    }
 
     Object.assign(lessonToUpdate, updateLesson);
 
@@ -140,18 +186,20 @@ export class LessonsService {
     let totalLessons: number;
 
     if (filters) {
-      const { name, status, page, limit } = filters;
+      const { name, status, type, page, limit } = filters;
       const skip = page && limit ? (page - 1) * limit : undefined;
 
       lessons = await this.#repository.findWithFilters({
         name,
         status,
+        type,
         skip,
         take: limit,
       });
       totalLessons = await this.#repository.countWithFilters({
         name,
         status,
+        type,
       });
     } else {
       lessons = await this.#repository.find();
@@ -178,30 +226,28 @@ export class LessonsService {
 
     const lessons = await this.#repository.findByCourseId(courseId);
 
-    const sortedLessons = lessons
-      .map((lesson) => ({
-        id: lesson.id,
-        item: lesson.item,
-        name: lesson.name,
-        status: lesson.status,
-        type: lesson.resource.includes('.mp4')
-          ? 'video'
-          : ('pdf' as 'video' | 'pdf'),
-        createdAt: lesson.createdAt,
-        updatedAt: lesson.updatedAt,
-        deletedAt: lesson.deletedAt,
-      }))
-      .sort((a, b) => a.item - b.item);
-
+    const sortedLessons = lessons.map((lesson) => ({
+      id: lesson.id,
+      item: lesson.item,
+      name: lesson.name,
+      status: lesson.status,
+      type: lesson.type,
+      createdAt: lesson.createdAt,
+      updatedAt: lesson.updatedAt,
+      deletedAt: lesson.deletedAt,
+    }));
     return sortedLessons;
   }
 
   // ---------------------------------------------------------------------------
   // SUBMIT LESSON
   // ---------------------------------------------------------------------------
-  async submitLesson(id: string): Promise<ISubmitLesson | IError> {
+  async submitLesson(
+    id: string,
+  ): Promise<ISubmitLesson | IError | IValidation> {
     const currentLesson = await this.findLessonById(id);
     if ('error' in currentLesson) return currentLesson;
+    if ('validation' in currentLesson) return currentLesson;
 
     const nextLesson = await this.#repository.findNextLessonByCourseId(
       currentLesson.courseId,

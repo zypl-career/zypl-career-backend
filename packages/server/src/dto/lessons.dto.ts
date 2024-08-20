@@ -20,6 +20,7 @@ import { Transform } from 'class-transformer';
 // DTO LESSON CREATE
 //----------------------------------------------------------------
 export class CreateLessonDto implements ILessonCreateDataDTO {
+  status: 'lock' | 'in_progress' | 'finish';
   @ApiProperty({
     description: 'The course ID to which the lesson belongs',
     type: 'string',
@@ -43,15 +44,6 @@ export class CreateLessonDto implements ILessonCreateDataDTO {
   @IsString({ message: 'description must be a string' })
   @IsNotEmpty({ message: 'description is required' })
   description: string;
-
-  @ApiProperty({
-    description: 'The status of the lesson',
-    enum: ['lock', 'in_progress', 'finish'],
-  })
-  @IsEnum(['lock', 'in_progress', 'finish'], {
-    message: 'status must be one of: lock, in_progress, finish',
-  })
-  status: 'lock' | 'in_progress' | 'finish';
 
   @ApiProperty({
     description: 'The resource file associated with the lesson',
@@ -93,17 +85,6 @@ export class UpdateLessonDto implements ILessonUpdateDataDTO {
   description?: string;
 
   @ApiProperty({
-    description: 'The status of the lesson',
-    enum: ['lock', 'in_progress', 'finish'],
-    required: false,
-  })
-  @IsOptional()
-  @IsEnum(['lock', 'in_progress', 'finish'], {
-    message: 'status must be one of: lock, in_progress, finish',
-  })
-  status?: 'lock' | 'in_progress' | 'finish';
-
-  @ApiProperty({
     description: 'The resource file associated with the lesson',
     type: 'string',
     format: 'binary',
@@ -127,15 +108,6 @@ export class GetLessonsDto implements ILessonsGetDto {
   name?: string;
 
   @ApiProperty({
-    description: 'Description of the lesson to filter by (partial match)',
-    required: false,
-    type: String,
-  })
-  @IsOptional()
-  @IsString({ message: 'description must be a string' })
-  description?: string;
-
-  @ApiProperty({
     description: 'Status of the lesson to filter by',
     required: false,
     enum: ['lock', 'in_progress', 'finish'],
@@ -145,6 +117,17 @@ export class GetLessonsDto implements ILessonsGetDto {
     message: 'status must be one of: lock, in_progress, finish',
   })
   status?: 'lock' | 'in_progress' | 'finish';
+
+  @ApiProperty({
+    description: 'type of the lesson to filter by',
+    required: false,
+    enum: ['pdf', 'video'],
+  })
+  @IsOptional()
+  @IsEnum(['pdf', 'video'], {
+    message: 'type must be one of: pdf, video',
+  })
+  type?: 'pdf' | 'video';
 
   @ApiProperty({
     description: 'Page number for pagination',

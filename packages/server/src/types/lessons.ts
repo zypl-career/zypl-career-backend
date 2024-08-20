@@ -2,7 +2,6 @@ export interface ILessonCreateDataDTO {
   courseId: string;
   name: string;
   description: string;
-  status: 'lock' | 'in_progress' | 'finish';
   resource: Express.Multer.File;
 }
 
