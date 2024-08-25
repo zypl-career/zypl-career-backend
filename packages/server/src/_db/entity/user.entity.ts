@@ -44,6 +44,9 @@ export class UserEntity extends BaseEntity implements UserModel {
   @Column()
   password: string;
 
+  @Column({ nullable: true })
+  emailConfirmed?: boolean;
+
   @CreateDateColumn()
   createdAt: number;
 

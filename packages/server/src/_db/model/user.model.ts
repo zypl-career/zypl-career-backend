@@ -12,6 +12,7 @@ export type UserModel = {
   school?: string;
   email: string;
   password: string;
+  emailConfirmed?: boolean;
   createdAt: number;
   updatedAt: number;
   deletedAt: number;
