@@ -27,7 +27,12 @@ import {
   IUserLoginResult,
   IValidation,
 } from '../types/_index.js';
-import { CreateUserDto, GetUserDto, UpdateUserDto } from '../dto/user.dto.js';
+import {
+  CreateUserDto,
+  GetUserDto,
+  UpdateUserDto,
+  VerifyEmailDto,
+} from '../dto/user.dto.js';
 import { UserService } from '../service/user.service.js';
 import { UserModel } from '../_db/model/user.model.js';
 
@@ -206,6 +211,62 @@ export class UsersController {
     @Body() user: IUserLoginDataDTO,
   ): Promise<IUserLoginResult | undefined> {
     const result = await this.service.login(user);
+    return this.handleServiceResult(result);
+  }
+
+  // ---------------------------------------------------------------------------
+  // EMAIL VERIFICATION
+  // ---------------------------------------------------------------------------
+  @Post('/verify-email')
+  @HttpCode(200)
+  @ApiOperation(userSwagger.verifyEmail.summary)
+  @ApiBody(userSwagger.verifyEmail.body)
+  @ApiResponse(userSwagger.verifyEmail.responses.success)
+  @ApiResponse(userSwagger.verifyEmail.responses.validation)
+  @ApiResponse(userSwagger.verifyEmail.responses.notFound)
+  async verifyEmail(
+    @Body() verifyEmailDto: VerifyEmailDto,
+  ): Promise<IMessage | IValidation | IError> {
+    const result = await this.service.verifyEmail(
+      verifyEmailDto.email,
+      verifyEmailDto.code,
+    );
+    return this.handleServiceResult(result);
+  }
+
+  // ---------------------------------------------------------------------------
+  // SEND CODE TO EMAIL
+  // ---------------------------------------------------------------------------
+  @Post('/send-code')
+  @HttpCode(200)
+  @ApiOperation(userSwagger.sendCodeToEmail.summary)
+  @ApiBody(userSwagger.sendCodeToEmail.body)
+  @ApiResponse(userSwagger.sendCodeToEmail.responses.success)
+  @ApiResponse(userSwagger.sendCodeToEmail.responses.notFound)
+  @ApiResponse(userSwagger.sendCodeToEmail.responses.validation)
+  async sendCodeToEmail(
+    @Body('email') email: string,
+  ): Promise<IMessage | IValidation | IError> {
+    const result = await this.service.sendCodeToEmail(email);
+    return this.handleServiceResult(result);
+  }
+
+  // ---------------------------------------------------------------------------
+  // CHANGE PASSWORD
+  // ---------------------------------------------------------------------------
+  @Post('/change-password')
+  @HttpCode(200)
+  @ApiOperation(userSwagger.changePassword.summary)
+  @ApiBody(userSwagger.changePassword.body)
+  @ApiResponse(userSwagger.changePassword.responses.success)
+  @ApiResponse(userSwagger.changePassword.responses.validation)
+  @ApiResponse(userSwagger.changePassword.responses.notFound)
+  async changePassword(
+    @Body('email') email: string,
+    @Body('code') code: number,
+    @Body('newPassword') newPassword: string,
+  ): Promise<IMessage | IError | IValidation> {
+    const result = await this.service.changePassword(email, code, newPassword);
     return this.handleServiceResult(result);
   }
 }

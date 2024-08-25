@@ -7,3 +7,4 @@ export * from './specialty.model.js';
 export * from './test.model.js';
 export * from './courses.model.js';
 export * from './lessons.model.js';
+export * from './email-verify.model.js';

@@ -11,3 +11,4 @@ export * from './video-storage.service.js';
 export * from './video-storage-ipfs.service.js';
 export * from './lessons.service.js';
 export * from './pdf-storage.service.js';
+export * from './email-message.js';

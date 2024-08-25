@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { validate } from 'class-validator';
+import { isEmail, validate } from 'class-validator';
 import { UserRepository } from '../_db/repository/user.repository.js';
 import { UserModel } from '../_db/model/user.model.js';
 import {
+  ChangePasswordDto,
   CreateUserDto,
   GetUserDto,
   LoginUserDto,
   UpdateUserDto,
+  VerifyEmailDto,
 } from '../dto/user.dto.js';
 import {
   formatValidationErrors,
@@ -24,10 +26,14 @@ import {
   PaginatedUserResponse,
 } from '../types/user.js';
 import { plainToInstance } from 'class-transformer';
+import { EmailVerifyRepository } from '../_db/repository/email-verify.repository.js';
+import { EmailService } from './email-message.js';
 
 @Injectable()
 export class UserService {
   #repository = UserRepository;
+  #repositoryEmail = EmailVerifyRepository;
+  #emailService = new EmailService();
 
   private async validateDto(dto: any): Promise<IValidation | null> {
     const errors = await validate(dto);
@@ -41,10 +47,23 @@ export class UserService {
     if (!validateUUID(id)) {
       return { error: 'Invalid user ID' };
     }
-    const user = await this.#repository.findOneById(id);
+    const user = await this.#repository.findOneBy({ id });
     if (!user) {
       return { error: 'User not found' };
     }
+    return user;
+  }
+
+  private async findUserByEmail(email: string): Promise<UserModel | IError> {
+    if (!isEmail(email)) {
+      return { error: 'Invalid Email' };
+    }
+    const user = await this.#repository.findOneBy({ email });
+
+    if (!user) {
+      return { error: 'User not found' };
+    }
+
     return user;
   }
 
@@ -75,6 +94,7 @@ export class UserService {
       refresh: generateRefreshToken(existingUser.id, user.email),
     };
   }
+
   async create(
     user: IUserCreateDataDTO,
   ): Promise<IMessage | IValidation | IError | IConflict> {
@@ -181,11 +201,13 @@ export class UserService {
       totalUsers = await this.#repository.count();
     }
 
+    const sanitizedUsers = users.map(({ password, ...rest }) => rest);
+
     return {
       total: totalUsers,
       page: filters?.page || 1,
       limit: filters?.limit || 10,
-      data: users,
+      data: sanitizedUsers as any,
     };
   }
 
@@ -196,5 +218,93 @@ export class UserService {
     await this.#repository.delete(id);
 
     return { message: 'User deleted successfully' };
+  }
+
+  async verifyEmail(
+    email: string,
+    code: number,
+  ): Promise<IMessage | IError | IValidation> {
+    const verifyUserDto = plainToInstance(VerifyEmailDto, {
+      email,
+      code,
+    });
+
+    const validationErrors = await this.validateDto(verifyUserDto);
+    if (validationErrors) return validationErrors;
+
+    const userToVerify = await this.findUserByEmail(email);
+
+    if ('error' in userToVerify) {
+      return userToVerify;
+    }
+
+    const findEmailVerify = await this.#repositoryEmail.findOneBy({
+      email,
+      code,
+    });
+
+    if (!findEmailVerify) {
+      return {
+        validation: 'Email or code is incorrect',
+      };
+    }
+
+    this.#repository.save({ ...userToVerify, emailConfirmed: true });
+
+    return { message: 'Email successfully verified' };
+  }
+
+  async changePassword(
+    email: string,
+    code: number,
+    newPassword: string,
+  ): Promise<IMessage | IError | IValidation> {
+    const verifyUserDto = plainToInstance(ChangePasswordDto, {
+      email,
+      code,
+      newPassword,
+    });
+
+    const validationErrors = await this.validateDto(verifyUserDto);
+    if (validationErrors) return validationErrors;
+
+    const userToVerify = await this.findUserByEmail(email);
+
+    if ('error' in userToVerify) {
+      return userToVerify;
+    }
+
+    const findEmailVerify = await this.#repositoryEmail.findOneBy({
+      email,
+      code,
+    });
+
+    if (!findEmailVerify) {
+      return {
+        validation: 'Email or code is incorrect',
+      };
+    }
+
+    this.#repository.save({
+      ...userToVerify,
+      emailConfirmed: true,
+      password: generateHash(newPassword),
+    });
+
+    return { message: 'Password successfully changed' };
+  }
+
+  async sendCodeToEmail(email: string) {
+    const userToVerify = await this.findUserByEmail(email);
+
+    if ('error' in userToVerify) {
+      return userToVerify;
+    }
+
+    await this.#emailService.sendMessage(email);
+
+    return {
+      message: 'code successfully sended',
+    };
   }
 }
