@@ -6,3 +6,4 @@ export * from './educational-centers.js';
 export * from './specialty.js';
 export * from './test.js';
 export * from './courses.js';
+export * from './lessons.js';

@@ -7,3 +7,6 @@ export * from './specialty.controller.js';
 export * from './test.controller.js';
 export * from './educational-centers.controller.js';
 export * from './courses.controller.js';
+export * from './vidoe.controller.js';
+export * from './lessons.controller.js';
+export * from './pdf-storage.controller.js';

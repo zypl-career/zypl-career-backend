@@ -11,6 +11,7 @@ export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
     district,
     role,
     email,
+    emailConfirmed,
     skip,
     take,
   }: {
@@ -19,7 +20,8 @@ export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
     gender?: 'male' | 'female';
     age?: number;
     district?: EnumCities;
-    role?: 'student' | 'teacher' | 'parents';
+    emailConfirmed?: boolean;
+    role?: 'student' | 'teacher' | 'parents' | 'admin';
     email?: string;
     skip?: number;
     take?: number;
@@ -38,6 +40,12 @@ export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
 
     if (gender) {
       queryBuilder.andWhere('users.gender = :gender', { gender });
+    }
+
+    if (emailConfirmed) {
+      queryBuilder.andWhere('users.emailConfirmed = :emailConfirmed', {
+        emailConfirmed,
+      });
     }
 
     if (age !== undefined) {
@@ -69,14 +77,16 @@ export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
     district,
     role,
     email,
+    emailConfirmed,
   }: {
     name?: string;
     surname?: string;
     gender?: 'male' | 'female';
     age?: number;
     district?: EnumCities;
-    role?: 'student' | 'teacher' | 'parents';
+    role?: 'student' | 'teacher' | 'parents' | 'admin';
     email?: string;
+    emailConfirmed?: boolean;
   }): Promise<number> {
     const queryBuilder = this.createQueryBuilder('users');
 
@@ -87,6 +97,12 @@ export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
     if (surname) {
       queryBuilder.andWhere('users.surname ILIKE :surname', {
         surname: `%${surname}%`,
+      });
+    }
+
+    if (emailConfirmed) {
+      queryBuilder.andWhere('users.emailConfirmed = :emailConfirmed', {
+        emailConfirmed,
       });
     }
 

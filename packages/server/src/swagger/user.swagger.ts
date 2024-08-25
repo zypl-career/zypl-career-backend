@@ -1,5 +1,11 @@
-import { UserEntity } from '../_db/entity/user.entity.js';
-import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto.js';
+import {
+  ChangePasswordDto,
+  CreateUserDto,
+  LoginUserDto,
+  SendVerifyCodeDto,
+  UpdateUserDto,
+  VerifyEmailDto,
+} from '../dto/user.dto.js';
 
 export const userSwagger = {
   create: {
@@ -56,6 +62,7 @@ export const userSwagger = {
       },
     },
   },
+
   get: {
     summary: {
       summary: 'Get user by ID',
@@ -107,6 +114,7 @@ export const userSwagger = {
       },
     },
   },
+
   getAll: {
     summary: {
       summary: 'Get all users or filter by various criteria with pagination',
@@ -211,6 +219,7 @@ export const userSwagger = {
       },
     },
   },
+
   update: {
     summary: {
       summary: 'Update user by ID',
@@ -255,6 +264,7 @@ export const userSwagger = {
       },
     },
   },
+
   delete: {
     summary: {
       summary: 'Delete user by ID',
@@ -294,6 +304,7 @@ export const userSwagger = {
       },
     },
   },
+
   login: {
     summary: {
       summary: 'User login',
@@ -319,6 +330,128 @@ export const userSwagger = {
           example: {
             email: ['email must be a valid email address'],
             password: ['password must be a string'],
+          },
+        },
+      },
+    },
+  },
+
+  verifyEmail: {
+    summary: {
+      summary: 'Verify user email with a code',
+    },
+    body: {
+      type: VerifyEmailDto,
+      description: 'DTO containing email and verification code',
+    },
+    responses: {
+      success: {
+        status: 200,
+        description: 'Email successfully verified',
+        schema: {
+          example: {
+            message: 'Email successfully verified',
+          },
+        },
+      },
+      validation: {
+        status: 422,
+        description: 'Validation error',
+        schema: {
+          example: {
+            email: ['Email must be a valid email'],
+            code: ['Code is required and must be a number'],
+          },
+        },
+      },
+      notFound: {
+        status: 404,
+        description: 'User or verification code not found',
+        schema: {
+          example: {
+            statusCode: 404,
+            message: 'User or verification code not found',
+          },
+        },
+      },
+    },
+  },
+
+  sendCodeToEmail: {
+    summary: {
+      summary: 'Send verification code to user email',
+    },
+    body: {
+      type: SendVerifyCodeDto,
+      description: 'DTO containing email',
+    },
+    responses: {
+      success: {
+        status: 200,
+        description: 'Code sent successfully',
+        schema: {
+          example: {
+            message: 'code successfully sended',
+          },
+        },
+      },
+      notFound: {
+        status: 404,
+        description: 'User not found',
+        schema: {
+          example: {
+            statusCode: 404,
+            message: 'User not found',
+          },
+        },
+      },
+      validation: {
+        status: 422,
+        description: 'Validation error',
+        schema: {
+          example: {
+            email: ['Email must be a valid email'],
+          },
+        },
+      },
+    },
+  },
+
+  changePassword: {
+    summary: {
+      summary: 'Change user password using email and verification code',
+    },
+    body: {
+      type: ChangePasswordDto,
+      description: 'Change user password using email and verification code',
+    },
+    responses: {
+      success: {
+        status: 200,
+        description: 'Password successfully changed',
+        schema: {
+          example: {
+            message: 'Password successfully changed',
+          },
+        },
+      },
+      validation: {
+        status: 422,
+        description: 'Validation error',
+        schema: {
+          example: {
+            statusCode: 422,
+            message: 'Validation error',
+          },
+        },
+      },
+      notFound: {
+        status: 404,
+        description: 'User not found or code is incorrect',
+        schema: {
+          example: {
+            statusCode: 404,
+            message: 'Email or code is incorrect',
           },
         },
       },

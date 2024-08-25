@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "watch": "tsc -b -w",
+    "start": "cd ./packages/server && nodemon --trace-warnings --delay 0 ./src/index.js",
     "clean": "sh ./scripts/clean.sh",
     "clean-hard": "sh ./scripts/clean.sh --hard",
     "bootstrap": "sh ./scripts/bootstrap.sh",
