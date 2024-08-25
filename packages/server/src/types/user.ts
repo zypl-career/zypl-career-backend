@@ -34,7 +34,7 @@ export interface IUserLoginDataDTO {
 
 export type TGender = 'male' | 'female';
 
-export type TRole = 'student' | 'teacher' | 'parents';
+export type TRole = 'student' | 'teacher' | 'parents' | 'admin';
 
 export interface IUserLoginResult {
   access: string;

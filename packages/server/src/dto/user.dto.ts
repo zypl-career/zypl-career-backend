@@ -81,7 +81,7 @@ export class CreateUserDto {
   @IsEnum(['student', 'teacher', 'parents'], {
     message: 'role must be student, teacher or parents',
   })
-  role: 'student' | 'teacher' | 'parents';
+  role: 'student' | 'teacher' | 'parents' | 'admin';
 
   @ApiProperty({
     description: 'The school of the user',
@@ -183,7 +183,7 @@ export class UpdateUserDto {
     message: 'role must be student, teacher or parents',
   })
   @IsOptional()
-  role?: 'student' | 'teacher' | 'parents';
+  role?: 'student' | 'teacher' | 'parents' | 'admin';
 
   @ApiProperty({
     description: 'The school of the user',
@@ -279,7 +279,7 @@ export class GetUserDto {
     message: 'role must be student, teacher or parents',
   })
   @IsOptional()
-  role?: 'student' | 'teacher' | 'parents';
+  role?: 'student' | 'teacher' | 'parents' | 'admin';
 
   @ApiProperty({
     description: 'The email of the user',

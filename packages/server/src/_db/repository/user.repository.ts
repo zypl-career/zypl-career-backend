@@ -21,7 +21,7 @@ export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
     age?: number;
     district?: EnumCities;
     emailConfirmed?: boolean;
-    role?: 'student' | 'teacher' | 'parents';
+    role?: 'student' | 'teacher' | 'parents' | 'admin';
     email?: string;
     skip?: number;
     take?: number;
@@ -84,7 +84,7 @@ export const UserRepository = AppDataSource.getRepository(UserEntity).extend({
     gender?: 'male' | 'female';
     age?: number;
     district?: EnumCities;
-    role?: 'student' | 'teacher' | 'parents';
+    role?: 'student' | 'teacher' | 'parents' | 'admin';
     email?: string;
     emailConfirmed?: boolean;
   }): Promise<number> {

@@ -35,6 +35,27 @@ dotenv.config();
 })
 export class ModuleApp implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('/2121122121');
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes(
+        '/article/create',
+        '/article/update',
+        '/article/delete',
+        '/result-modal',
+        '/specialty/create',
+        '/specialty/update',
+        '/specialty/delete',
+        '/university/create',
+        '/university/update',
+        '/university/delete',
+        '/partner/create',
+        '/partner/update',
+        '/partner/delete',
+        '/lessons/',
+        '/courses/',
+        '/education-center/create',
+        '/education-center/update',
+        '/education-center/delete',
+      );
   }
 }

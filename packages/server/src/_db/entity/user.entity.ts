@@ -33,7 +33,7 @@ export class UserEntity extends BaseEntity implements UserModel {
   district?: EnumCities;
 
   @Column()
-  role: 'student' | 'teacher' | 'parents';
+  role: 'student' | 'teacher' | 'parents' | 'admin';
 
   @Column({ nullable: true })
   school?: string;
