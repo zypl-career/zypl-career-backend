@@ -4,5 +4,5 @@ export type TestModel = {
   resultTest: number[];
   createdAt: number;
   updatedAt: number;
-  deletedAt: number;
+  deletedAt: number | null;
 };

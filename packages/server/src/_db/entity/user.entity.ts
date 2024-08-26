@@ -9,7 +9,7 @@ import {
 import { UserModel } from '../model/_index.js';
 import { EnumCities } from '../../types/_index.js';
 
-@Entity()
+@Entity({ name: 'users' })
 export class UserEntity extends BaseEntity implements UserModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -22,6 +22,9 @@ export class UserEntity extends BaseEntity implements UserModel {
 
   @Column({ nullable: true })
   patronymic?: string;
+
+  @Column('text', { array: true, nullable: true })
+  accept?: string[];
 
   @Column()
   gender: 'male' | 'female';

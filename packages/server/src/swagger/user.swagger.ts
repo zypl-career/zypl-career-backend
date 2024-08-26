@@ -457,4 +457,37 @@ export const userSwagger = {
       },
     },
   },
+
+  getAccessParent: {
+    summary: {
+      summary: 'Grant access to parent for specific user actions',
+    },
+    param: {
+      name: 'parentId',
+      required: true,
+      description: 'The ID of the parent to grant access to',
+      type: 'string',
+    },
+    responses: {
+      success: {
+        status: 200,
+        description: 'Parent access successfully added.',
+        schema: {
+          example: {
+            message: 'Parent access successfully added.',
+          },
+        },
+      },
+      error: {
+        status: 400,
+        description:
+          'Bad request due to missing or invalid token, or parent not found.',
+        schema: {
+          example: {
+            error: 'Token is missing or invalid.',
+          },
+        },
+      },
+    },
+  },
 };

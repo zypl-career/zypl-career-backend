@@ -14,7 +14,7 @@ export class TestEntity extends BaseEntity implements TestModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'userId' })
+  @Column()
   userId: string;
 
   @Column('simple-array')
@@ -27,5 +27,5 @@ export class TestEntity extends BaseEntity implements TestModel {
   updatedAt: number;
 
   @DeleteDateColumn({ nullable: true })
-  deletedAt: number;
+  deletedAt: number | null;
 }

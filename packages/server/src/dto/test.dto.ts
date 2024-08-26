@@ -99,6 +99,15 @@ export class createTestModalDto {
 // ---------------------------------------------------------------------------
 export class getTestDTO {
   @ApiProperty({
+    description: 'The userId for get result by userId',
+    type: 'string',
+    required: false,
+  })
+  @IsString({ message: 'userId must be a string' })
+  @IsOptional()
+  userId?: string;
+
+  @ApiProperty({
     description: 'The page number for pagination',
     type: 'number',
     required: false,
