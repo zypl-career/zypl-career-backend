@@ -29,7 +29,6 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { EmailVerifyRepository } from '../_db/repository/email-verify.repository.js';
 import { EmailService } from './email-message.js';
-import { error } from 'console';
 
 @Injectable()
 export class UserService {

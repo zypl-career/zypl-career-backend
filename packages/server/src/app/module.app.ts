@@ -56,6 +56,9 @@ export class ModuleApp implements NestModule {
         '/education-center/create',
         '/education-center/update',
         '/education-center/delete',
+        '/user/get',
+        '/user/update',
+        '/user/delete',
       );
   }
 }
