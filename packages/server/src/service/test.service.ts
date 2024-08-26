@@ -86,8 +86,16 @@ export class ResultModelService {
         };
       }
 
-      const user = await this.#usersRepository.findOne({
-        where: { id: (token as any).id },
+      const verify = verifyToken(token);
+      if (!verify)
+        return {
+          message: 'Result modal processed successfully',
+          info: 'This data not saved because user is not authenticated',
+          payload: jsonResponse,
+        };
+
+      const user = await this.#usersRepository.findOneBy({
+        id: (verify as any).id,
       });
 
       if (!user) {
@@ -176,10 +184,12 @@ export class ResultModelService {
       }
 
       const testResults = await this.#repository.find({
-        where: { userId },
+        where: { userId: userId },
       });
 
-      return testResults;
+      return {
+        payload: testResults,
+      };
     }
 
     if (findUserByToken?.role === 'admin') {

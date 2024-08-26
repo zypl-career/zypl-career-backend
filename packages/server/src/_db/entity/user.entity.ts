@@ -9,7 +9,7 @@ import {
 import { UserModel } from '../model/_index.js';
 import { EnumCities } from '../../types/_index.js';
 
-@Entity()
+@Entity({ name: 'users' })
 export class UserEntity extends BaseEntity implements UserModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
