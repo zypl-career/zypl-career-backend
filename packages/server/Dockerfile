@@ -1,4 +1,4 @@
-FROM node:18 AS build
+FROM node:20 AS build
 WORKDIR /app
 RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
