@@ -29,8 +29,15 @@ export class ResultModelService {
     return null;
   }
 
-  private async findTestResultById(id: string): Promise<TestModel | IError> {
-    const specialty = await this.#repository.findOne({ where: { id } });
+  private async findTestResultById(
+    id: string,
+    admin?: boolean,
+    userId?: string,
+  ): Promise<TestModel | IError> {
+    const specialty = admin
+      ? await this.#repository.findOne({ where: { id } })
+      : await this.#repository.findOne({ where: { id, userId } });
+
     if (!specialty) {
       return { error: 'test not found' };
     }
@@ -109,6 +116,8 @@ export class ResultModelService {
   async get(filters?: getTestDTO, token?: string, id?: string) {
     let articles: TestModel[];
 
+    const userId = filters?.userId;
+
     if (!token) {
       return {
         unauthorized: 'invalid token',
@@ -123,14 +132,57 @@ export class ResultModelService {
       };
     }
 
+    const findUserByToken = await this.#usersRepository.findOneBy({
+      id: (verify as any).id,
+    });
+
     if (id) {
-      const testResult = await this.findTestResultById(id);
+      const testResult = await this.findTestResultById(
+        id,
+        findUserByToken?.role === 'admin',
+        findUserByToken?.id,
+      );
+
       if ('error' in testResult) return testResult;
 
       return testResult;
     }
 
-    if ((verify as any).email === 'admin@gmail.com') {
+    if (userId) {
+      const findUserById = await this.#usersRepository.findOneBy({
+        id: userId,
+      });
+
+      if (!findUserById) {
+        return { error: 'User with the specified ID not found.' };
+      }
+
+      if (!findUserByToken) {
+        return { error: 'User associated with the token not found.' };
+      }
+
+      if (findUserByToken.role !== 'parents') {
+        return {
+          error: 'Only parents are authorized to access this information.',
+        };
+      }
+
+      const hasAccess = findUserById.accept?.includes(findUserByToken.id);
+
+      if (!hasAccess) {
+        return {
+          error: `Access denied. You do not have permission to view the test results for the student with ID ${userId}.`,
+        };
+      }
+
+      const testResults = await this.#repository.find({
+        where: { userId },
+      });
+
+      return testResults;
+    }
+
+    if (findUserByToken?.role === 'admin') {
       if (filters) {
         const resultModel = plainToInstance(getTestDTO, filters);
         const validationErrors = await this.validateDto(resultModel);
