@@ -23,8 +23,8 @@ import { createTestModalDto, getTestDTO } from '../dto/test.dto.js';
 import { IError, IMessage, IValidation } from '../types/base.js';
 import { resultModalSwagger } from '../swagger/test.swagger.js';
 
-@ApiTags('result-modal')
-@Controller('/result-modal')
+@ApiTags('test')
+@Controller('/test')
 export class ResultModalController {
   constructor(private readonly resultModalService: ResultModelService) {}
   // ---------------------------------------------------------------------------
