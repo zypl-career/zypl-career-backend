@@ -7,8 +7,6 @@ import { AppDataSource } from './app/globals.app.js';
 import { Config } from './app/config.app.js';
 
 async function bootstrap() {
-  console.log(Config);
-
   const app = await NestFactory.create(ModuleApp, {
     cors: true,
     logger: ['error', 'warn'],

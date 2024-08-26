@@ -8,7 +8,7 @@ export const AppDataSource = new DataSource({
   type: 'postgres',
   url: Config.db.connection,
   synchronize: true,
-  logging: true,
+  logging: ['error'],
   entities,
   migrationsRun: true,
 });
