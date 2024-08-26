@@ -41,7 +41,7 @@ export class ModuleApp implements NestModule {
         '/article/create',
         '/article/update',
         '/article/delete',
-        '/result-modal',
+        '/result-modal/get',
         '/specialty/create',
         '/specialty/update',
         '/specialty/delete',

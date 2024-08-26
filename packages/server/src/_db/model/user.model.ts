@@ -13,6 +13,7 @@ export type UserModel = {
   email: string;
   password: string;
   emailConfirmed?: boolean;
+  accept?: string[];
   createdAt: number;
   updatedAt: number;
   deletedAt: number;
