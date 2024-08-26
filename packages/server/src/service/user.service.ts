@@ -16,6 +16,7 @@ import {
   generateRefreshToken,
   generateToken,
   validateUUID,
+  verifyToken,
 } from '../util/utils.js';
 import { IConflict, IError, IMessage, IValidation } from '../types/base.js';
 import {
@@ -28,6 +29,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { EmailVerifyRepository } from '../_db/repository/email-verify.repository.js';
 import { EmailService } from './email-message.js';
+import { error } from 'console';
 
 @Injectable()
 export class UserService {
@@ -119,6 +121,7 @@ export class UserService {
       payload: { ...newUser, password: '****secret****' },
     };
   }
+
   async update(
     id: string,
     updateUser: IUserUpdateDataDTO,
@@ -305,6 +308,49 @@ export class UserService {
 
     return {
       message: 'code successfully sended',
+    };
+  }
+
+  async getAccessParent(parentId: string, token: string) {
+    if (!token) {
+      return {
+        error: 'Token is missing or invalid.',
+      };
+    }
+
+    const decodedToken = verifyToken(token);
+
+    if (!decodedToken) {
+      return {
+        error: 'Token verification failed.',
+      };
+    }
+
+    const userId = (decodedToken as any).id;
+
+    const user = await this.#repository.findOneBy({ id: userId });
+
+    if (!user) {
+      return {
+        error: 'User not found.',
+      };
+    }
+
+    if (user.role !== 'student') {
+      return { error: 'Also students can set accept' };
+    }
+
+    const updatedAcceptList = user.accept
+      ? [...user.accept, parentId]
+      : [parentId];
+
+    await this.#repository.save({
+      ...user,
+      accept: updatedAcceptList,
+    });
+
+    return {
+      message: 'Parent access successfully added.',
     };
   }
 }

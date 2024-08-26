@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
+  Headers,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,6 +19,7 @@ import {
   ApiParam,
   ApiBody,
   ApiQuery,
+  ApiHeader,
 } from '@nestjs/swagger';
 import { userSwagger } from '../swagger/user.swagger.js';
 import {
@@ -267,6 +269,25 @@ export class UsersController {
     @Body('newPassword') newPassword: string,
   ): Promise<IMessage | IError | IValidation> {
     const result = await this.service.changePassword(email, code, newPassword);
+    return this.handleServiceResult(result);
+  }
+
+  // ---------------------------------------------------------------------------
+  // ACCESS PARENT
+  // ---------------------------------------------------------------------------
+
+  @Post('/access-parent/:parentId')
+  @HttpCode(200)
+  @ApiOperation(userSwagger.getAccessParent.summary)
+  @ApiParam(userSwagger.getAccessParent.param)
+  @ApiResponse(userSwagger.getAccessParent.responses.success)
+  @ApiResponse(userSwagger.getAccessParent.responses.error)
+  async getAccessParent(
+    @Param('parentId') parentId: string,
+    @Headers('authorization') auth: string,
+  ): Promise<IMessage | IError> {
+    const token = auth && (auth.split(' ')[1] as string);
+    const result = await this.service.getAccessParent(parentId, token);
     return this.handleServiceResult(result);
   }
 }

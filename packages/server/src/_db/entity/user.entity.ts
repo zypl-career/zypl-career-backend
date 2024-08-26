@@ -23,6 +23,9 @@ export class UserEntity extends BaseEntity implements UserModel {
   @Column({ nullable: true })
   patronymic?: string;
 
+  @Column('text', { array: true, nullable: true })
+  accept?: string[];
+
   @Column()
   gender: 'male' | 'female';
 
