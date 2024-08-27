@@ -18,7 +18,7 @@ services:
       context: ./packages/server
       dockerfile: Dockerfile
     ports:
-      - '8000:8000'
+      - 10.128.0.2:8000:8000
 
   ai:
     build:
