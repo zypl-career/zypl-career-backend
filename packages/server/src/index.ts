@@ -5,6 +5,10 @@ import { AppDataSource } from './app/globals.app.js';
 // import * as AdminJSTypeorm from '@adminjs/typeorm';
 // import AdminJS from 'adminjs';
 import { Config } from './app/config.app.js';
+import { EventEmitter } from 'events';
+
+// Increase max listeners for all EventEmitter instances
+EventEmitter.defaultMaxListeners = 20;
 
 async function bootstrap() {
   const app = await NestFactory.create(ModuleApp, {
