@@ -10,11 +10,6 @@ services:
       POSTGRES_DB: 'career'
     volumes:
       - career-postgres-data:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
 
   back:
     build:
@@ -22,11 +17,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8000:8000
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G
 
   ai:
     build:
@@ -43,11 +33,6 @@ services:
       test: ['CMD', 'curl', '-f', 'http://localhost:8887']
       interval: 30s
       retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
 
   nginx_prod:
     container_name: 'nginx_prod'
@@ -59,11 +44,6 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - back
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
 
 volumes:
   career-postgres-data:

@@ -1,37 +1,42 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import * as controllers from '../controller/_index.js';
 import { AuthMiddleware } from '../middleware/_index.js';
-import * as providers from '../service/_index.js';
-// import { AdminModule } from '@adminjs/nestjs';
 import { ConfigModule } from '@nestjs/config';
-// import options from '../admin/options.js';
-// import provider from '../admin/auth-provider.js';
 import * as dotenv from 'dotenv';
+import {
+  ArticlesModule,
+  CoursesModule,
+  EducationalCentersModule,
+  LessonsModule,
+  SpecialtyModule,
+  TestModule,
+  UniversityModule,
+  UserModule,
+  VideoModule,
+  PartnerModule,
+  PdfStorageModule,
+  ImageStorageModule,
+} from '../module/_index.js';
+
 dotenv.config();
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),
-
-    // AdminModule.createAdminAsync({
-    //   useFactory: () => ({
-    //     adminJsOptions: options,
-    //     auth: {
-    //       provider,
-    //       cookiePassword: process.env.COOKIE_SECRET!,
-    //       cookieName: 'adminjs',
-    //     },
-    //     sessionOptions: {
-    //       resave: true,
-    //       saveUninitialized: true,
-    //       secret: process.env.COOKIE_SECRET!,
-    //     },
-    //   }),
-    // }),
+    ArticlesModule,
+    CoursesModule,
+    EducationalCentersModule,
+    LessonsModule,
+    SpecialtyModule,
+    TestModule,
+    UniversityModule,
+    UserModule,
+    VideoModule,
+    PartnerModule,
+    PdfStorageModule,
+    ImageStorageModule,
   ],
-  controllers: Object.values(controllers),
-  providers: Object.values(providers),
 })
 export class ModuleApp implements NestModule {
   configure(consumer: MiddlewareConsumer) {
