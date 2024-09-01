@@ -19,8 +19,8 @@ services:
       context: ./packages/server
       dockerfile: Dockerfile
     ports:
-      - '8000:8000'
-    mem_limit: 4g
+      - '3000:3000'
+    mem_limit: 8g
     cpus: '8'
 
   ai:
@@ -51,7 +51,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - back
-    mem_limit: 4g
+    mem_limit: 8g
     cpus: '8'
 
 volumes:
