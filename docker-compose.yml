@@ -11,12 +11,12 @@ services:
     volumes:
       - career-postgres-data:/var/lib/postgresql/data
 
-  back:
-    build:
-      context: ./packages/server
-      dockerfile: Dockerfile
-    ports:
-      - 8000:8000
+  # back:
+  #   build:
+  #     context: ./packages/server
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8000:8000
 
   ai:
     build:
