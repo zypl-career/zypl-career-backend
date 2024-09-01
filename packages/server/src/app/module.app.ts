@@ -1,7 +1,7 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AuthMiddleware } from '../middleware/_index.js';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as dotenv from 'dotenv';
+
 import {
   ArticlesModule,
   CoursesModule,
