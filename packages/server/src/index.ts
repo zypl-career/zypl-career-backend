@@ -10,7 +10,7 @@ async function bootstrap() {
     logger: ['error', 'warn'],
   });
 
-  // await AppDataSource.initialize();
+  await AppDataSource.initialize();
   const config = new DocumentBuilder()
     .setTitle('Career API')
     .setDescription('The Career API documentation')
