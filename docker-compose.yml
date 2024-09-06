@@ -12,6 +12,11 @@ services:
       POSTGRES_DB: 'career'
     volumes:
       - career-postgres-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '2G'
 
   back:
     build:
@@ -19,6 +24,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: '4G'
 
   ai:
     build:

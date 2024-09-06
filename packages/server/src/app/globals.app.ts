@@ -11,4 +11,8 @@ export const AppDataSource = new DataSource({
   logging: ['error'],
   entities,
   migrationsRun: true,
+  extra: {
+    max: 10,
+    idleTimeoutMillis: 30000,
+  },
 });
