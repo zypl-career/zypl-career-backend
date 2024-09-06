@@ -21,6 +21,7 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document);
 
   await app.listen(Config.port || 3000);
+  console.log(`Server started on ${await app.getUrl()}`);
 }
 
-bootstrap().then(() => console.log('Server started on http://localhost:3000'));
+bootstrap();
