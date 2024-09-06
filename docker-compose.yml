@@ -45,6 +45,14 @@ services:
       test: ['CMD', 'curl', '-f', 'http://localhost:8887']
       interval: 30s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '2G'
+        reservations:
+          cpus: '0.5'
+          memory: '1G'
 
   nginx_prod:
     container_name: 'nginx_prod'
