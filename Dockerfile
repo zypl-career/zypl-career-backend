@@ -7,4 +7,4 @@ RUN pnpm install
 COPY . .
 RUN pnpm run build
 EXPOSE ${PORT}
-CMD ["node", "_/src/index.js" ]
+CMD ["node", "_/src/main.js" ]
