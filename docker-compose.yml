@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: 'postgres:14.2'
+    container_name: 'career-postgres'
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: 'career'
+      POSTGRES_PASSWORD: 'career!'
+      POSTGRES_DB: 'career'
+    volumes:
+      - career-postgres-data:/var/lib/postgresql/data
+
+  back:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+
+  # ai:
+  #   build:
+  #     context: ./packages/ai
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '8887:8887'
+  #   volumes:
+  #     - ./packages/ai:/app
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
+  #     - ENVIRONMENT=development
+  #   healthcheck:
+  #     test: ['CMD', 'curl', '-f', 'http://localhost:8887']
+  #     interval: 30s
+  #     retries: 3
+
+  nginx_prod:
+    container_name: 'nginx_prod'
+    image: nginx:latest
+    restart: always
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - back
+
+volumes:
+  career-postgres-data:
+    external: true
