@@ -15,14 +15,14 @@ services:
 
   back:
     build:
-      context: ./packages/server
+      context: ./ 
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
 
   ai:
     build:
-      context: ./packages/ai
+      context: ./ai
       dockerfile: Dockerfile
     ports:
       - '8887:8887'

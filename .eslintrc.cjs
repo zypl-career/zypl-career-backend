@@ -11,14 +11,10 @@ module.exports = {
     'plugin:import/typescript',
     'plugin:prettier/recommended',
   ],
-  ignorePatterns: ['dist', 'node_modules'],
+  ignorePatterns: ['_', 'dist', 'node_modules', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: [
-      './tsconfig.json',
-      './packages/server/tsconfig.json',
-      './packages/web/tsconfig.json',
-    ],
+    project: ['./tsconfig.json'],
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint', 'import', 'simple-import-sort'],
