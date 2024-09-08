@@ -20,21 +20,21 @@ services:
     ports:
       - '3000:3000'
 
-  ai:
-    build:
-      context: ./ai
-      dockerfile: Dockerfile
-    ports:
-      - '8887:8887'
-    volumes:
-      - ./packages/ai:/app
-    environment:
-      - PYTHONUNBUFFERED=1
-      - ENVIRONMENT=development
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8887']
-      interval: 30s
-      retries: 3
+  # ai:
+  #   build:
+  #     context: ./ai
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '8887:8887'
+  #   volumes:
+  #     - ./packages/ai:/app
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
+  #     - ENVIRONMENT=development
+  #   healthcheck:
+  #     test: ['CMD', 'curl', '-f', 'http://localhost:8887']
+  #     interval: 30s
+  #     retries: 3
 
   nginx_prod:
     container_name: 'nginx_prod'
