@@ -1,3 +1,0 @@
-pnpm i
-tsc
-
