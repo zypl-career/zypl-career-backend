@@ -47,7 +47,6 @@ export class TestController {
   @ApiOperation(testSwagger.process.summary)
   @ApiBody(testSwagger.process.body)
   @ApiResponse(testSwagger.process.responses.success)
-  @ApiResponse(testSwagger.process.responses.unauthorized)
   @ApiResponse(testSwagger.process.responses.error)
   async processResultModal(
     @Body() requestData: createTestModalDto,
