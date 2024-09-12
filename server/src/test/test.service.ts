@@ -64,11 +64,19 @@ export class TestService {
         headers: { 'Content-Type': 'application/json' },
       };
 
-      console.log("======================");
+      let response:any
       
-      const response = await fetch(appConfig.modelAPI, options);
+      console.log(",,,,,,,,,,,,,,,,,,,,,,,,",appConfig.modelAPI);
+      try {
+        response = await fetch(appConfig.modelAPI, options);
+      } catch (error) {
+        console.log(error);
+      }
+
       console.log("======================",response);
       const jsonResponse = await response.json();
+      console.log("======================",response);
+
 
       
       if (response.status !== 200) {
