@@ -35,6 +35,8 @@ services:
       test: ['CMD', 'curl', '-f', 'http://localhost:8887']
       interval: 30s
       retries: 3
+    depends_on:
+      - back
 
   nginx_prod:
     container_name: 'nginx_prod'
