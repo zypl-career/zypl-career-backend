@@ -2,6 +2,11 @@ import { createTestModalDto, getTestDTO } from '../dto/index.js';
 
 export const testSwagger = {
   process: {
+    param: {
+      name: 'authorization',
+      required: false,
+      description: 'The token',
+    },
     summary: {
       summary: 'Process result modal',
     },
@@ -38,6 +43,22 @@ export const testSwagger = {
           },
         },
       },
+
+      success_without_auth: {
+        status: 200,
+        description: 'Result modal processed successfully',
+        schema: {
+          example: {
+            message: 'Result modal processed successfully',
+            info: 'This data not saved because user is not authenticated',
+            payload: [
+              0.07961358152075046, 0.10572438850781071, 0.06472300693776838, 0.037430474967483834,
+              0.7125085480661866,
+            ],
+          },
+        },
+      },
+
       unauthorized: {
         status: 401,
         description: 'Invalid or missing token',
@@ -48,6 +69,7 @@ export const testSwagger = {
           },
         },
       },
+
       error: {
         status: 500,
         description: 'Internal server error',

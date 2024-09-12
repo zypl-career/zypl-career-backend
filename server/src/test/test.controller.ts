@@ -45,8 +45,10 @@ export class TestController {
   @Post()
   @HttpCode(200)
   @ApiOperation(testSwagger.process.summary)
+  @ApiParam(testSwagger.process.param)
   @ApiBody(testSwagger.process.body)
   @ApiResponse(testSwagger.process.responses.success)
+  @ApiResponse(testSwagger.process.responses.success_without_auth)
   @ApiResponse(testSwagger.process.responses.error)
   async processResultModal(
     @Body() requestData: createTestModalDto,
