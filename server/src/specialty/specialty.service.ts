@@ -76,7 +76,6 @@ export class SpecialtyService {
   // ---------------------------------------------------------------------------
   // SPECIALTY GET
   // ---------------------------------------------------------------------------
-
   async get(
     id?: string,
     filters?: ISpecialtyGetDataDTO,
@@ -86,16 +85,19 @@ export class SpecialtyService {
     if (id) {
       const specialty = await this.findSpecialtyById(id);
       if ('error' in specialty) return specialty;
-
       return specialty;
     }
 
     let specialties: SpecialtyModel[];
+    let total = 0;
 
     if (filters) {
       const createUserDto = plainToInstance(getSpecialtyDTO, filters);
+
       const validationErrors = await this.validateDto(createUserDto);
+
       if (validationErrors) return validationErrors;
+
       const {
         name,
         class: classNumber,
@@ -112,8 +114,29 @@ export class SpecialtyService {
         careerOpportunities,
         page,
         limit,
+        sortSpecializationGroup,
       } = filters;
-      const skip = page && limit ? (page - 1) * limit : undefined;
+
+      const pageNumber = page || 1;
+      const limitNumber = limit || 10;
+      const skip = (pageNumber - 1) * limitNumber;
+
+      total = await this.repository.countWithFilters({
+        name,
+        class: classNumber,
+        specializationGroup,
+        clusterName,
+        clusterTag,
+        specialtyCode,
+        specialtyName,
+        formOfEducation,
+        typeOfStudy,
+        languageOfStudy,
+        universityName,
+        monthlyIncome,
+        careerOpportunities,
+      });
+      console.log(total);
 
       specialties = await this.repository.findWithFilters({
         name,
@@ -130,13 +153,16 @@ export class SpecialtyService {
         monthlyIncome,
         careerOpportunities,
         skip,
-        take: limit,
+        take: limitNumber,
+        sortSpecializationGroup,
       });
     } else {
       specialties = await this.repository.find();
+      total = specialties.length;
     }
+
     return {
-      total: specialties.length,
+      total,
       page: filters?.page || 1,
       limit: filters?.limit || 10,
       data: specialties,

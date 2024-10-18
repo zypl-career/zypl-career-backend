@@ -420,6 +420,16 @@ export class getSpecialtyDTO implements ISpecialtyGetDataDTO {
   careerOpportunities?: string[];
 
   @ApiProperty({
+    example: [4, 5, 3, 4, 5],
+    description: 'Career sortSpecializationGroup available',
+    required: false,
+  })
+  @IsArray({ message: 'sortSpecializationGroup must be an array' })
+  @IsOptional()
+  @Transform(({ value }) => value.map((val) => Number(val)))
+  sortSpecializationGroup?: number[];
+
+  @ApiProperty({
     description: 'The page number for pagination',
     type: 'number',
     required: false,

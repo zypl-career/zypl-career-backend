@@ -54,6 +54,7 @@ export interface ISpecialtyGetDataDTO {
   universityName?: string;
   monthlyIncome?: number;
   careerOpportunities?: string[];
+  sortSpecializationGroup?: number[];
   page?: number;
   limit?: number;
 }
