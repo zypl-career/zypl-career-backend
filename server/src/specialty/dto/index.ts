@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { ArrayNotEmpty, IsArray, isArray, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 import {
   ISpecialtyCreateDataDTO,
@@ -426,7 +426,10 @@ export class getSpecialtyDTO implements ISpecialtyGetDataDTO {
   })
   @IsArray({ message: 'sortSpecializationGroup must be an array' })
   @IsOptional()
-  @Transform(({ value }) => value.map((val) => Number(val)))
+  @Transform(({ value }) => {
+    if (!isArray(value)) return [Number(value)];
+    value.map((val) => Number(val));
+  })
   sortSpecializationGroup?: number[];
 
   @ApiProperty({

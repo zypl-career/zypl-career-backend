@@ -261,10 +261,16 @@ export class LessonService {
   // ---------------------------------------------------------------------------
   async delete(id: string): Promise<IMessage | IError | IValidation> {
     const lessonToDelete = await this.findLessonById(id);
+
     if ('error' in lessonToDelete) return lessonToDelete;
+    if ('validation' in lessonToDelete) return lessonToDelete;
 
-    await this.repository.delete(id);
-
-    return { message: 'Lesson deleted successfully' };
+    try {
+      await this.repository.delete(lessonToDelete.id);
+      return { message: 'Lesson deleted successfully' };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return { error: 'Failed to delete lesson' };
+    }
   }
 }

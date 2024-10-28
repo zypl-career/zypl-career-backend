@@ -92,9 +92,11 @@ export class SpecialtyService {
     let total = 0;
 
     if (filters) {
-      const createUserDto = plainToInstance(getSpecialtyDTO, filters);
+      const getUserDto = plainToInstance(getSpecialtyDTO, filters);
 
-      const validationErrors = await this.validateDto(createUserDto);
+      console.log(getUserDto);
+
+      const validationErrors = await this.validateDto(getUserDto);
 
       if (validationErrors) return validationErrors;
 

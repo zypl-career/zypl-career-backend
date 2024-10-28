@@ -124,12 +124,12 @@ export class SpecialtyRepository extends Repository<SpecialtyEntity> {
       });
     }
 
-    if (sortSpecializationGroup && sortSpecializationGroup.length > 0) {
-      queryBuilder.addOrderBy(
-        `CASE specialties.specializationGroup::text ${sortSpecializationGroup
-          .map((group, index) => `WHEN '${group}' THEN ${index + 1}`)
-          .join(' ')} END`,
-      );
+    if (sortSpecializationGroup?.length) {
+      const orderByCase = Array.from(sortSpecializationGroup).reduce((acc, group, index) => {
+        return acc + ` WHEN '${group}' THEN ${index + 1}`;
+      }, 'CASE specialties."specializationGroup"::text');
+
+      queryBuilder.addOrderBy(orderByCase + ' END');
     }
 
     if (skip !== undefined) {

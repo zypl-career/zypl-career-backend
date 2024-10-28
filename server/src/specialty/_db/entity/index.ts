@@ -24,7 +24,7 @@ export class SpecialtyEntity extends BaseEntity implements SpecialtyModel {
   @Column({ type: 'int' })
   class: number;
 
-  @Column({ type: 'enum', enum: [1, 2, 3, 4, 5] })
+  @Column({ name: 'specializationGroup', type: 'enum', enum: [1, 2, 3, 4, 5] })
   specializationGroup: 1 | 2 | 3 | 4 | 5;
 
   @Column()
