@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CourseModule } from '../course/course.module.js';
+import { PdfModule } from '../pdf/pdf.module.js';
 import { VideoModule } from '../video/video.module.js';
 
 import { LessonEntity } from './_db/entity/index.js';
@@ -10,7 +11,7 @@ import { LessonController } from './lesson.controller.js';
 import { LessonService } from './lesson.service.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LessonEntity]), VideoModule, CourseModule],
+  imports: [TypeOrmModule.forFeature([LessonEntity]), VideoModule, CourseModule, PdfModule],
   controllers: [LessonController],
   providers: [LessonService, LessonRepository],
 })

@@ -1,18 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { Storage } from '@google-cloud/storage';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class VideoService {
-  private readonly videoDirectory = 'videos';
+  private storage: Storage;
+  private bucketName: string = 'kasbiman_backets';
 
   constructor() {
-    this.initializeVideoDirectory();
-  }
-
-  private async initializeVideoDirectory() {
-    await fs.mkdir(this.videoDirectory, { recursive: true });
+    this.storage = new Storage();
   }
 
   // ---------------------------------------------------------------------------
@@ -21,13 +17,35 @@ export class VideoService {
   async uploadVideo(file: Express.Multer.File): Promise<string> {
     try {
       const filename = `${uuidv4()}-${file.originalname}`;
-      const filePath = join(this.videoDirectory, filename);
-      await fs.writeFile(filePath, file.buffer);
-      return filename;
+      const bucket = this.storage.bucket(this.bucketName);
+      const blob = bucket.file(filename);
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+        contentType: file.mimetype,
+      });
+
+      blobStream.end(file.buffer);
+
+      return new Promise((resolve, reject) => {
+        blobStream.on('finish', () => {
+          const publicUrl = `${filename}`;
+          resolve(publicUrl);
+        });
+
+        blobStream.on('error', (error) => {
+          console.error(error);
+          reject(
+            new HttpException(
+              'Error uploading video to Google Cloud Storage',
+              HttpStatus.INTERNAL_SERVER_ERROR,
+            ),
+          );
+        });
+      });
     } catch (error) {
       console.error(error);
       throw new HttpException(
-        'Error uploading video to local storage',
+        'Error uploading video to Google Cloud Storage',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -38,12 +56,22 @@ export class VideoService {
   // ---------------------------------------------------------------------------
   async getVideo(filename: string): Promise<Buffer> {
     try {
-      const filePath = join(this.videoDirectory, filename);
-      const fileBuffer = await fs.readFile(filePath);
+      const bucket = this.storage.bucket(this.bucketName);
+      const file = bucket.file(filename);
+
+      const [exists] = await file.exists();
+      if (!exists) {
+        throw new HttpException('Video not found', HttpStatus.NOT_FOUND);
+      }
+
+      const [fileBuffer] = await file.download();
       return fileBuffer;
     } catch (error) {
       console.error(error);
-      throw new HttpException('Error retrieving video from local storage', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Error retrieving video from Google Cloud Storage',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 }

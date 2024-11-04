@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
 import { appConfig } from '../app.config.js';
 import { CourseRepository } from '../course/_db/repository/index.js';
+import { PdfService } from '../pdf/pdf.service.js';
 import { IError, IMessage, IValidation } from '../type/base.js';
 import { formatValidationErrors, validateUUID } from '../util/index.js';
 import { VideoService } from '../video/video.service.js';
@@ -27,6 +25,7 @@ export class LessonService {
   constructor(
     private readonly repository: LessonRepository,
     private readonly videoService: VideoService,
+    private readonly pdfService: PdfService,
     private readonly coursesRepository: CourseRepository,
   ) {}
 
@@ -53,14 +52,6 @@ export class LessonService {
       return { error: 'Lesson not found' };
     }
     return lesson;
-  }
-
-  private async savePdf(file: Express.Multer.File): Promise<string> {
-    const fileId = uuidv4();
-    const filePath = join(this.#mediaPath, `${fileId}.pdf`);
-    await fs.mkdir(this.#mediaPath, { recursive: true });
-    await fs.writeFile(filePath, file.buffer);
-    return fileId;
   }
 
   // ---------------------------------------------------------------------------
@@ -99,7 +90,7 @@ export class LessonService {
         appConfig.domain + '/videos/play/' + (await this.videoService.uploadVideo(resource));
       type = 'video';
     } else if (resource.mimetype === 'application/pdf') {
-      resourceForSave = appConfig.domain + '/pdf/' + (await this.savePdf(resource));
+      resourceForSave = appConfig.domain + '/pdf/' + (await this.pdfService.uploadPdf(resource));
       type = 'pdf';
     } else {
       return { validation: 'Unsupported file type. File must be mp4 or pdf' };
