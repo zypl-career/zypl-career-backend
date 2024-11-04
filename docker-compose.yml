@@ -19,6 +19,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   ai:
     build:
@@ -50,6 +55,7 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     depends_on:
+      - back
       - certbot
 
   certbot:
