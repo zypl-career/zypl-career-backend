@@ -29,8 +29,6 @@ export class LessonService {
     private readonly coursesRepository: CourseRepository,
   ) {}
 
-  #mediaPath = './media/lessons';
-
   // ---------------------------------------------------------------------------
   // PRIVATE FUNCTIONS
   // ---------------------------------------------------------------------------

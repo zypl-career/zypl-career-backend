@@ -7,10 +7,11 @@ import { EducationCenterEntity } from './_db/entity/index.js';
 import { EducationCenterRepository } from './_db/repository/index.js';
 import { EducationCenterController } from './educational-center.controller.js';
 import { EducationalCenterService } from './educational-center.service.js';
+import { TxtService } from '../txt/txt.service.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([EducationCenterEntity]), ImageModule],
   controllers: [EducationCenterController],
-  providers: [EducationalCenterService, EducationCenterRepository],
+  providers: [EducationalCenterService, EducationCenterRepository, TxtService],
 })
 export class EducationalCentersModule {}

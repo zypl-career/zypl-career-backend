@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
 import { appConfig } from '../app.config.js';
 import { ImageService } from '../image/image.service.js';
+import { TxtService } from '../txt/txt.service.js';
 import { IError, IMessage, IValidation } from '../type/base.js';
 import { formatValidationErrors, validateUUID } from '../util/index.js';
 
@@ -19,7 +17,6 @@ import {
 } from './dto/index.js';
 import {
   IEducationCenterCreateDataDTO,
-  IEducationCenterGetDataDTO,
   IEducationCenterUpdateDataDTO,
   PaginatedEducationCenterResponse,
 } from './type/index.js';
@@ -29,8 +26,8 @@ export class EducationalCenterService {
   constructor(
     private readonly repository: EducationCenterRepository,
     private readonly imageService: ImageService,
+    private readonly txtService: TxtService,
   ) {}
-  #mediaPath = 'media';
 
   // ---------------------------------------------------------------------------
   // PRIVATE FUNCTIONS
@@ -54,31 +51,17 @@ export class EducationalCenterService {
     return center;
   }
 
-  private async saveGeneralInfoToFile(content: string, filename: string): Promise<string> {
-    const filePath = join(this.#mediaPath, filename);
-    await fs.mkdir(this.#mediaPath, { recursive: true });
-    await fs.writeFile(filePath, content);
-    return filePath;
-  }
-
-  private async readGeneralInfoFromFile(filePath: string): Promise<string> {
-    const content = await fs.readFile(filePath, 'utf8');
-    return content;
-  }
-
   // ---------------------------------------------------------------------------
   // CREATE
   // ---------------------------------------------------------------------------
   async create(education: IEducationCenterCreateDataDTO): Promise<IMessage | IValidation | IError> {
-    const createArticleDto = plainToInstance(CreateEducationCenterDto, education);
-    const validationErrors = await this.validateDto(createArticleDto);
+    const createDto = plainToInstance(CreateEducationCenterDto, education);
+    const validationErrors = await this.validateDto(createDto);
     if (validationErrors) return validationErrors;
 
     const uploadedImage = await this.imageService.uploadImage(education.image);
-    const generalInfoFile = await this.saveGeneralInfoToFile(
-      education.generalInfo,
-      `education-center_${uuidv4()}.txt`,
-    );
+    const generalInfoFile =
+      appConfig.domain + '/txt/' + (await this.txtService.uploadTxt(education.generalInfo));
 
     const newCenter = {
       title: education.title,
@@ -87,20 +70,9 @@ export class EducationalCenterService {
       city: education.city,
     };
 
-    const res = await this.repository.save(newCenter);
+    const result = await this.repository.save(newCenter);
 
-    const payload = {
-      id: res.id,
-      title: res.title,
-      image: res.image,
-      generalInfo: education.generalInfo,
-      city: res.city,
-      createdAt: res.createdAt,
-      updatedAt: res.updatedAt,
-      deletedAt: res.deletedAt,
-    };
-
-    return { message: 'Education center registered successfully', payload };
+    return { message: 'Education center created successfully', payload: result };
   }
 
   // ---------------------------------------------------------------------------
@@ -111,11 +83,10 @@ export class EducationalCenterService {
     education: IEducationCenterUpdateDataDTO,
   ): Promise<IMessage | IValidation | IError> {
     const centerToUpdate = await this.findEducationCenterById(id);
-
     if ('error' in centerToUpdate) return centerToUpdate;
 
-    const updateArticleDto = plainToInstance(UpdateEducationCenterDto, education);
-    const validationErrors = await this.validateDto(updateArticleDto);
+    const updateDto = plainToInstance(UpdateEducationCenterDto, education);
+    const validationErrors = await this.validateDto(updateDto);
     if (validationErrors) return validationErrors;
 
     if (education.image) {
@@ -124,36 +95,24 @@ export class EducationalCenterService {
     }
 
     if (education.generalInfo) {
-      centerToUpdate.generalInfoFile = await this.saveGeneralInfoToFile(
-        education.generalInfo,
-        `education-center_${id}.txt`,
-      );
+      centerToUpdate.generalInfoFile =
+        appConfig.domain + '/txt/' + (await this.txtService.uploadTxt(education.generalInfo));
     }
 
     if (education.title) centerToUpdate.title = education.title;
     if (education.city) centerToUpdate.city = education.city;
 
-    const res = await this.repository.save(centerToUpdate);
+    const result = await this.repository.save(centerToUpdate);
 
-    const payload = {
-      id: res.id,
-      title: res.title,
-      image: res.image,
-      generalInfo: education.generalInfo ?? res.generalInfoFile,
-      city: res.city,
-      createdAt: res.createdAt,
-      updatedAt: res.updatedAt,
-      deletedAt: res.deletedAt,
-    };
-
-    return { message: 'Education center updated successfully', payload };
+    return { message: 'Education center updated successfully', payload: result };
   }
 
   // ---------------------------------------------------------------------------
   // GET
+  // ---------------------------------------------------------------------------
   async get(
     id?: string,
-    filters?: IEducationCenterGetDataDTO,
+    filters?: GetEducationCenterDto,
   ): Promise<
     | EducationCenterModel
     | EducationCenterModel[]
@@ -162,55 +121,34 @@ export class EducationalCenterService {
     | PaginatedEducationCenterResponse
   > {
     if (id) {
-      const education = await this.findEducationCenterById(id);
-      if ('error' in education) return education;
-      const generalInfoContent = await this.readGeneralInfoFromFile(education.generalInfoFile);
-
-      const result = {
-        id: education.id,
-        title: education.title,
-        image: education.image,
-        city: education.city,
-        generalInfo: generalInfoContent,
-        createdAt: education.createdAt,
-        updatedAt: education.updatedAt,
-        deletedAt: null,
-      };
-
-      return result as any;
+      const center = await this.findEducationCenterById(id);
+      if ('error' in center) return center;
+      return center;
     }
 
-    let educations: EducationCenterModel[];
-    let totalEducationCenter: number;
+    let centers: EducationCenterModel[];
+    let totalCenters: number;
 
     if (filters) {
-      const getEducationCenterDto = plainToInstance(GetEducationCenterDto, filters);
-
-      const validationErrors = await this.validateDto(getEducationCenterDto);
+      const getDto = plainToInstance(GetEducationCenterDto, filters);
+      const validationErrors = await this.validateDto(getDto);
       if (validationErrors) return validationErrors;
+
       const { title, city, page, limit } = filters;
       const skip = page && limit ? (page - 1) * limit : undefined;
 
-      educations = await this.repository.findWithFilters({
-        title,
-        city,
-        skip,
-        take: limit,
-      });
-
-      totalEducationCenter = await this.repository.countWithFilters({
-        title,
-        city,
-      });
+      centers = await this.repository.findWithFilters({ title, city, skip, take: limit });
+      totalCenters = await this.repository.countWithFilters({ title, city });
     } else {
-      educations = await this.repository.find();
-      totalEducationCenter = await this.repository.count();
+      centers = await this.repository.find();
+      totalCenters = await this.repository.count();
     }
+
     return {
-      total: totalEducationCenter,
+      total: totalCenters,
       page: filters?.page || 1,
       limit: filters?.limit || 10,
-      data: educations,
+      data: centers,
     };
   }
 

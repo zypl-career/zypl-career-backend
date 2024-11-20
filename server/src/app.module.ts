@@ -12,6 +12,7 @@ import { StatisticsModule } from './statistics/statistics.module.js';
 import { TestModule } from './test/test.module.js';
 import { UniversityModule } from './university/university.module.js';
 import { UserModule } from './user/user.module.js';
+import { TxtModule } from './txt/txt.module.js';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UserModule } from './user/user.module.js';
     EducationalCentersModule,
     LessonModule,
     PdfModule,
+    TxtModule,
     PartnerModule,
     SpecialtyModule,
     TestModule,

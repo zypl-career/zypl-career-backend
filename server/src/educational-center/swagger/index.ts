@@ -141,7 +141,7 @@ export const educationCenterSwagger = {
               id: '123',
               title: 'Education Center Title',
               image: 'https://example.com/image.jpg',
-              generalInfoFile: 'media/education-center-info/education-center.txt',
+              generalInfoFile: 'https://example.com/info.txt',
               city: 'City Name',
               createdAt: 1622548800000,
               updatedAt: 1622548800000,

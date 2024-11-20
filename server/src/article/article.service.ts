@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { isArray, validate } from 'class-validator';
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
 import { appConfig } from '../app.config.js';
 import { ImageService } from '../image/image.service.js';
@@ -18,15 +15,15 @@ import {
   IArticleUpdateDataDTO,
   PaginatedArticlesResponse,
 } from './type/index.js';
+import { TxtService } from '../txt/txt.service.js';
 
 @Injectable()
 export class ArticleService {
   constructor(
     private readonly repository: ArticleRepository,
     private readonly imageService: ImageService,
+    private readonly txtService: TxtService,
   ) {}
-
-  #mediaPath = 'media';
 
   // ---------------------------------------------------------------------------
   // PRIVATE FUNCTIONS
@@ -50,18 +47,6 @@ export class ArticleService {
     return article;
   }
 
-  private async saveGeneralInfoToFile(content: string, filename: string): Promise<string> {
-    const filePath = join(this.#mediaPath, filename);
-    await fs.mkdir(this.#mediaPath, { recursive: true });
-    await fs.writeFile(filePath, content);
-    return filePath;
-  }
-
-  private async readGeneralInfoFromFile(filePath: string): Promise<string> {
-    const content = await fs.readFile(filePath, 'utf8');
-    return content;
-  }
-
   // ---------------------------------------------------------------------------
   // CREATE
   // ---------------------------------------------------------------------------
@@ -77,17 +62,14 @@ export class ArticleService {
     const { title, description, image, minutesRead, generalInfo } = article;
 
     const uploadedImage = await this.imageService.uploadImage(image);
-    const generalInfoFile = await this.saveGeneralInfoToFile(
-      generalInfo,
-      `article_${uuidv4()}.txt`,
-    );
-
+    const resourceForSave =
+      appConfig.domain + '/txt/' + (await this.txtService.uploadTxt(generalInfo));
     const newArticle = {
       title,
       description,
       image: appConfig.domain + '/image/get/' + uploadedImage,
       minutesRead,
-      generalInfoFile,
+      generalInfoFile: resourceForSave,
       hashtags: arrayHashtags,
     };
 
@@ -129,10 +111,8 @@ export class ArticleService {
     }
 
     if (generalInfo) {
-      articleToUpdate.generalInfoFile = await this.saveGeneralInfoToFile(
-        generalInfo,
-        `article_${id}.txt`,
-      );
+      articleToUpdate.generalInfoFile =
+        appConfig.domain + '/txt/' + (await this.txtService.uploadTxt(generalInfo));
     }
 
     if (title) articleToUpdate.title = title;
@@ -156,9 +136,7 @@ export class ArticleService {
     if (id) {
       const article = await this.findArticleById(id);
       if ('error' in article) return article;
-
-      const generalInfoContent = await this.readGeneralInfoFromFile(article.generalInfoFile);
-      return { ...article, generalInfoFile: generalInfoContent };
+      return article;
     }
 
     let articles: ArticleModel[];
@@ -189,18 +167,11 @@ export class ArticleService {
       totalArticles = await this.repository.count();
     }
 
-    const articlesWithInfo = await Promise.all(
-      articles.map(async (article) => {
-        const generalInfoContent = await this.readGeneralInfoFromFile(article.generalInfoFile);
-        return { ...article, generalInfoFile: generalInfoContent };
-      }),
-    );
-
     return {
       total: totalArticles,
       page: filters?.page || 1,
       limit: filters?.limit || 10,
-      data: articlesWithInfo,
+      data: articles,
     };
   }
   // ---------------------------------------------------------------------------

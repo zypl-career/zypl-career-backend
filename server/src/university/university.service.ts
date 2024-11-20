@@ -3,7 +3,6 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
 import { IConflict, IError, IMessage, IValidation } from '../type/index.js';
 import { formatValidationErrors, validateUUID } from '../util/index.js';
@@ -17,11 +16,15 @@ import {
   IUniversityUpdateDataDTO,
   PaginatedUniversityResponse,
 } from './type/index.js';
+import { TxtService } from '../txt/txt.service.js';
+import { appConfig } from '../app.config.js';
 
 @Injectable()
 export class UniversityService {
-  constructor(private readonly repository: UniversityRepository) {}
-  #mediaPath = 'media';
+  constructor(
+    private readonly repository: UniversityRepository,
+    private readonly txtService: TxtService,
+  ) {}
 
   // ---------------------------------------------------------------------------
   // PRIVATE FUNCTIONS
@@ -45,18 +48,6 @@ export class UniversityService {
     return university;
   }
 
-  private async saveGeneralInfoToFile(content: string, filename: string): Promise<string> {
-    const filePath = join(this.#mediaPath, filename);
-    await fs.mkdir(this.#mediaPath, { recursive: true });
-    await fs.writeFile(filePath, content);
-    return filePath;
-  }
-
-  private async readGeneralInfoFromFile(filePath: string): Promise<string> {
-    const content = await fs.readFile(filePath, 'utf8');
-    return content;
-  }
-
   // ---------------------------------------------------------------------------
   // CREATE
   // ---------------------------------------------------------------------------
@@ -75,33 +66,19 @@ export class UniversityService {
       return { conflict: 'University already exists' };
     }
 
-    const universityId = uuidv4();
-    const generalInfoFile = await this.saveGeneralInfoToFile(
-      university.generalInfo,
-      `university_${universityId}.txt`,
-    );
+    const resourceForSave =
+      appConfig.domain + '/txt/' + (await this.txtService.uploadTxt(university.generalInfo));
 
     const newUniversity = {
       ...university,
-      id: universityId,
-      generalInfoFile,
+      generalInfoFile: resourceForSave,
     };
 
-    const saveUniversity = await this.repository.save(newUniversity);
-
-    const payload = {
-      id: saveUniversity.id,
-      name: saveUniversity.name,
-      city: saveUniversity.city,
-      generalInfo: university.generalInfo,
-      createdAt: saveUniversity.createdAt,
-      updatedAt: saveUniversity.updatedAt,
-      deletedAt: saveUniversity.deletedAt,
-    };
+    const result = await this.repository.save(newUniversity);
 
     return {
       message: 'University registered successfully',
-      payload,
+      payload: result,
     };
   }
 
@@ -121,10 +98,8 @@ export class UniversityService {
     if ('error' in universityToUpdate) return universityToUpdate;
 
     if (university.generalInfo) {
-      universityToUpdate.generalInfoFile = await this.saveGeneralInfoToFile(
-        university.generalInfo,
-        `university_${id}.txt`,
-      );
+      universityToUpdate.generalInfoFile =
+        appConfig.domain + '/txt/' + (await this.txtService.uploadTxt(university.generalInfo));
     }
 
     Object.assign(universityToUpdate, university);
@@ -146,19 +121,8 @@ export class UniversityService {
     if (id) {
       const university = await this.findUniversityById(id);
       if ('error' in university) return university;
-      const generalInfoContent = await this.readGeneralInfoFromFile(university.generalInfoFile);
 
-      const result = {
-        id: university.id,
-        name: university.name,
-        city: university.city,
-        generalInfo: generalInfoContent,
-        createdAt: university.createdAt,
-        updatedAt: university.updatedAt,
-        deletedAt: null,
-      };
-
-      return result as any;
+      return university;
     }
 
     let universities: UniversityModel[];
