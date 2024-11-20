@@ -123,7 +123,10 @@ export class EducationalCenterService {
     if (id) {
       const center = await this.findEducationCenterById(id);
       if ('error' in center) return center;
-      return center;
+
+      const filename = center.generalInfoFile.split('/').pop();
+      const generalInfo = await this.txtService.getTxt(filename);
+      return { ...center, generalInfo: generalInfo } as any;
     }
 
     let centers: EducationCenterModel[];

@@ -33,7 +33,12 @@ export class TxtService {
 
         blobStream.on('error', (error) => {
           console.error(error);
-          reject(new HttpException('Error uploading TXT to Google Cloud Storage', HttpStatus.INTERNAL_SERVER_ERROR));
+          reject(
+            new HttpException(
+              'Error uploading TXT to Google Cloud Storage',
+              HttpStatus.INTERNAL_SERVER_ERROR,
+            ),
+          );
         });
       });
     } catch (error) {

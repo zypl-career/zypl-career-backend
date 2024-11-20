@@ -136,7 +136,10 @@ export class ArticleService {
     if (id) {
       const article = await this.findArticleById(id);
       if ('error' in article) return article;
-      return article;
+      const filename = article.generalInfoFile.split('/').pop();
+
+      const generalInfo = await this.txtService.getTxt(filename);
+      return { ...article, generalInfo: generalInfo } as any;
     }
 
     let articles: ArticleModel[];

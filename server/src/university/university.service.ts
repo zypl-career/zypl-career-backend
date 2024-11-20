@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { promises as fs } from 'fs';
-import { join } from 'path';
 
 import { IConflict, IError, IMessage, IValidation } from '../type/index.js';
 import { formatValidationErrors, validateUUID } from '../util/index.js';
@@ -122,7 +120,9 @@ export class UniversityService {
       const university = await this.findUniversityById(id);
       if ('error' in university) return university;
 
-      return university;
+      const filename = university.generalInfoFile.split('/').pop();
+      const generalInfo = await this.txtService.getTxt(filename);
+      return { ...university, generalInfo: generalInfo } as any;
     }
 
     let universities: UniversityModel[];

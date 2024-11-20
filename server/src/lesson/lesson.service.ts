@@ -156,7 +156,7 @@ export class LessonService {
     if (id) {
       const lesson = await this.findLessonById(id);
       if ('error' in lesson) return lesson;
-
+      if ('validation' in lesson) return lesson;
       return lesson;
     }
 
