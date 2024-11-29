@@ -15,6 +15,8 @@ import {
   ISpecialtyUpdateDataDTO,
 } from './type/index.js';
 
+import ExcelJS from 'exceljs';
+
 @Injectable()
 export class SpecialtyService {
   constructor(private readonly repository: SpecialtyRepository) {}
@@ -181,5 +183,29 @@ export class SpecialtyService {
     await this.repository.delete(id);
 
     return { message: 'Specialty deleted successfully' };
+  }
+
+  // ---------------------------------------------------------------------------
+  // EXPORT
+  // ---------------------------------------------------------------------------
+  async exportToExcel(): Promise<ExcelJS.Buffer> {
+    const db = await this.repository.find();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Specialty');
+
+    const headers = Object.keys(db[0] || {}).map((key) => ({
+      header: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
+      key: key,
+      width: 30,
+    }));
+
+    worksheet.columns = headers;
+
+    db.forEach((article) => {
+      worksheet.addRow(article);
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
   }
 }

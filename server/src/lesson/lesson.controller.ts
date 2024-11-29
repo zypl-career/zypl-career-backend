@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -30,6 +31,7 @@ import { LessonModel } from './_db/model/index.js';
 import { CreateLessonDto, GetLessonDto, UpdateLessonDto } from './dto/index.js';
 import { lessonSwagger } from './swagger/index.js';
 import { LessonService } from './lesson.service.js';
+import { Response } from 'express';
 
 @ApiTags('lesson')
 @Controller('/lesson')
@@ -163,5 +165,27 @@ export class LessonController {
   ): Promise<IError | IValidation | LessonModel[]> {
     const result = await this.service.getLessonsByCourseId(courseId);
     return this.handleServiceResult(result);
+  }
+
+  @Get('/export')
+  @ApiOperation({ summary: 'Export articles as Excel' })
+  @ApiResponse({ status: 200, description: 'Excel file successfully generated' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async exportToExcel(@Res() res: Response): Promise<void> {
+    try {
+      const buffer = await this.service.exportToExcel();
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader('Content-Disposition', 'attachment; filename=articles.xlsx');
+      res.end(buffer);
+    } catch (error) {
+      throw new HttpException(
+        { error: `Failed to generate Excel file: ${error.message}` },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

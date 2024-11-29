@@ -12,6 +12,7 @@ import { convertData } from '../util/test.js';
 import { TestModel } from './_db/model/index.js';
 import { TestRepository } from './_db/repository/index.js';
 import { createTestModalDto, getTestDTO } from './dto/index.js';
+import ExcelJS from 'exceljs';
 
 @Injectable()
 export class TestService {
@@ -239,5 +240,29 @@ export class TestService {
       limit: filters?.limit || 10,
       data: articles,
     };
+  }
+
+  // ---------------------------------------------------------------------------
+  // EXPORT
+  // ---------------------------------------------------------------------------
+  async exportToExcel(): Promise<ExcelJS.Buffer> {
+    const db = await this.repository.find();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Tets');
+
+    const headers = Object.keys(db[0] || {}).map((key) => ({
+      header: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
+      key: key,
+      width: 30,
+    }));
+
+    worksheet.columns = headers;
+
+    db.forEach((article) => {
+      worksheet.addRow(article);
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
   }
 }

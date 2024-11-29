@@ -4,6 +4,7 @@ import { Repository, Between } from 'typeorm';
 
 import { UserEntity } from '../user/_db/entity/index.js';
 import { EnumCities, EnumGenders, EnumRoles } from '../user/type/index.js';
+import ExcelJS from 'exceljs';
 
 @Injectable()
 export class UserStatisticsService {
@@ -84,5 +85,29 @@ export class UserStatisticsService {
       usersByDistrict: completeDistrictStats,
       ageRangeStats,
     };
+  }
+
+  // ---------------------------------------------------------------------------
+  // EXPORT
+  // ---------------------------------------------------------------------------
+  async exportToExcel(): Promise<ExcelJS.Buffer> {
+    const db = await this.userRepository.find();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Statistics');
+
+    const headers = Object.keys(db[0] || {}).map((key) => ({
+      header: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
+      key: key,
+      width: 30,
+    }));
+
+    worksheet.columns = headers;
+
+    db.forEach((article) => {
+      worksheet.addRow(article);
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
   }
 }

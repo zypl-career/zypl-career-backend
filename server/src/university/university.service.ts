@@ -17,6 +17,8 @@ import {
 import { TxtService } from '../txt/txt.service.js';
 import { appConfig } from '../app.config.js';
 
+import ExcelJS from 'exceljs';
+
 @Injectable()
 export class UniversityService {
   constructor(
@@ -168,5 +170,29 @@ export class UniversityService {
     await this.repository.delete(id);
 
     return { message: 'University deleted successfully' };
+  }
+
+  // ---------------------------------------------------------------------------
+  // EXPORT
+  // ---------------------------------------------------------------------------
+  async exportToExcel(): Promise<ExcelJS.Buffer> {
+    const db = await this.repository.find();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('University');
+
+    const headers = Object.keys(db[0] || {}).map((key) => ({
+      header: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
+      key: key,
+      width: 30,
+    }));
+
+    worksheet.columns = headers;
+
+    db.forEach((article) => {
+      worksheet.addRow(article);
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
   }
 }

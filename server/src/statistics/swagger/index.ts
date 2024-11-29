@@ -89,4 +89,18 @@ export const userStatisticsSwagger = {
       },
     },
   },
+
+  export: {
+    summary: 'Export all data to an Excel file',
+    responses: {
+      success: {
+        status: 200,
+        description: 'Excel file successfully generated',
+      },
+      error: {
+        status: 500,
+        description: 'Internal server error occurred while generating Excel file',
+      },
+    },
+  },
 };
