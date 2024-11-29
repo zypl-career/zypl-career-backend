@@ -32,6 +32,16 @@ export const userStatisticsSwagger = {
             enum: Object.values(EnumCities),
           },
         },
+        {
+          name: 'ageRanges',
+          required: false,
+          description:
+            'Filter by age ranges. Provide an array of ranges in JSON format, e.g., [[12,22],[30,44]]',
+          schema: {
+            type: 'string',
+            example: '[[12,22],[30,44]]',
+          },
+        },
       ],
     },
     responses: {
@@ -40,12 +50,29 @@ export const userStatisticsSwagger = {
         description: 'User statistics retrieved successfully',
         schema: {
           example: {
-            totalUsers: 8,
-            usersByGender: [{ gender: 'male', count: 8 }],
-            usersByRole: [{ role: 'student', count: 8 }],
+            totalUsers: 100,
+            usersByGender: [
+              { gender: 'male', count: 60 },
+              { gender: 'female', count: 40 },
+            ],
+            usersByRole: [
+              { role: 'student', count: 70 },
+              { role: 'teacher', count: 30 },
+            ],
             usersByDistrict: [
-              { district: 'Hissor', count: 1 },
-              { district: 'Dushanbe', count: 7 },
+              { district: 'Hissor', count: 20 },
+              { district: 'Dushanbe', count: 50 },
+              { district: 'Khujand', count: 30 },
+            ],
+            ageRangeStats: [
+              {
+                range: '[12, 22]',
+                count: 25,
+              },
+              {
+                range: '[30, 44]',
+                count: 20,
+              },
             ],
           },
         },
@@ -56,7 +83,7 @@ export const userStatisticsSwagger = {
         schema: {
           example: {
             statusCode: 400,
-            message: 'Invalid parameters provided',
+            message: 'Invalid age ranges format. Each range must be an array of two numbers.',
           },
         },
       },

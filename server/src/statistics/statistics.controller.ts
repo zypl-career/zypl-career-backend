@@ -12,23 +12,14 @@ export class UserStatisticsController {
   constructor(private readonly userStatisticsService: UserStatisticsService) {}
 
   @Get()
+  @ApiQuery({ name: 'gender', required: false, enum: EnumGenders })
+  @ApiQuery({ name: 'role', required: false, enum: EnumRoles })
+  @ApiQuery({ name: 'district', required: false, enum: EnumCities })
   @ApiQuery({
-    name: 'gender',
+    name: 'ageRanges',
     required: false,
-    enum: EnumGenders,
-    description: 'Filter by user gender',
-  })
-  @ApiQuery({
-    name: 'role',
-    required: false,
-    enum: EnumRoles,
-    description: 'Filter by user role',
-  })
-  @ApiQuery({
-    name: 'district',
-    required: false,
-    enum: EnumCities,
-    description: 'Filter by user district',
+    type: String,
+    description: 'Age ranges to filter by (e.g., [[12,22],[30,44]])',
   })
   @ApiResponse({
     status: userStatisticsSwagger.getStatistics.responses.success.status,
@@ -44,10 +35,27 @@ export class UserStatisticsController {
     @Query('gender') gender?: EnumGenders,
     @Query('role') role?: EnumRoles,
     @Query('district') district?: EnumCities,
+    @Query('ageRanges') ageRanges?: string,
   ) {
     try {
-      return await this.userStatisticsService.getUserStatistics(gender, role, district);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const parsedAgeRanges = ageRanges ? JSON.parse(ageRanges) : undefined;
+
+      if (
+        parsedAgeRanges &&
+        (!Array.isArray(parsedAgeRanges) ||
+          parsedAgeRanges.some((range) => !Array.isArray(range) || range.length !== 2))
+      ) {
+        throw new Error(
+          'Invalid age ranges format. Each range must be an array of two numbers (e.g., [[12,22],[30,44]])',
+        );
+      }
+
+      return await this.userStatisticsService.getUserStatistics(
+        gender,
+        role,
+        district,
+        parsedAgeRanges,
+      );
     } catch (error) {
       throw new HttpException('Invalid request parameters', HttpStatus.BAD_REQUEST);
     }

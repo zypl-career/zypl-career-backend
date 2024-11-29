@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 
 import { UserEntity } from '../user/_db/entity/index.js';
 import { EnumCities, EnumGenders, EnumRoles } from '../user/type/index.js';
@@ -16,6 +16,7 @@ export class UserStatisticsService {
     gender?: EnumGenders,
     role?: EnumRoles,
     district?: EnumCities,
+    ageRanges?: [number, number][],
   ): Promise<any> {
     const query = this.userRepository.createQueryBuilder('user');
 
@@ -57,11 +58,31 @@ export class UserStatisticsService {
       .groupBy('user.district')
       .getRawMany();
 
+    // Fill missing districts with count 0
+    const allDistricts = Object.values(EnumCities);
+    const completeDistrictStats = allDistricts.map((city) => ({
+      district: city,
+      count: usersByDistrict.find((item) => item.district === city)?.count || 0,
+    }));
+
+    // Statistics for each age range
+    const ageRangeStats = ageRanges
+      ? await Promise.all(
+          ageRanges.map(async ([start, end]) => ({
+            range: `[${start}, ${end}]`,
+            count: await this.userRepository.count({
+              where: { age: Between(start, end) },
+            }),
+          })),
+        )
+      : [];
+
     return {
       totalUsers,
       usersByGender,
       usersByRole,
-      usersByDistrict,
+      usersByDistrict: completeDistrictStats,
+      ageRangeStats,
     };
   }
 }
