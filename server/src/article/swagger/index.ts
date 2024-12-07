@@ -1,3 +1,4 @@
+import { EnumRoles } from '../../user/type/index.js';
 import { CreateArticleDto } from '../dto/create.js';
 import { UpdateArticleDto } from '../dto/update.js';
 
@@ -126,6 +127,13 @@ export const articleSwagger = {
         required: false,
         description: 'Filter by minutes to read',
         type: Number,
+      },
+      
+      {
+        name: 'type',
+        required: false,
+        description: 'Filter by type',
+        type: EnumRoles,
       },
       {
         name: 'generalInfo',

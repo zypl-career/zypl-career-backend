@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 
 import { ArticleModel } from '../model/index.js';
+import { EnumRoles } from '../../../user/type/index.js';
 
 @Entity({ name: 'articles' })
 export class ArticleEntity extends BaseEntity implements ArticleModel {
@@ -26,6 +27,9 @@ export class ArticleEntity extends BaseEntity implements ArticleModel {
 
   @Column()
   minutesRead: number;
+
+  @Column({ nullable: true })
+  type?: EnumRoles;
 
   @Column()
   generalInfoFile: string;

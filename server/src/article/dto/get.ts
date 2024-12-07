@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { EnumRoles } from '../../user/type/index.js';
 
 //----------------------------------------------------------------
 // DTO ARTICLE GET
@@ -32,6 +33,17 @@ export class GetArticlesDto {
   @IsInt({ message: 'minutesRead must be an integer' })
   @Min(0, { message: 'minutesRead must be a positive integer' })
   minutesRead?: number;
+
+
+  @ApiProperty({
+    description: 'The role type of the article',
+    type: 'string',
+    enum: EnumRoles,
+  })
+  @IsOptional()
+  @IsEnum(EnumRoles, { message: 'type must be a valid role' })
+  type?: EnumRoles; 
+
 
   @ApiProperty({
     description: 'General information about the article to filter by (partial match)',

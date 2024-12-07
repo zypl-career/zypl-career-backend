@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 
 import { IArticleCreateDataDTO } from '../type/index.js';
+import { EnumRoles } from '../../user/type/index.js';
 
 //----------------------------------------------------------------
 // DTO ARTICLE CREATE
@@ -30,6 +31,16 @@ export class CreateArticleDto implements IArticleCreateDataDTO {
     description: 'The image file of the article',
   })
   image: Express.Multer.File;
+
+  @ApiProperty({
+    description: 'The role type of the article',
+    type: 'string',
+    enum: EnumRoles,
+  })
+  @IsOptional()
+  @IsEnum(EnumRoles, { message: 'type must be a valid role' })
+  type?: EnumRoles; 
+
 
   @ApiProperty({
     description: 'Minutes to read the article',

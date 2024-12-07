@@ -3,6 +3,7 @@ import { isArray } from 'class-validator';
 import { DataSource, Repository } from 'typeorm';
 
 import { ArticleEntity } from '../entity/index.js';
+import { EnumRoles } from '../../../user/type/index.js';
 
 @Injectable()
 export class ArticleRepository extends Repository<ArticleEntity> {
@@ -15,6 +16,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     description,
     minutesRead,
     generalInfo,
+    type,
     hashtags,
     skip,
     take,
@@ -22,6 +24,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     title?: string;
     description?: string;
     minutesRead?: number;
+    type?: EnumRoles; 
     generalInfo?: string;
     hashtags?: string[];
     skip?: number;
@@ -53,6 +56,12 @@ export class ArticleRepository extends Repository<ArticleEntity> {
       });
     }
 
+    if (type) { 
+      queryBuilder.andWhere('articles.type = :type', {
+        type,
+      });
+    }
+
     if (hashtags && isArray(hashtags) && hashtags.length > 0) {
       queryBuilder.andWhere('articles.hashtags && :hashtags', { hashtags });
     }
@@ -66,12 +75,14 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     minutesRead,
     generalInfo,
     hashtags,
+    type
   }: {
     title?: string;
     description?: string;
     minutesRead?: number;
     generalInfo?: string;
     hashtags?: string[];
+    type?: EnumRoles; // Made type optional
   }): Promise<number> {
     const queryBuilder = this.createQueryBuilder('articles');
 
@@ -103,6 +114,11 @@ export class ArticleRepository extends Repository<ArticleEntity> {
       queryBuilder.andWhere('articles.hashtags && :hashtags', { hashtags });
     }
 
+    if (type) {
+      queryBuilder.andWhere('articles.type = :type', {
+        type,
+      });
+    }
     return queryBuilder.getCount();
   }
 

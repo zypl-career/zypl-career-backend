@@ -60,7 +60,7 @@ export class ArticleService {
     const validationErrors = await this.validateDto(createArticleDto);
     if (validationErrors) return validationErrors;
 
-    const { title, description, image, minutesRead, generalInfo } = article;
+    const { title, description, image, type, minutesRead, generalInfo } = article;
 
     const uploadedImage = await this.imageService.uploadImage(image);
     const resourceForSave =
@@ -70,6 +70,7 @@ export class ArticleService {
       description,
       image: appConfig.domain + '/image/get/' + uploadedImage,
       minutesRead,
+      type,
       generalInfoFile: resourceForSave,
       hashtags: arrayHashtags,
     };
@@ -104,7 +105,7 @@ export class ArticleService {
 
     if ('error' in articleToUpdate) return articleToUpdate;
 
-    const { title, description, image, minutesRead, generalInfo, hashtags } = updateArticle;
+    const { title, description, image, type, minutesRead, generalInfo, hashtags } = updateArticle;
 
     if (image) {
       const uploadedImage = await this.imageService.uploadImage(image);
@@ -117,6 +118,7 @@ export class ArticleService {
     }
 
     if (title) articleToUpdate.title = title;
+    if (type) articleToUpdate.type = type;
     if (description) articleToUpdate.description = description;
     if (minutesRead !== undefined) articleToUpdate.minutesRead = minutesRead;
     if (hashtags)
@@ -147,7 +149,7 @@ export class ArticleService {
     let totalArticles: number;
 
     if (filters) {
-      const { title, description, minutesRead, generalInfo, hashtags, page, limit } = filters;
+      const { title, description, minutesRead, generalInfo, type, hashtags, page, limit } = filters;
       const skip = page && limit ? (page - 1) * limit : undefined;
 
       articles = await this.repository.findWithFilters({
@@ -155,6 +157,7 @@ export class ArticleService {
         description,
         minutesRead,
         generalInfo,
+        type,
         hashtags,
         skip,
         take: limit,
@@ -163,6 +166,7 @@ export class ArticleService {
         title,
         description,
         minutesRead,
+        type,
         generalInfo,
         hashtags,
       });

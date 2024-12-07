@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsArray, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Express } from 'express';
 
 import { IArticleUpdateDataDTO } from '../type/index.js';
+import { EnumRoles } from '../../user/type/index.js';
 
 //----------------------------------------------------------------
 // DTO ARTICLE UPDATE
@@ -35,6 +36,16 @@ export class UpdateArticleDto implements IArticleUpdateDataDTO {
   })
   @IsOptional()
   image?: Express.Multer.File; // File uploads are not validated by class-validator directly
+
+  @ApiProperty({
+    description: 'The role type of the article',
+    type: 'string',
+    enum: EnumRoles,
+  })
+  @IsOptional()
+  @IsEnum(EnumRoles, { message: 'type must be a valid role' })
+  type?: EnumRoles; 
+
 
   @ApiProperty({
     description: 'Minutes to read the article',
