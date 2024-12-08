@@ -34,16 +34,15 @@ export class GetArticlesDto {
   @Min(0, { message: 'minutesRead must be a positive integer' })
   minutesRead?: number;
 
-
   @ApiProperty({
-    description: 'The role type of the article',
+    description: 'The role types associated with the article',
     type: 'string',
+    isArray: true,
     enum: EnumRoles,
   })
   @IsOptional()
-  @IsEnum(EnumRoles, { message: 'type must be a valid role' })
-  type?: EnumRoles; 
-
+  @IsEnum(EnumRoles, { each: true, message: 'Each type must be a valid role' })
+  type?: EnumRoles[];
 
   @ApiProperty({
     description: 'General information about the article to filter by (partial match)',

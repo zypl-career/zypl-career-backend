@@ -232,6 +232,20 @@ export class LessonService {
 
     currentLesson.status = 'finish';
 
+    const courseId = currentLesson.courseId;
+
+    const lessons = await this.repository.findByCourseId(courseId);
+
+    const filterLessons = lessons.filter((lesson) => lesson.status === 'finish');
+
+    const percent = (filterLessons.length * 100) / lessons.length;
+
+    const course = await this.coursesRepository.findOneBy({ id: courseId });
+
+    course.finishedPercentage = percent;
+
+    await this.coursesRepository.save(course);
+
     if (nextLesson) {
       nextLesson.status = 'in_progress';
       await this.repository.save(nextLesson);

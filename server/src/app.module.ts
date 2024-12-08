@@ -13,10 +13,12 @@ import { TestModule } from './test/test.module.js';
 import { UniversityModule } from './university/university.module.js';
 import { UserModule } from './user/user.module.js';
 import { TxtModule } from './txt/txt.module.js';
+import { UserFastModule } from './user-fast/user.module.js';
 
 @Module({
   imports: [
     UserModule,
+    UserFastModule,
     DatabaseModule,
     ArticleModule,
     CourseModule,

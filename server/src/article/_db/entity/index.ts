@@ -28,8 +28,8 @@ export class ArticleEntity extends BaseEntity implements ArticleModel {
   @Column()
   minutesRead: number;
 
-  @Column({ nullable: true })
-  type?: EnumRoles;
+  @Column('enum', { enum: EnumRoles, nullable: true, array: true })
+  type?: EnumRoles[];
 
   @Column()
   generalInfoFile: string;

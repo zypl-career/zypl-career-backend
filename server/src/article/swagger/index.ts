@@ -1,5 +1,6 @@
 import { EnumRoles } from '../../user/type/index.js';
 import { CreateArticleDto } from '../dto/create.js';
+import { GetArticlesDto } from '../dto/get.js';
 import { UpdateArticleDto } from '../dto/update.js';
 
 export const articleSwagger = {
@@ -109,60 +110,7 @@ export const articleSwagger = {
     summary: {
       summary: 'Get all articles or filter by various criteria with pagination',
     },
-    query: [
-      {
-        name: 'title',
-        required: false,
-        description: 'Filter by title (partial match)',
-        type: String,
-      },
-      {
-        name: 'description',
-        required: false,
-        description: 'Filter by description (partial match)',
-        type: String,
-      },
-      {
-        name: 'minutesRead',
-        required: false,
-        description: 'Filter by minutes to read',
-        type: Number,
-      },
-      
-      {
-        name: 'type',
-        required: false,
-        description: 'Filter by type',
-        type: EnumRoles,
-      },
-      {
-        name: 'generalInfo',
-        required: false,
-        description: 'Filter by general information (partial match)',
-        type: String,
-      },
-      {
-        name: 'hashtags',
-        required: false,
-        description: 'Filter by hashtags',
-        type: String,
-        isArray: true,
-      },
-      {
-        name: 'page',
-        required: false,
-        description: 'Page number for pagination',
-        type: Number,
-        example: 1,
-      },
-      {
-        name: 'limit',
-        required: false,
-        description: 'Number of items per page',
-        type: Number,
-        example: 10,
-      },
-    ],
+    query: GetArticlesDto,
     responses: {
       success: {
         status: 200,

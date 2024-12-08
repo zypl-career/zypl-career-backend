@@ -17,6 +17,7 @@ import {
 } from './type/index.js';
 import { TxtService } from '../txt/txt.service.js';
 import ExcelJS from 'exceljs';
+import { EnumRoles } from '../user/type/index.js';
 
 @Injectable()
 export class ArticleService {
@@ -52,15 +53,13 @@ export class ArticleService {
   // CREATE
   // ---------------------------------------------------------------------------
   async create(article: IArticleCreateDataDTO): Promise<IMessage | IValidation | IError> {
-    const arrayHashtags = isArray(article.hashtags)
-      ? article.hashtags
-      : (article.hashtags as string).split(', ');
-
     const createArticleDto = plainToInstance(CreateArticleDto, article);
     const validationErrors = await this.validateDto(createArticleDto);
+
     if (validationErrors) return validationErrors;
 
-    const { title, description, image, type, minutesRead, generalInfo } = article;
+    const { title, description, image, minutesRead, type, hashtags, generalInfo } =
+      createArticleDto;
 
     const uploadedImage = await this.imageService.uploadImage(image);
     const resourceForSave =
@@ -72,7 +71,7 @@ export class ArticleService {
       minutesRead,
       type,
       generalInfoFile: resourceForSave,
-      hashtags: arrayHashtags,
+      hashtags,
     };
 
     const result = await this.repository.save(newArticle);
@@ -87,25 +86,17 @@ export class ArticleService {
     id: string,
     updateArticle: IArticleUpdateDataDTO,
   ): Promise<IMessage | IValidation | IError> {
-    const arrayHashtags = updateArticle.hashtags
-      ? isArray(updateArticle.hashtags)
-        ? updateArticle.hashtags
-        : (updateArticle.hashtags as string).split(',')
-      : null;
-
-    updateArticle = {
-      ...updateArticle,
-      hashtags: arrayHashtags ?? updateArticle.hashtags ?? undefined,
-    };
     const updateArticleDto = plainToInstance(UpdateArticleDto, updateArticle);
     const validationErrors = await this.validateDto(updateArticleDto);
+
     if (validationErrors) return validationErrors;
 
     const articleToUpdate = await this.findArticleById(id);
 
     if ('error' in articleToUpdate) return articleToUpdate;
 
-    const { title, description, image, type, minutesRead, generalInfo, hashtags } = updateArticle;
+    const { title, description, image, type, minutesRead, generalInfo, hashtags } =
+      updateArticleDto;
 
     if (image) {
       const uploadedImage = await this.imageService.uploadImage(image);
@@ -120,9 +111,8 @@ export class ArticleService {
     if (title) articleToUpdate.title = title;
     if (type) articleToUpdate.type = type;
     if (description) articleToUpdate.description = description;
-    if (minutesRead !== undefined) articleToUpdate.minutesRead = minutesRead;
-    if (hashtags)
-      articleToUpdate.hashtags = isArray(hashtags) ? hashtags : (hashtags as string).split(',');
+    if (minutesRead) articleToUpdate.minutesRead = minutesRead;
+    if (hashtags) articleToUpdate.hashtags = hashtags;
 
     const result = await this.repository.save(articleToUpdate);
 
@@ -162,6 +152,7 @@ export class ArticleService {
         skip,
         take: limit,
       });
+
       totalArticles = await this.repository.countWithFilters({
         title,
         description,

@@ -24,7 +24,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     title?: string;
     description?: string;
     minutesRead?: number;
-    type?: EnumRoles; 
+    type?: EnumRoles[];
     generalInfo?: string;
     hashtags?: string[];
     skip?: number;
@@ -56,11 +56,13 @@ export class ArticleRepository extends Repository<ArticleEntity> {
       });
     }
 
-    if (type) { 
-      queryBuilder.andWhere('articles.type = :type', {
-        type,
-      });
+    type = type ? (isArray(type) ? type : [type]) : undefined;
+
+    if (type && isArray(type) && type.length > 0) {
+      queryBuilder.andWhere('articles.type && :type', { type });
     }
+
+    hashtags = hashtags ? (isArray(hashtags) ? hashtags : [hashtags]) : undefined;
 
     if (hashtags && isArray(hashtags) && hashtags.length > 0) {
       queryBuilder.andWhere('articles.hashtags && :hashtags', { hashtags });
@@ -75,14 +77,14 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     minutesRead,
     generalInfo,
     hashtags,
-    type
+    type,
   }: {
     title?: string;
     description?: string;
     minutesRead?: number;
     generalInfo?: string;
     hashtags?: string[];
-    type?: EnumRoles; // Made type optional
+    type?: EnumRoles[];
   }): Promise<number> {
     const queryBuilder = this.createQueryBuilder('articles');
 
@@ -114,11 +116,10 @@ export class ArticleRepository extends Repository<ArticleEntity> {
       queryBuilder.andWhere('articles.hashtags && :hashtags', { hashtags });
     }
 
-    if (type) {
-      queryBuilder.andWhere('articles.type = :type', {
-        type,
-      });
+    if (type && isArray(type) && type.length > 0) {
+      queryBuilder.andWhere('articles.type && :type', { type });
     }
+
     return queryBuilder.getCount();
   }
 

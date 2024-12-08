@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Express } from 'express';
 
 import { IArticleUpdateDataDTO } from '../type/index.js';
@@ -35,17 +35,26 @@ export class UpdateArticleDto implements IArticleUpdateDataDTO {
     required: false,
   })
   @IsOptional()
-  image?: Express.Multer.File; // File uploads are not validated by class-validator directly
+  image?: Express.Multer.File;
 
   @ApiProperty({
-    description: 'The role type of the article',
+    description: 'The role types associated with the article',
     type: 'string',
+    isArray: true,
     enum: EnumRoles,
+    required: false,
   })
   @IsOptional()
-  @IsEnum(EnumRoles, { message: 'type must be a valid role' })
-  type?: EnumRoles; 
-
+  @IsArray({ message: 'Type must be an array of roles' })
+  @IsEnum(EnumRoles, { each: true, message: 'Each type must be a valid role' })
+  @ArrayNotEmpty({ message: 'At least one role type must be provided' })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.split(',').map((role) => role.trim() as EnumRoles);
+    }
+    return value;
+  })
+  type?: EnumRoles[];
 
   @ApiProperty({
     description: 'Minutes to read the article',
@@ -53,10 +62,10 @@ export class UpdateArticleDto implements IArticleUpdateDataDTO {
     required: false,
   })
   @Transform(({ value }) => parseInt(value, 10))
-  @IsOptional()
   @IsInt({ message: 'minutesRead must be an integer' })
+  @IsOptional()
   @Min(0, { message: 'minutesRead must be a positive integer' })
-  minutesRead?: number;
+  minutesRead: number;
 
   @ApiProperty({
     description: 'General information about the article',
@@ -73,7 +82,14 @@ export class UpdateArticleDto implements IArticleUpdateDataDTO {
     required: false,
   })
   @IsOptional()
-  @IsArray({ message: 'hashtags must be an array of strings' })
   @IsString({ each: true, message: 'Each hashtag must be a string' })
+  @IsArray({ message: 'Hashtags must be an array of strings' })
+  @ArrayNotEmpty({ message: 'Hashtags array should not be empty' })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.split(',').map((tag) => tag.trim());
+    }
+    return value;
+  })
   hashtags?: string[];
 }
