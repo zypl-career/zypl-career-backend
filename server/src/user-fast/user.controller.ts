@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Query,
+  Res,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -20,6 +21,7 @@ import { GetUserFastDto } from './dto/index.js';
 import { userSwagger } from './swagger/index.js';
 import { IUserCreateDataDTO, IUserUpdateDataDTO } from './type/index.js';
 import { UserFastService } from './user.service.js';
+import { Response } from 'express';
 
 @ApiTags('user-fast')
 @Controller('/user-fast')
@@ -147,5 +149,27 @@ export class UserController {
   async deleteUser(@Param('id') id: string): Promise<IMessage | IError | IValidation> {
     const result = await this.service.delete(id);
     return this.handleServiceResult(result);
+  }
+
+  @Get('/export')
+  @ApiOperation({ summary: 'Export data as Excel' })
+  @ApiResponse({ status: 200, description: 'Excel file successfully generated' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async exportToExcel(@Res() res: Response): Promise<void> {
+    try {
+      const buffer = await this.service.exportToExcel();
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader('Content-Disposition', 'attachment; filename=articles.xlsx');
+      res.end(buffer);
+    } catch (error) {
+      throw new HttpException(
+        { error: `Failed to generate Excel file: ${error.message}` },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
