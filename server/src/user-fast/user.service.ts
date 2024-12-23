@@ -132,7 +132,7 @@ export class UserFastService {
     const db = await this.repository.find();
 
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('University');
+    const worksheet = workbook.addWorksheet('Users');
 
     const headers = Object.keys(db[0] || {}).map((key) => ({
       header: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
