@@ -11,14 +11,17 @@ import { convertData } from '../util/test.js';
 
 import { TestModel } from './_db/model/index.js';
 import { TestRepository } from './_db/repository/index.js';
-import { createTestModalDto, getTestDTO } from './dto/index.js';
+import { createTestModalDto, getInfoTestDTO, getTestDTO } from './dto/index.js';
 import ExcelJS from 'exceljs';
+import { InfoTestRepository } from './_db/repository/info-test.js';
+import { info } from 'console';
 
 @Injectable()
 export class TestService {
   constructor(
     private readonly repository: TestRepository,
     private readonly usersRepository: UserRepository,
+    private readonly infoTestRepository: InfoTestRepository,
   ) {}
 
   // ---------------------------------------------------------------------------
@@ -53,7 +56,16 @@ export class TestService {
   async create(
     requestData: createTestModalDto,
     token: string,
-  ): Promise<IMessage | IValidation | IError> {
+  ): Promise<
+    | IMessage
+    | IValidation
+    | IError
+    | {
+        message: string;
+        requestData: createTestModalDto;
+        payload: any;
+      }
+  > {
     const resultModel = plainToInstance(createTestModalDto, requestData);
     const validationErrors = await this.validateDto(resultModel);
     if (validationErrors) return validationErrors;
@@ -91,6 +103,7 @@ export class TestService {
       }
 
       const verify = verifyToken(token);
+
       if (!verify)
         return {
           message: 'Result modal processed successfully',
@@ -113,8 +126,17 @@ export class TestService {
         resultTest: jsonResponse,
       });
 
+      const dataInfoTest = {
+        email: verify.email ?? null,
+        resultTest: payload.resultTest,
+        info: requestData,
+      };
+
+      await this.infoTestRepository.save(dataInfoTest);
+
       return {
         message: 'Result modal processed successfully',
+        requestData: requestData,
         payload,
       };
     } catch (error: any) {
@@ -242,6 +264,32 @@ export class TestService {
     };
   }
 
+  async getInfoTest(filters?: getInfoTestDTO) {
+    const repository = this.infoTestRepository;
+    const email = filters?.email;
+
+    if (email) {
+      const findUserById = await this.usersRepository.findOneBy({
+        email: email,
+      });
+
+      if (!findUserById) {
+        return { error: 'User with the specified ID not found.' };
+      }
+      const testResults = await repository.find({ where: { email: email } });
+
+      return {
+        payload: testResults,
+      };
+    }
+
+    const infoTest = await repository.find();
+
+    return {
+      payload: infoTest,
+    };
+  }
+
   // ---------------------------------------------------------------------------
   // EXPORT
   // ---------------------------------------------------------------------------
@@ -250,6 +298,27 @@ export class TestService {
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Tets');
+
+    const headers = Object.keys(db[0] || {}).map((key) => ({
+      header: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
+      key: key,
+      width: 30,
+    }));
+
+    worksheet.columns = headers;
+
+    db.forEach((article) => {
+      worksheet.addRow(article);
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
+  }
+
+  async exportToExcelInfoTest(): Promise<ExcelJS.Buffer> {
+    const db = await this.infoTestRepository.find();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Tets info');
 
     const headers = Object.keys(db[0] || {}).map((key) => ({
       header: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),

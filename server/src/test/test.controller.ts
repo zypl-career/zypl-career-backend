@@ -15,7 +15,7 @@ import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from 
 
 import { IError, IMessage, IValidation } from '../type/base.js';
 
-import { createTestModalDto, getTestDTO } from './dto/index.js';
+import { createTestModalDto, getInfoTestDTO, getTestDTO } from './dto/index.js';
 import { testSwagger } from './swagger/index.js';
 import { TestService } from './test.service.js';
 import { Response } from 'express';
@@ -78,6 +78,19 @@ export class TestController {
   // ---------------------------------------------------------------------------
   // GET
   // ---------------------------------------------------------------------------
+  @Get('/get-test')
+  @HttpCode(200)
+  @ApiOperation(testSwagger.getInfoTest.summary)
+  @ApiQuery(testSwagger.getInfoTest.query)
+  @ApiResponse(testSwagger.getInfoTest.responses.success)
+  async getInfoTest(@Query() filters: getInfoTestDTO) {
+    const result = await this.testService.getInfoTest(filters);
+    return this.handleServiceResult(result);
+  }
+
+  // ---------------------------------------------------------------------------
+  // GET
+  // ---------------------------------------------------------------------------
   @Get('/get/:id')
   @HttpCode(200)
   @ApiOperation(testSwagger.get.summary)
@@ -96,6 +109,28 @@ export class TestController {
   async exportToExcel(@Res() res: Response): Promise<void> {
     try {
       const buffer = await this.testService.exportToExcel();
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader('Content-Disposition', 'attachment; filename=articles.xlsx');
+      res.end(buffer);
+    } catch (error) {
+      throw new HttpException(
+        { error: `Failed to generate Excel file: ${error.message}` },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('/export-info-test')
+  @ApiOperation({ summary: 'Export articles as Excel' })
+  @ApiResponse({ status: 200, description: 'Excel file successfully generated' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async exportToTestInfoExcel(@Res() res: Response): Promise<void> {
+    try {
+      const buffer = await this.testService.exportToExcelInfoTest();
 
       res.setHeader(
         'Content-Type',

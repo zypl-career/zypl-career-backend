@@ -118,3 +118,14 @@ export class getTestDTO {
   @IsOptional()
   limit?: number;
 }
+
+export class getInfoTestDTO {
+  @ApiProperty({
+    description: 'The email for get result by email',
+    type: 'string',
+    required: false,
+  })
+  @IsString({ message: 'email must be a string' })
+  @IsOptional()
+  email?: string;
+}
