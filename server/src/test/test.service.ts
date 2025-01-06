@@ -104,12 +104,21 @@ export class TestService {
 
       const verify = verifyToken(token);
 
-      if (!verify)
+      if (!verify) {
+        const dataInfoTest = {
+          email: verify.email ?? null,
+          resultTest: jsonResponse,
+          info: requestData,
+        };
+
+        await this.infoTestRepository.save(dataInfoTest);
+
         return {
           message: 'Result modal processed successfully',
           info: 'This data not saved because user is not authenticated',
           payload: jsonResponse,
         };
+      }
 
       const user = await this.usersRepository.findOneBy({
         id: (verify as any).id,
