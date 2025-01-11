@@ -14,7 +14,6 @@ import { TestRepository } from './_db/repository/index.js';
 import { createTestModalDto, getInfoTestDTO, getTestDTO } from './dto/index.js';
 import ExcelJS from 'exceljs';
 import { InfoTestRepository } from './_db/repository/info-test.js';
-import { info } from 'console';
 
 @Injectable()
 export class TestService {
@@ -60,15 +59,12 @@ export class TestService {
     | IMessage
     | IValidation
     | IError
-    | {
-        message: string;
-        requestData: createTestModalDto;
-        payload: any;
-      }
+    | { message: string; requestData: createTestModalDto; payload: any }
   > {
     const resultModel = plainToInstance(createTestModalDto, requestData);
     const validationErrors = await this.validateDto(resultModel);
     if (validationErrors) return validationErrors;
+
     try {
       const data = convertData(requestData);
       const options = {
@@ -79,40 +75,23 @@ export class TestService {
 
       const response = await fetch(appConfig.modelAPI, options);
       const jsonResponse = await response.json();
+
       if (response.status !== 200) {
-        return {
-          error: response.statusText,
-        };
+        return { error: response.statusText };
       }
 
-      if (token) {
-        const verify = verifyToken(token);
-        if (!verify) {
-          return {
-            message: 'Result modal processed successfully',
-            info: 'This data not saved because user is not authenticated',
-            payload: jsonResponse,
-          };
-        }
-      } else {
-        return {
-          message: 'Result modal processed successfully',
-          info: 'This data not saved because user is not authenticated',
-          payload: jsonResponse,
-        };
-      }
+      const verify = token ? verifyToken(token) : null;
+      const email = verify?.email ?? null;
 
-      const verify = verifyToken(token);
+      const dataInfoTest = {
+        email,
+        resultTest: jsonResponse,
+        info: requestData,
+      };
+
+      await this.infoTestRepository.save(dataInfoTest);
 
       if (!verify) {
-        const dataInfoTest = {
-          email: verify.email ?? null,
-          resultTest: jsonResponse,
-          info: requestData,
-        };
-
-        await this.infoTestRepository.save(dataInfoTest);
-
         return {
           message: 'Result modal processed successfully',
           info: 'This data not saved because user is not authenticated',
@@ -120,14 +99,10 @@ export class TestService {
         };
       }
 
-      const user = await this.usersRepository.findOneBy({
-        id: (verify as any).id,
-      });
+      const user = await this.usersRepository.findOneBy({ id: (verify as any).id });
 
       if (!user) {
-        return {
-          error: 'User not found',
-        };
+        return { error: 'User not found' };
       }
 
       const payload = await this.repository.save({
@@ -135,17 +110,17 @@ export class TestService {
         resultTest: jsonResponse,
       });
 
-      const dataInfoTest = {
-        email: verify.email ?? null,
+      const finalDataInfoTest = {
+        email,
         resultTest: payload.resultTest,
         info: requestData,
       };
 
-      await this.infoTestRepository.save(dataInfoTest);
+      await this.infoTestRepository.save(finalDataInfoTest);
 
       return {
         message: 'Result modal processed successfully',
-        requestData: requestData,
+        requestData,
         payload,
       };
     } catch (error: any) {
