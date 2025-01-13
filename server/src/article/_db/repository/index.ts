@@ -4,6 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 
 import { ArticleEntity } from '../entity/index.js';
 import { EnumRoles } from '../../../user/type/index.js';
+import { IArticleSections } from '../../type/index.js';
 
 @Injectable()
 export class ArticleRepository extends Repository<ArticleEntity> {
@@ -18,6 +19,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     generalInfo,
     type,
     hashtags,
+    sections,
     skip,
     take,
   }: {
@@ -27,6 +29,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     type?: EnumRoles[];
     generalInfo?: string;
     hashtags?: string[];
+    sections?: IArticleSections[];
     skip?: number;
     take?: number;
   }): Promise<ArticleEntity[]> {
@@ -68,6 +71,12 @@ export class ArticleRepository extends Repository<ArticleEntity> {
       queryBuilder.andWhere('articles.hashtags && :hashtags', { hashtags });
     }
 
+    sections = sections ? (isArray(sections) ? sections : [sections]) : undefined;
+
+    if (sections && isArray(sections) && sections.length > 0) {
+      queryBuilder.andWhere('articles.sections && :sections', { sections });
+    }
+
     return queryBuilder.skip(skip).take(take).getMany();
   }
 
@@ -78,6 +87,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     generalInfo,
     hashtags,
     type,
+    sections,
   }: {
     title?: string;
     description?: string;
@@ -85,6 +95,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     generalInfo?: string;
     hashtags?: string[];
     type?: EnumRoles[];
+    sections?: IArticleSections[];
   }): Promise<number> {
     const queryBuilder = this.createQueryBuilder('articles');
 
@@ -118,6 +129,10 @@ export class ArticleRepository extends Repository<ArticleEntity> {
 
     if (type && isArray(type) && type.length > 0) {
       queryBuilder.andWhere('articles.type && :type', { type });
+    }
+
+    if (sections && isArray(sections) && sections.length > 0) {
+      queryBuilder.andWhere('articles.sections && :sections', { sections });
     }
 
     return queryBuilder.getCount();

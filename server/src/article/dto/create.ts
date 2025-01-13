@@ -1,17 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Min,
-} from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsEnum, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 
-import { IArticleCreateDataDTO } from '../type/index.js';
+import { IArticleCreateDataDTO, IArticleSections } from '../type/index.js';
 import { EnumRoles } from '../../user/type/index.js';
 
 //----------------------------------------------------------------
@@ -90,4 +81,21 @@ export class CreateArticleDto implements IArticleCreateDataDTO {
     return value;
   })
   hashtags: string[];
+
+  @ApiProperty({
+    description: 'Sections of the article, as a comma-separated string',
+    type: String,
+    example: 'section1, section2, section3',
+    enum: IArticleSections,
+  })
+  @IsString({ each: true, message: 'Each section must be a string' })
+  @IsArray({ message: 'Sections must be an array of strings' })
+  @ArrayNotEmpty({ message: 'Sections array should not be empty' })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.split(',').map((section) => section.trim() as IArticleSections);
+    }
+    return value;
+  })
+  sections: IArticleSections[];
 }

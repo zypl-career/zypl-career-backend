@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { isArray, validate } from 'class-validator';
+import { validate } from 'class-validator';
 
 import { appConfig } from '../app.config.js';
 import { ImageService } from '../image/image.service.js';
@@ -17,7 +17,6 @@ import {
 } from './type/index.js';
 import { TxtService } from '../txt/txt.service.js';
 import ExcelJS from 'exceljs';
-import { EnumRoles } from '../user/type/index.js';
 
 @Injectable()
 export class ArticleService {
@@ -58,7 +57,7 @@ export class ArticleService {
 
     if (validationErrors) return validationErrors;
 
-    const { title, description, image, minutesRead, type, hashtags, generalInfo } =
+    const { title, description, image, minutesRead, type, hashtags, generalInfo, sections } =
       createArticleDto;
 
     const uploadedImage = await this.imageService.uploadImage(image);
@@ -72,6 +71,7 @@ export class ArticleService {
       type,
       generalInfoFile: resourceForSave,
       hashtags,
+      sections,
     };
 
     const result = await this.repository.save(newArticle);
@@ -95,7 +95,7 @@ export class ArticleService {
 
     if ('error' in articleToUpdate) return articleToUpdate;
 
-    const { title, description, image, type, minutesRead, generalInfo, hashtags } =
+    const { title, description, image, type, minutesRead, generalInfo, hashtags, sections } =
       updateArticleDto;
 
     if (image) {
@@ -113,6 +113,7 @@ export class ArticleService {
     if (description) articleToUpdate.description = description;
     if (minutesRead) articleToUpdate.minutesRead = minutesRead;
     if (hashtags) articleToUpdate.hashtags = hashtags;
+    if (sections) articleToUpdate.sections = sections;
 
     const result = await this.repository.save(articleToUpdate);
 
@@ -139,7 +140,17 @@ export class ArticleService {
     let totalArticles: number;
 
     if (filters) {
-      const { title, description, minutesRead, generalInfo, type, hashtags, page, limit } = filters;
+      const {
+        title,
+        description,
+        minutesRead,
+        generalInfo,
+        type,
+        hashtags,
+        sections,
+        page,
+        limit,
+      } = filters;
       const skip = page && limit ? (page - 1) * limit : undefined;
 
       articles = await this.repository.findWithFilters({
@@ -149,6 +160,7 @@ export class ArticleService {
         generalInfo,
         type,
         hashtags,
+        sections,
         skip,
         take: limit,
       });
@@ -160,6 +172,7 @@ export class ArticleService {
         type,
         generalInfo,
         hashtags,
+        sections,
       });
     } else {
       articles = await this.repository.find();

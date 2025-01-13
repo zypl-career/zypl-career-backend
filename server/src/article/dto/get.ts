@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { EnumRoles } from '../../user/type/index.js';
+import { IArticleSections } from '../type/index.js';
 
 //----------------------------------------------------------------
 // DTO ARTICLE GET
@@ -62,6 +63,17 @@ export class GetArticlesDto {
   @IsArray({ message: 'hashtags must be an array of strings' })
   @IsString({ each: true, message: 'Each hashtag must be a string' })
   hashtags?: string[];
+
+  @ApiProperty({
+    description: 'Sections of the article to filter by',
+    required: false,
+    type: [String],
+    enum: IArticleSections,
+  })
+  @IsOptional()
+  @IsArray({ message: 'Sections must be an array of valid sections' })
+  @IsEnum(IArticleSections, { each: true, message: 'Each section must be a valid section' })
+  sections?: IArticleSections[];
 
   @ApiProperty({
     description: 'Page number for pagination',

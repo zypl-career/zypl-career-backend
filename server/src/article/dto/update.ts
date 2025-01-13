@@ -3,7 +3,7 @@ import { Transform } from 'class-transformer';
 import { ArrayNotEmpty, IsArray, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Express } from 'express';
 
-import { IArticleUpdateDataDTO } from '../type/index.js';
+import { IArticleSections, IArticleUpdateDataDTO } from '../type/index.js';
 import { EnumRoles } from '../../user/type/index.js';
 
 //----------------------------------------------------------------
@@ -92,4 +92,22 @@ export class UpdateArticleDto implements IArticleUpdateDataDTO {
     return value;
   })
   hashtags?: string[];
+
+  @ApiProperty({
+    description: 'Sections of the article',
+    type: [String],
+    required: false,
+    enum: IArticleSections,
+  })
+  @IsOptional()
+  @IsString({ each: true, message: 'Each section must be a string' })
+  @IsArray({ message: 'Sections must be an array of strings' })
+  @ArrayNotEmpty({ message: 'Sections array should not be empty' })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.split(',').map((section) => section.trim() as IArticleSections);
+    }
+    return value;
+  })
+  sections?: IArticleSections[];
 }

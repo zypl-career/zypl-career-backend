@@ -1,7 +1,7 @@
-import { EnumRoles } from '../../user/type/index.js';
 import { CreateArticleDto } from '../dto/create.js';
 import { GetArticlesDto } from '../dto/get.js';
 import { UpdateArticleDto } from '../dto/update.js';
+import { IArticleSections } from '../type/index.js'; // Added import for IArticleSections
 
 export const articleSwagger = {
   create: {
@@ -26,6 +26,20 @@ export const articleSwagger = {
               minutesRead: 10,
               generalInfoFile: 'General info file',
               hashtags: ['first', 'second'],
+              sections: [
+                IArticleSections.Partners,
+                IArticleSections.UniversitiesAndColleges,
+                IArticleSections.Professions,
+                IArticleSections.Industries,
+                IArticleSections.EducationalCenters,
+                IArticleSections.Courses,
+                IArticleSections.CareerArticles,
+                IArticleSections.JobSeekerResources,
+                IArticleSections.UserGuideVideos,
+                IArticleSections.ParentArticles,
+                IArticleSections.TeacherAndPractitionerArticles,
+                IArticleSections.HomepageArticles,
+              ], // Updated sections to include all enum items
               createdAt: '2024-08-10T10:26:19.373Z',
               updatedAt: '2024-08-10T10:26:19.373Z',
               deletedAt: null,
@@ -53,6 +67,7 @@ export const articleSwagger = {
             description: ['Description is required'],
             minutesRead: ['Minutes read must be a number'],
             hashtags: ['Hashtags must be an array'],
+            sections: ['Sections must be an array'],
           },
         },
       },
@@ -79,6 +94,20 @@ export const articleSwagger = {
             minutesRead: 5,
             generalInfoFile: 'https://example.com/info.txt',
             hashtags: ['tech', 'news'],
+            sections: [
+              IArticleSections.Partners,
+              IArticleSections.UniversitiesAndColleges,
+              IArticleSections.Professions,
+              IArticleSections.Industries,
+              IArticleSections.EducationalCenters,
+              IArticleSections.Courses,
+              IArticleSections.CareerArticles,
+              IArticleSections.JobSeekerResources,
+              IArticleSections.UserGuideVideos,
+              IArticleSections.ParentArticles,
+              IArticleSections.TeacherAndPractitionerArticles,
+              IArticleSections.HomepageArticles,
+            ], // Updated sections to include all enum items
             createdAt: 1622548800000,
             updatedAt: 1622548800000,
           },
@@ -129,6 +158,20 @@ export const articleSwagger = {
                 minutesRead: 5,
                 generalInfoFile: 'https://example.com/info.txt',
                 hashtags: ['tech', 'news'],
+                sections: [
+                  IArticleSections.Partners,
+                  IArticleSections.UniversitiesAndColleges,
+                  IArticleSections.Professions,
+                  IArticleSections.Industries,
+                  IArticleSections.EducationalCenters,
+                  IArticleSections.Courses,
+                  IArticleSections.CareerArticles,
+                  IArticleSections.JobSeekerResources,
+                  IArticleSections.UserGuideVideos,
+                  IArticleSections.ParentArticles,
+                  IArticleSections.TeacherAndPractitionerArticles,
+                  IArticleSections.HomepageArticles,
+                ], // Updated sections to include all enum items
                 createdAt: 1622548800000,
                 updatedAt: 1622548800000,
               },
@@ -197,6 +240,20 @@ export const articleSwagger = {
               minutesRead: 10,
               generalInfoFile: 'General info file',
               hashtags: ['first', 'second'],
+              sections: [
+                IArticleSections.Partners,
+                IArticleSections.UniversitiesAndColleges,
+                IArticleSections.Professions,
+                IArticleSections.Industries,
+                IArticleSections.EducationalCenters,
+                IArticleSections.Courses,
+                IArticleSections.CareerArticles,
+                IArticleSections.JobSeekerResources,
+                IArticleSections.UserGuideVideos,
+                IArticleSections.ParentArticles,
+                IArticleSections.TeacherAndPractitionerArticles,
+                IArticleSections.HomepageArticles,
+              ], // Updated sections to include all enum items
               createdAt: '2024-08-10T10:26:19.373Z',
               updatedAt: '2024-08-10T10:26:19.373Z',
               deletedAt: null,
@@ -224,6 +281,7 @@ export const articleSwagger = {
             description: ['Description must be a string'],
             minutesRead: ['Minutes read must be a number'],
             hashtags: ['Hashtags must be an array'],
+            sections: ['Sections must be an array'],
           },
         },
       },

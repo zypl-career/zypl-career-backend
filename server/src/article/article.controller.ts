@@ -174,8 +174,6 @@ export class ArticleController {
     const result = await this.service.delete(id);
     return this.handleServiceResult(result);
   }
-  
-
 
   @Get('/export')
   @ApiOperation({ summary: 'Export articles as Excel' })
@@ -185,7 +183,10 @@ export class ArticleController {
     try {
       const buffer = await this.service.exportToExcel();
 
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
       res.setHeader('Content-Disposition', 'attachment; filename=articles.xlsx');
       res.end(buffer);
     } catch (error) {

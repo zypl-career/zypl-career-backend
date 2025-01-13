@@ -10,6 +10,7 @@ import {
 
 import { ArticleModel } from '../model/index.js';
 import { EnumRoles } from '../../../user/type/index.js';
+import { IArticleSections } from '../../type/index.js';
 
 @Entity({ name: 'articles' })
 export class ArticleEntity extends BaseEntity implements ArticleModel {
@@ -36,6 +37,9 @@ export class ArticleEntity extends BaseEntity implements ArticleModel {
 
   @Column('text', { array: true })
   hashtags: string[];
+
+  @Column('enum', { enum: IArticleSections, array: true, nullable: true })
+  sections?: IArticleSections[];
 
   @CreateDateColumn()
   createdAt: number;
