@@ -124,6 +124,7 @@ export type TRole = 'student' | 'teacher' | 'parents' | 'admin';
 export interface IUserLoginResult {
   access: string;
   refresh: string;
+  user: UserModel;
 }
 
 export interface PaginationResult<T> {

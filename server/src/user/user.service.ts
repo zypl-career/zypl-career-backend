@@ -93,6 +93,7 @@ export class UserService {
     return {
       access: generateToken(existingUser.id, user.email),
       refresh: generateRefreshToken(existingUser.id, user.email),
+      user: { ...existingUser, password: undefined },
     };
   }
 
