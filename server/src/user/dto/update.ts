@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
-import { EnumCities, EnumRoles } from '../type/index.js';
+import { EnumCities, EnumGenders, EnumRoles } from '../type/index.js';
 
 export class UpdateUserDto {
   @ApiProperty({
@@ -34,12 +34,12 @@ export class UpdateUserDto {
   @ApiProperty({
     description: 'The gender of the user',
     type: 'string',
-    enum: EnumRoles,
+    enum: EnumGenders,
     required: false,
   })
-  @IsEnum(EnumRoles, { message: 'gender must be male or female' })
+  @IsEnum(EnumGenders, { message: 'gender must be male or female' })
   @IsOptional()
-  gender?: EnumRoles;
+  gender?: EnumGenders;
 
   @ApiProperty({
     description: 'The age of the user',
