@@ -21,10 +21,8 @@ export class LoggerMiddleware implements NestMiddleware {
       const duration = endTime - startTime;
       const logMessage = `[${new Date().toISOString()}] ${method} ${originalUrl} ${statusCode} ${duration}ms\n`;
 
-      // Log to console
       console.log(logMessage);
 
-      // Append log to file
       fs.appendFile(logFilePath, logMessage, (err) => {
         if (err) {
           console.error('Failed to write log to file:', err);

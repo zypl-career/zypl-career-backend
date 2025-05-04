@@ -96,8 +96,6 @@ export class SpecialtyService {
     if (filters) {
       const getUserDto = plainToInstance(getSpecialtyDTO, filters);
 
-      console.log(getUserDto);
-
       const validationErrors = await this.validateDto(getUserDto);
 
       if (validationErrors) return validationErrors;
@@ -140,7 +138,6 @@ export class SpecialtyService {
         monthlyIncome,
         careerOpportunities,
       });
-      console.log(total);
 
       specialties = await this.repository.findWithFilters({
         name,

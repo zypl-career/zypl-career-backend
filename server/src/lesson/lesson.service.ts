@@ -271,9 +271,11 @@ export class LessonService {
     if ('validation' in lessonToDelete) return lessonToDelete;
 
     try {
-      await this.repository.delete(lessonToDelete.id);
+      const lessonEntity = await this.repository.findOneBy({ id: id });
+      if (lessonEntity) {
+        await this.repository.remove(lessonEntity);
+      }
       return { message: 'Lesson deleted successfully' };
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return { error: 'Failed to delete lesson' };
     }
