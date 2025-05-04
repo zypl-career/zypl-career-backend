@@ -62,18 +62,25 @@ export function generateRefreshToken(id: string, email: string): string {
   return jwt.sign(payload, appConfig.jwtSecret);
 }
 
-export function generateToken(id: string, email: string) {
+export function generateToken(id: string, email?: string) {
   return jwt.sign({ id, email }, appConfig.jwtSecret, {
     expiresIn: appConfig.expiresIn,
   });
 }
 
-export function verifyToken(token: string) {
+export function verifyToken(token: string):
+  | {
+      id: string;
+      email: string;
+      iat: number;
+      exp: number;
+    }
+  | { error: boolean } {
   const secret = appConfig.jwtSecret;
   try {
     return jwt.verify(token, secret);
   } catch (err) {
-    throw new Error('Token verification failed', err);
+    return { error: true };
   }
 }
 

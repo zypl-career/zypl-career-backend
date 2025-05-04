@@ -22,6 +22,7 @@ import { userSwagger } from './swagger/index.js';
 import { IUserCreateDataDTO, IUserUpdateDataDTO } from './type/index.js';
 import { UserFastService } from './user.service.js';
 import { Response } from 'express';
+import { generateToken } from '../util/index.js';
 
 @ApiTags('user-fast')
 @Controller('/user-fast')
@@ -58,6 +59,7 @@ export class UserController {
   @ApiResponse(userSwagger.create.responses.conflict)
   async createUser(@Body() createUserDto: IUserCreateDataDTO): Promise<IMessage | IValidation> {
     const result = await this.service.create(createUserDto);
+
     return this.handleServiceResult(result);
   }
 

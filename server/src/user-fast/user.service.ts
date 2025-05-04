@@ -5,7 +5,7 @@ import { validate } from 'class-validator';
 import { EmailVerifyRepository } from '../email/_db/repository/index.js';
 import { EmailService } from '../email/email.service.js';
 import { IConflict, IError, IMessage, IValidation } from '../type/index.js';
-import { formatValidationErrors, validateUUID } from '../util/index.js';
+import { formatValidationErrors, generateToken, validateUUID } from '../util/index.js';
 
 import { UserFastModel } from './_db/model/index.js';
 import { UserFastRepository } from './_db/repository/index.js';
@@ -46,11 +46,15 @@ export class UserFastService {
     const validationErrors = await this.validateDto(createUserDto);
     if (validationErrors) return validationErrors;
 
-    await this.repository.save(createUserDto);
+    const savedData = await this.repository.save(createUserDto);
 
+    const result = {
+      ...createUserDto,
+      accessToken: generateToken(savedData.id),
+    };
     return {
       message: 'User registered successfully',
-      payload: createUserDto,
+      payload: result,
     };
   }
 

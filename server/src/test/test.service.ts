@@ -81,7 +81,7 @@ export class TestService {
       }
 
       const verify = token ? verifyToken(token) : null;
-      const email = verify?.email ?? null;
+      const email = verify && 'email' in verify ? verify.email : null;
 
       const dataInfoTest = {
         email,

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 
 import { ArticleModule } from './article/article.module.js';
 import { CourseModule } from './course/course.module.js';
@@ -14,6 +14,7 @@ import { UniversityModule } from './university/university.module.js';
 import { UserModule } from './user/user.module.js';
 import { TxtModule } from './txt/txt.module.js';
 import { UserFastModule } from './user-fast/user.module.js';
+import { LoggerMiddleware } from './middlewares/logger.middleware.js';
 
 @Module({
   imports: [
@@ -33,4 +34,8 @@ import { UserFastModule } from './user-fast/user.module.js';
     StatisticsModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

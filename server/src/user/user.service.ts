@@ -25,6 +25,7 @@ import {
   VerifyEmailDto,
 } from './dto/index.js';
 import {
+  EnumRoles,
   IUserCreateDataDTO,
   IUserLoginDataDTO,
   IUserLoginResult,
@@ -101,6 +102,10 @@ export class UserService {
     const createUserDto = plainToInstance(CreateUserDto, user);
     const validationErrors = await this.validateDto(createUserDto);
     if (validationErrors) return validationErrors;
+
+    if (user.role === EnumRoles.admin) {
+      return { validation: 'Admins can not create new users' };
+    }
 
     const newUser = { ...user, password: generateHash(user.password) };
 
