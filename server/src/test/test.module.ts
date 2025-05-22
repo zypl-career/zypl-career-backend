@@ -22,8 +22,5 @@ import { UserFastRepository } from '../user-fast/_db/repository/index.js';
 export class TestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(AdminMiddleware).forRoutes('/test/export', '/test/export-info-test');
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes({ path: '/test', method: RequestMethod.POST }, '/test/get', '/test/get-test');
   }
 }
