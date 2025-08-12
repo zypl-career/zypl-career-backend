@@ -59,9 +59,10 @@ export class CreateSpecialtyDto implements ISpecialtyCreateDataDTO {
   @IsString({ message: 'specialtyDescription must be a string' })
   specialtyDescription: string;
 
-  @ApiProperty({ example: 101, description: 'The specialty code' })
+  @ApiProperty({ example: 101, description: 'The specialty code', required: false })
   @IsInt({ message: 'specialtyCode must be an integer' })
-  specialtyCode: number;
+  @IsOptional()
+  specialtyCode?: number;
 
   @ApiProperty({
     example: 'Bachelor of Computer Science',

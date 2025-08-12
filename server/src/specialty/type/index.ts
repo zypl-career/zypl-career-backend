@@ -6,7 +6,7 @@ export interface ISpecialtyCreateDataDTO {
   clusterName: string;
   clusterTag: string;
   specialtyDescription: string;
-  specialtyCode: number;
+  specialtyCode?: number | null;
   specialtyName: string;
   formOfEducation: string;
   typeOfStudy: string;

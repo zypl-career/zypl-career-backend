@@ -36,8 +36,8 @@ export class SpecialtyEntity extends BaseEntity implements SpecialtyModel {
   @Column()
   specialtyDescription: string;
 
-  @Column({ type: 'int' })
-  specialtyCode: number;
+  @Column({ type: 'int', nullable: true })
+  specialtyCode: number | null;
 
   @Column()
   specialtyName: string;
