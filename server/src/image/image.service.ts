@@ -1,14 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Storage } from '@google-cloud/storage';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ImageService {
-  private storage: Storage;
-  private bucketName: string = 'kasbiman_backets';
+  private mediaPath: string = path.join(process.cwd(), 'media', 'image');
 
   constructor() {
-    this.storage = new Storage();
+    // Ensure media directory exists
+    if (!fs.existsSync(this.mediaPath)) {
+      fs.mkdirSync(this.mediaPath, { recursive: true });
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -17,35 +20,16 @@ export class ImageService {
   async uploadImage(file: Express.Multer.File): Promise<string> {
     try {
       const filename = `${uuidv4()}-${file.originalname}`;
-      const bucket = this.storage.bucket(this.bucketName);
-      const blob = bucket.file(filename);
-      const blobStream = blob.createWriteStream({
-        resumable: false,
-        contentType: file.mimetype,
-      });
+      const filePath = path.join(this.mediaPath, filename);
 
-      blobStream.end(file.buffer);
-
-      return new Promise((resolve, reject) => {
-        blobStream.on('finish', () => {
-          const publicUrl = `${filename}`;
-          resolve(publicUrl);
-        });
-
-        blobStream.on('error', (error) => {
-          console.error(error);
-          reject(
-            new HttpException(
-              'Error uploading file to Google Cloud Storage',
-              HttpStatus.INTERNAL_SERVER_ERROR,
-            ),
-          );
-        });
-      });
+      // Write file to local storage
+      await fs.promises.writeFile(filePath, file.buffer);
+      
+      return filename;
     } catch (error) {
       console.error(error);
       throw new HttpException(
-        'Error uploading file to Google Cloud Storage',
+        'Error uploading file to local storage',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -56,20 +40,20 @@ export class ImageService {
   // ---------------------------------------------------------------------------
   async getImage(filename: string): Promise<Buffer> {
     try {
-      const bucket = this.storage.bucket(this.bucketName);
-      const file = bucket.file(filename);
+      const filePath = path.join(this.mediaPath, filename);
 
-      const [exists] = await file.exists();
-      if (!exists) {
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
         throw new HttpException('File not found', HttpStatus.NOT_FOUND);
       }
 
-      const [fileBuffer] = await file.download();
+      // Read file from local storage
+      const fileBuffer = await fs.promises.readFile(filePath);
       return fileBuffer;
     } catch (error) {
       console.error(error);
       throw new HttpException(
-        'Error retrieving file from Google Cloud Storage',
+        'Error retrieving file from local storage',
         HttpStatus.NOT_FOUND,
       );
     }

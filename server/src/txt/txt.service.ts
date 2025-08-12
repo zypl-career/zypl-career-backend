@@ -1,14 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Storage } from '@google-cloud/storage';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class TxtService {
-  private storage: Storage;
-  private bucketName: string = 'kasbiman_backets';
+  private mediaPath: string = path.join(process.cwd(), 'media', 'txt');
 
   constructor() {
-    this.storage = new Storage();
+    // Ensure media directory exists
+    if (!fs.existsSync(this.mediaPath)) {
+      fs.mkdirSync(this.mediaPath, { recursive: true });
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -17,34 +20,16 @@ export class TxtService {
   public async uploadTxt(content: string): Promise<string> {
     try {
       const filename = `file_${uuidv4()}.txt`;
-      const bucket = this.storage.bucket(this.bucketName);
-      const blob = bucket.file(filename);
-      const blobStream = blob.createWriteStream({
-        resumable: false,
-        contentType: 'text/plain',
-      });
+      const filePath = path.join(this.mediaPath, filename);
 
-      blobStream.end(content);
-
-      return new Promise((resolve, reject) => {
-        blobStream.on('finish', () => {
-          resolve(filename);
-        });
-
-        blobStream.on('error', (error) => {
-          console.error(error);
-          reject(
-            new HttpException(
-              'Error uploading TXT to Google Cloud Storage',
-              HttpStatus.INTERNAL_SERVER_ERROR,
-            ),
-          );
-        });
-      });
+      // Write file to local storage
+      await fs.promises.writeFile(filePath, content, 'utf-8');
+      
+      return filename;
     } catch (error) {
       console.error(error);
       throw new HttpException(
-        'Error uploading TXT to Google Cloud Storage',
+        'Error uploading TXT to local storage',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -55,19 +40,20 @@ export class TxtService {
   // ---------------------------------------------------------------------------
   public async getTxt(id: string): Promise<string> {
     try {
-      const bucket = this.storage.bucket(this.bucketName);
-      const file = bucket.file(id);
-      const [exists] = await file.exists();
-      if (!exists) {
+      const filePath = path.join(this.mediaPath, id);
+
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
         throw new HttpException('TXT file not found', HttpStatus.NOT_FOUND);
       }
 
-      const [content] = await file.download();
-      return content.toString('utf-8');
+      // Read file from local storage
+      const content = await fs.promises.readFile(filePath, 'utf-8');
+      return content;
     } catch (error) {
       console.error(error);
       throw new HttpException(
-        `Error retrieving TXT from Google Cloud Storage: ${error.message}`,
+        `Error retrieving TXT from local storage: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

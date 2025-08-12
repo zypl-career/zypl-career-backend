@@ -1,16 +1,19 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Storage } from '@google-cloud/storage';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { IError, IValidation } from '../type/base.js';
 
 @Injectable()
 export class PdfService {
-  private storage: Storage;
-  private bucketName: string = 'kasbiman_backets';
+  private mediaPath: string = path.join(process.cwd(), 'media', 'pdf');
 
   constructor() {
-    this.storage = new Storage();
+    // Ensure media directory exists
+    if (!fs.existsSync(this.mediaPath)) {
+      fs.mkdirSync(this.mediaPath, { recursive: true });
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -19,33 +22,17 @@ export class PdfService {
   public async uploadPdf(file: Express.Multer.File): Promise<string | IError> {
     try {
       const filename = `${uuidv4()}-${file.originalname}`;
-      const bucket = this.storage.bucket(this.bucketName);
-      const blob = bucket.file(filename);
-      const blobStream = blob.createWriteStream({
-        resumable: false,
-        contentType: file.mimetype,
-      });
+      const filePath = path.join(this.mediaPath, filename);
 
-      blobStream.end(file.buffer);
-
-      return new Promise((resolve, reject) => {
-        blobStream.on('finish', () => {
-          resolve(filename);
-        });
-
-        blobStream.on('error', (error) => {
-          console.error(error);
-          reject({
-            error: 'Error uploading PDF to Google Cloud Storage',
-          });
-        });
-      });
+      // Write file to local storage
+      await fs.promises.writeFile(filePath, file.buffer);
+      
+      return filename;
     } catch (error) {
       console.error(error);
-      throw new HttpException(
-        'Error uploading PDF to Google Cloud Storage',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      return {
+        error: 'Error uploading PDF to local storage',
+      };
     }
   }
 
@@ -54,18 +41,19 @@ export class PdfService {
   // ---------------------------------------------------------------------------
   public async getPdf(id: string): Promise<Buffer | IError | IValidation> {
     try {
-      const bucket = this.storage.bucket(this.bucketName);
-      const file = bucket.file(`${id}`);
-      const [exists] = await file.exists();
-      if (!exists) {
+      const filePath = path.join(this.mediaPath, id);
+
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
         return { error: 'PDF file not found' };
       }
 
-      const [fileBuffer] = await file.download();
+      // Read file from local storage
+      const fileBuffer = await fs.promises.readFile(filePath);
       return fileBuffer;
     } catch (error) {
       console.error(error);
-      return { error: `Error retrieving PDF from Google Cloud Storage: ${error.message}` };
+      return { error: `Error retrieving PDF from local storage: ${error.message}` };
     }
   }
 }
