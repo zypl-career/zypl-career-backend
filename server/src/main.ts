@@ -16,8 +16,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
 
-  await app.listen(3000);
-  console.log('Listening at http://localhost:3000');
+  await app.listen(3002);
+  console.log('Listening at http://localhost:3002');
 }
 
 bootstrap();
