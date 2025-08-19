@@ -4,6 +4,7 @@ import { ArticleModule } from './article/article.module.js';
 import { CourseModule } from './course/course.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { EducationalCentersModule } from './educational-center/educational-center.module.js';
+import { ImageModule } from './image/image.module.js';
 import { LessonModule } from './lesson/lesson.module.js';
 import { PartnerModule } from './partner/partner.module.js';
 import { PdfModule } from './pdf/pdf.module.js';
@@ -14,6 +15,7 @@ import { UniversityModule } from './university/university.module.js';
 import { UserModule } from './user/user.module.js';
 import { TxtModule } from './txt/txt.module.js';
 import { UserFastModule } from './user-fast/user.module.js';
+import { VideoModule } from './video/video.module.js';
 import { LoggerMiddleware } from './middlewares/logger.middleware.js';
 
 @Module({
@@ -24,6 +26,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware.js';
     ArticleModule,
     CourseModule,
     EducationalCentersModule,
+    ImageModule,
     LessonModule,
     PdfModule,
     TxtModule,
@@ -32,6 +35,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware.js';
     TestModule,
     UniversityModule,
     StatisticsModule,
+    VideoModule,
   ],
 })
 export class AppModule {

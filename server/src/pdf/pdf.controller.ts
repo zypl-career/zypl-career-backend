@@ -1,5 +1,6 @@
-import { Controller, Get, HttpException, HttpStatus, Param, Res } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, HttpException, HttpStatus, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Response } from 'express';
 
 import { IError, IValidation } from '../type/base.js';
@@ -25,6 +26,47 @@ export class PdfController {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // UPLOAD
+  // ---------------------------------------------------------------------------
+  @Post('upload')
+  @ApiOperation({ summary: 'Upload a PDF file' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'The PDF file to upload',
+    type: 'multipart/form-data',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'The filename of the uploaded PDF',
+    schema: {
+      type: 'string',
+    },
+  })
+  @ApiResponse({ status: 500, description: 'Error uploading PDF' })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadPdf(@UploadedFile() file: Express.Multer.File): Promise<string> {
+    const result = await this.pdfService.uploadPdf(file);
+    if (typeof result === 'string') {
+      return result;
+    } else if ((result as IError).error) {
+      throw new HttpException((result as IError).error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    throw new HttpException('Unknown error occurred', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  // ---------------------------------------------------------------------------
+  // GET
+  // ---------------------------------------------------------------------------
   @Get('/:id')
   @ApiOperation({
     summary: 'Retrieve and display a PDF file by ID in the browser',

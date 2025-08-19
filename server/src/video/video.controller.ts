@@ -22,8 +22,8 @@ import { Express, Response } from 'express';
 
 import { VideoService } from './video.service.js';
 
-@ApiTags('videos')
-@Controller('videos')
+@ApiTags('video')
+@Controller('video')
 export class VideoController {
   constructor(private readonly videoStorageService: VideoService) {}
 
@@ -45,7 +45,7 @@ export class VideoController {
   })
   @ApiResponse({
     status: 201,
-    description: 'The CID of the uploaded video',
+    description: 'The filename of the uploaded video',
     schema: {
       type: 'string',
     },
@@ -54,19 +54,19 @@ export class VideoController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadVideo(@UploadedFile() file: Express.Multer.File): Promise<string> {
     try {
-      const cid = await this.videoStorageService.uploadVideo(file);
-      return cid;
+      const filename = await this.videoStorageService.uploadVideo(file);
+      return filename;
     } catch (error: any) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  @Get('play/:cid')
-  @ApiOperation({ summary: 'Play a video file by CID' })
+  @Get('get/:filename')
+  @ApiOperation({ summary: 'Get a video file by filename' })
   @ApiParam({
-    name: 'cid',
+    name: 'filename',
     type: 'string',
-    description: 'The CID of the video file',
+    description: 'The filename of the video file',
   })
   @ApiResponse({
     status: 200,
@@ -81,16 +81,16 @@ export class VideoController {
     },
   })
   @ApiResponse({ status: 404, description: 'Video not found' })
-  async playVideo(@Param('cid') cid: string, @Res() res: Response): Promise<void> {
+  async getVideo(@Param('filename') filename: string, @Res() res: Response): Promise<void> {
     try {
-      const videoStream = await this.videoStorageService.getVideo(cid);
+      const videoBuffer = await this.videoStorageService.getVideo(filename);
 
       res.set({
         'Content-Type': 'video/mp4',
-        'Content-Length': videoStream.length,
+        'Content-Length': videoBuffer.length,
       });
 
-      res.end(videoStream);
+      res.end(videoBuffer);
     } catch (error: any) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
